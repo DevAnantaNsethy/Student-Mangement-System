@@ -28,14 +28,16 @@
     .logo-section {
       display: flex;
       align-items: center;
-      gap: 10px;
     }
 
     .logo-section img {
-      width: 50px;
+      width: 150px;
+      padding-left: 0px;
+      height: auto;
     }
 
     .logo-section h1 {
+      padding-right: 0px;
       font-size: 1.5rem;
     }
 
@@ -64,7 +66,7 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      background: rgba(255, 255, 255, 0.1);
+      background: #07204B;
       border-radius: 20px;
       padding: 30px;
       margin-top: 30px;
@@ -115,11 +117,13 @@
       display: flex;
       justify-content: center;
       align-items: center;
+      padding-bottom: 20px;
+      margin-bottom: 20px;
     }
 
     .right-section img {
-      width: 100%;
-      max-width: 400px;
+      width: 700px;
+      height: auto;
       clip-path: polygon(20% 0%, 100% 0%, 100% 80%, 80% 100%, 0% 100%, 0% 20%);
       border-radius: 20px;
     }
@@ -141,6 +145,155 @@
       }
     }
 
+
+.info-bar {
+  width: 100%;
+  overflow: hidden;
+  background: linear-gradient(90deg, #4f46e5, #9333ea);
+  color: white;
+  font-size: 1rem;
+  font-weight: 500;
+  white-space: nowrap;
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: 50px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+  padding-top: 10px;
+}
+
+.scroll-content {
+  display: inline-flex;
+  gap: 3rem;
+  animation: scroll-left 20s linear infinite;
+  padding-left: 100%; /* ensures smooth start */
+}
+
+.scroll-content span {
+  display: inline-block;
+  padding: 0 1rem;
+}
+
+.info-bar:hover .scroll-content {
+  animation-play-state: paused; /* Pause on hover */
+}
+
+@keyframes scroll-left {
+  from {
+    transform: translateX(0%);
+  }
+  to {
+    transform: translateX(-100%);
+  }
+}
+
+/* ---------------------
+   SMT Ticker (modern)
+   --------------------- */
+.smt-ticker {
+  position: fixed;           /* pinned at bottom */
+  left: 0;
+  right: 0;
+  bottom: 24px;              /* adjust vertical position */
+  z-index: 999;              /* above content but below any modals */
+  pointer-events: none;      /* allow clicks through except on inner elements */
+  display: flex;
+  justify-content: center;
+}
+
+/* inner wrap constrains content and receives pointer events */
+.smt-ticker__wrap {
+  pointer-events: auto;
+  width: calc(100% - 48px);  /* padding from screen edges */
+  max-width: 1300px;
+  border-radius: 40px;
+  background: linear-gradient(90deg, rgba(107,72,255,0.18), rgba(198,140,255,0.14));
+  box-shadow: 0 10px 30px rgba(3,6,23,0.45);
+  backdrop-filter: blur(8px);
+  padding: 12px 24px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  border: 1px solid rgba(255,255,255,0.06);
+}
+
+/* track - will be duplicated for seamless loop by JS */
+.smt-ticker__track {
+  display: inline-flex;
+  gap: 36px;
+  align-items: center;
+  white-space: nowrap;
+  will-change: transform;
+  /* animation is created/controlled by JS (duration variable) */
+  animation-name: smt-scroll;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  animation-duration: var(--smt-duration, 18s);
+}
+
+/* each item */
+.smt-item {
+  display: inline-block;
+  font-weight: 600;
+  color: #ffffff;
+  font-size: 1.05rem;
+  padding: 6px 0;
+  letter-spacing: 0.2px;
+  opacity: 0.98;
+}
+
+/* subtle separators (use CSS pseudo-element so HTML stays clean) */
+.smt-item + .smt-item::before {
+  content: "•";
+  color: rgba(255,255,255,0.5);
+  margin-right: 20px;
+  margin-left: -20px;
+  font-weight: 700;
+}
+
+/* pause button (optional) */
+.smt-ticker__btn {
+  pointer-events: auto;
+  background: rgba(255,255,255,0.06);
+  color: #fff;
+  border: 0;
+  border-radius: 12px;
+  padding: 8px 10px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  box-shadow: 0 3px 12px rgba(0,0,0,0.3);
+  transition: transform .12s ease, background .15s ease;
+}
+.smt-ticker__btn:hover { transform: translateY(-2px); background: rgba(255,255,255,0.09); }
+
+/* animation keyframes: translate by -50% (since we'll duplicate content for smooth loop) */
+@keyframes smt-scroll {
+  from { transform: translate3d(0,0,0); }
+  to   { transform: translate3d(-50%,0,0); }
+}
+
+/* pause on hover or focus (accessibility) */
+.smt-ticker__wrap:hover .smt-ticker__track,
+.smt-ticker__wrap:focus-within .smt-ticker__track,
+.smt-ticker__btn[aria-pressed="true"] ~ .smt-ticker__wrap .smt-ticker__track {
+  animation-play-state: paused !important;
+}
+
+/* responsive sizes */
+@media (max-width: 900px) {
+  .smt-item { font-size: 0.95rem; gap: 18px; }
+  .smt-ticker__wrap { padding: 10px 14px; border-radius: 28px; }
+  .smt-ticker__btn { padding: 6px 8px; font-size: 0.85rem; }
+}
+
+/* respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .smt-ticker__track { animation: none !important; }
+}
+/*---------------------------------------------------
+  Login Page Styles
+---------------------------------------------------*/
 /* login.css */
 
 /* Entire page wrapper to avoid affecting other pages */
@@ -210,7 +363,7 @@
 }
 
 .login-right img {
-  max-width: 80%;
+  max-width: 100%;
   height: auto;
 }
 
@@ -224,5 +377,147 @@
 
   .login-title {
     font-size: 3rem;
+  }
+}
+
+/* Page Wrapper */
+.stu-login-page {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #0f172a, #1e3a8a);
+  padding: 20px;
+}
+
+/* Main Container */
+.stu-login-container {
+  display: flex;
+  max-width: 1000px;
+  width: 100%;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(12px);
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+}
+
+/* Left Side (Form) */
+.stu-login-left {
+  flex: 1;
+  padding: 50px 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.stu-login-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: white;
+  margin-bottom: 10px;
+}
+
+.subtitle {
+  font-size: 1rem;
+  color: #cbd5e1;
+  margin-bottom: 30px;
+}
+
+/* Form Elements */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 20px;
+}
+
+label {
+  font-size: 0.9rem;
+  color: #e2e8f0;
+  margin-bottom: 6px;
+}
+
+input {
+  padding: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  font-size: 1rem;
+  outline: none;
+  transition: border 0.2s ease, background 0.2s ease;
+}
+
+input:focus {
+  border-color: #8b5cf6;
+  background: rgba(255, 255, 255, 0.15);
+}
+
+/* Login Button */
+.login-btn {
+  width: 100%;
+  background: linear-gradient(to right, #8b5cf6, #c084fc);
+  border: none;
+  padding: 14px;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 600;
+  color: white;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.3s ease;
+}
+
+.login-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(139, 92, 246, 0.5);
+}
+
+/* Bottom Link */
+.alt-link {
+  text-align: center;
+  margin-top: 15px;
+  font-size: 0.9rem;
+  color: #cbd5e1;
+}
+
+.alt-link a {
+  color: #a78bfa;
+  text-decoration: none;
+}
+
+.alt-link a:hover {
+  text-decoration: underline;
+}
+
+/* Right Side (Illustration) */
+.stu-login-right {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.stu-login-right img {
+  max-width: 100%;
+  height: auto;
+  object-fit: contain;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .stu-login-container {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .stu-login-left {
+    padding: 30px 20px;
+  }
+
+  .stu-login-right img {
+    max-width: 70%;
+    margin: 20px auto;
   }
 }
