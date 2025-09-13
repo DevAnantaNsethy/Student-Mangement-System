@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Student Login</title>
+    <link rel="stylesheet" href="stu_login.css" />
+    <link
+      rel="stylesheet"
+      href="./style.css"
+    />
+  </head>
+  <body>
+    <div class="stu-login-page">
+      <div class="stu-login-container">
+        <!-- Left Side (Login Form) -->
+        <div class="stu-login-left">
+          <h1 class="stu-login-title">Student Login</h1>
+          <p class="subtitle">Welcome back! Please log in to continue.</p>
+
+          <form>
+            <div class="form-group">
+              <label for="email">Email</label>
+              <input type="email" id="email" placeholder="Enter your email" required />
+            </div>
+
+            <div class="form-group">
+              <label for="password">Password</label>
+              <input
+                type="password"
+                id="password"
+                placeholder="Enter your password"
+                required
+              />
+            </div>
+
+            <button type="submit" class="login-btn">Login</button>
+            <p class="alt-link">
+              Don't have an account? <a href="./register.html">Sign up</a>
+            </p>
+          </form>
+        </div>
+
+        <!-- Right Side (Illustration) -->
+        <div class="stu-login-right">
+          <img src="./img/student_login_illustration.png" alt="Student Login Illustration" />
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
