@@ -363,12 +363,13 @@
 }
 
 .login-right img {
-  max-width: 200%;
+  
+  max-width: 200;
   height: auto;
 }
 
 /* Responsive */
-@media (max-width: 900px) {
+@media (max-width: 300px) {
   .login-container {
     flex-direction: column;
     text-align: center;
@@ -521,3 +522,453 @@ input:focus {
     margin: 20px auto;
   }
 }
+
+/* login page6 */
+/* ================================
+   Student Signup Page
+=================================== */
+.signup-wrapper {
+  display: flex;
+  height: 100vh;
+  width: 100%;
+  background: #0f172a; /* deep navy to match login/index */
+}
+
+/* Left Panel */
+.signup-left {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px;
+}
+
+.form-container {
+  width: 100%;
+  max-width: 420px;
+  background: rgba(30, 41, 59, 0.9); /* dark glassy look */
+  padding: 30px;
+  border-radius: 20px; /* CURVED EDGES ADDED */
+  backdrop-filter: blur(8px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+  transition: transform 0.3s ease;
+}
+
+.form-container:hover {
+  transform: translateY(-4px);
+}
+
+.form-container h1 {
+  font-size: 2.2rem;
+  color: #fff;
+  margin-bottom: 10px;
+}
+
+.form-container .subtitle {
+  font-size: 0.95rem;
+  color: #d1d5db;
+  margin-bottom: 25px;
+}
+
+/* Form Inputs */
+.form-group {
+  margin-bottom: 16px;
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group label {
+  color: #e5e7eb;
+  font-weight: 500;
+  margin-bottom: 6px;
+}
+
+.form-group input {
+  padding: 12px 14px;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  background: rgba(255, 255, 255, 0.85);
+  transition: all 0.3s ease;
+}
+
+.form-group input:focus {
+  background: #fff;
+  box-shadow: 0 0 8px rgba(139, 92, 246, 0.6);
+  outline: none;
+}
+
+/* Signup Button */
+.signup-btn {
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 30px;
+  background: linear-gradient(to right, #8b5cf6, #c084fc);
+  color: #fff;
+  font-size: 1.1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: transform 0.2s ease, background 0.3s ease;
+  margin-top: 10px;
+}
+
+.signup-btn:hover {
+  transform: scale(1.03);
+  background: linear-gradient(to right, #7c3aed, #a855f7);
+}
+
+/* Alternate Link */
+.alt-link {
+  margin-top: 15px;
+  font-size: 0.95rem;
+  color: #e5e7eb;
+  text-align: center;
+}
+
+.alt-link a {
+  color: #c084fc;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.alt-link a:hover {
+  text-decoration: underline;
+}
+
+/* Right Panel */
+.signup-right {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #1e293b;
+}
+
+/* Right Panel */
+.signup-right {
+  flex: 1;
+  display: flex;
+  justify-content: flex-end; /* push image to the right */
+  align-items: flex-start; /* align to top, so we can control spacing manually */
+  background: #1e293b;
+  padding-right: 40px; /* space from right */
+  padding-top: 310px; /* <-- moves it down a bit */
+}
+
+.signup-right img {
+  width: 90%;
+  max-width: 500px;
+  height: auto;
+  object-fit: contain;
+}
+
+
+/* Responsive */
+@media (max-width: 900px) {
+  .signup-wrapper {
+    flex-direction: column;
+  }
+
+  .signup-right {
+    display: none; /* hide image on smaller screens */
+  }
+
+  .signup-left {
+    flex: none;
+    width: 100%;
+    padding: 20px;
+  }
+
+  .form-container {
+    max-width: 95%;
+    border-radius: 16px;
+  }
+}
+/* this is for student login portal */
+/* RESET */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Segoe UI", sans-serif;
+}
+
+/* BODY - full background */
+body {
+  background: linear-gradient(135deg, #0b1228, #0a1a3b);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  color: white;
+}
+
+/* MAIN WRAPPER */
+.container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #0d1b3d;
+  border-radius: 20px;
+  padding: 40px;
+  width: 90%;
+  max-width: 1100px;
+  box-shadow: 0px 4px 20px rgba(0,0,0,0.5);
+}
+
+/* LEFT SECTION (LOGIN FORM) */
+.login-left {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.login-left h1 {
+  font-size: 2rem;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.login-left p {
+  font-size: 1rem;
+  color: #d1d5db;
+  margin-bottom: 20px;
+}
+
+.login-left input {
+  width: 100%;
+  max-width: 350px;
+  margin-bottom: 15px;
+  padding: 12px 15px;
+  border-radius: 25px;
+  border: 1px solid #334155;
+  background: rgba(255, 255, 255, 0.05);
+  color: white;
+}
+
+.login-left input:focus {
+  border-color: #3b82f6;
+  outline: none;
+}
+
+.forgot {
+  font-size: 0.85rem;
+  color: #93c5fd;
+  margin-bottom: 20px;
+  display: inline-block;
+}
+
+.login-btn {
+  width: 100%;
+  max-width: 350px;
+  padding: 12px 0;
+  border: none;
+  border-radius: 25px;
+  background: #3b82f6;
+  color: white;
+  font-weight: bold;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.login-btn:hover {
+  background: #2563eb;
+}
+
+/* RIGHT SECTION (WELCOME) */
+.login-right {
+  flex: 1;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.welcome-text h1 {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #60a5fa;
+}
+
+.welcome-text h2 {
+  font-size: 1.8rem;
+  margin-bottom: 10px;
+}
+
+.welcome-text p {
+  color: #d1d5db;
+  margin-bottom: 20px;
+}
+
+.login-right img {
+  max-width: 80%;
+  object-fit: contain;
+  margin-top: 10px;
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  .container {
+    flex-direction: column;
+    text-align: center;
+    padding: 30px;
+  }
+
+  .login-left input,
+  .login-btn {
+    max-width: 100%;
+  }
+
+  .login-right img {
+    max-width: 60%;
+    margin-top: 20px;
+  }
+}
+
+/* admin login  */
+/* RESET */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Segoe UI", sans-serif;
+}
+
+/* BODY - full background */
+body {
+  background: linear-gradient(135deg, #0b1228, #0a1a3b);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  color: white;
+}
+
+/* MAIN WRAPPER */
+.container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #0d1b3d;
+  border-radius: 20px;
+  padding: 40px;
+  width: 90%;
+  max-width: 1100px;
+  box-shadow: 0px 4px 20px rgba(0,0,0,0.5);
+}
+
+/* LEFT SECTION (ADMIN LOGIN FORM) */
+.login-left {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.login-left h1 {
+  font-size: 2.2rem;
+  font-weight: bold;
+  margin-bottom: 10px;
+  color: #facc15; /* Yellow accent to differentiate Admin */
+}
+
+.login-left p {
+  font-size: 1rem;
+  color: #d1d5db;
+  margin-bottom: 20px;
+}
+
+.login-left input {
+  width: 100%;
+  max-width: 350px;
+  margin-bottom: 15px;
+  padding: 12px 15px;
+  border-radius: 25px;
+  border: 1px solid #334155;
+  background: rgba(255, 255, 255, 0.05);
+  color: white;
+}
+
+.login-left input:focus {
+  border-color: #facc15; /* Yellow border focus */
+  outline: none;
+}
+
+.forgot {
+  font-size: 0.85rem;
+  color: #fde047;
+  margin-bottom: 20px;
+  display: inline-block;
+}
+
+.login-btn {
+  width: 100%;
+  max-width: 350px;
+  padding: 12px 0;
+  border: none;
+  border-radius: 25px;
+  background: #facc15;
+  color: #0b1228;
+  font-weight: bold;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.login-btn:hover {
+  background: #eab308;
+}
+
+/* RIGHT SECTION (WELCOME) */
+.login-right {
+  flex: 1;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.welcome-text h1 {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #facc15;
+}
+
+.welcome-text h2 {
+  font-size: 1.8rem;
+  margin-bottom: 10px;
+}
+
+.welcome-text p {
+  color: #d1d5db;
+  margin-bottom: 20px;
+}
+
+.login-right img {
+  max-width: 80%;
+  object-fit: contain;
+  margin-top: 10px;
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  .container {
+    flex-direction: column;
+    text-align: center;
+    padding: 30px;
+  }
+
+  .login-left input,
+  .login-btn {
+    max-width: 100%;
+  }
+
+  .login-right img {
+    max-width: 60%;
+    margin-top: 20px;
+  }
+}
+
