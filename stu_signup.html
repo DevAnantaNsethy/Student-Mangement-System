@@ -18,39 +18,66 @@
           <h1>Create Your Account</h1>
           <p class="subtitle">Join us and access your student portal instantly.</p>
 
-          <form>
-            <div class="form-group">
-              <label for="name">Full Name</label>
-              <input type="text" id="name" placeholder="Enter your name" required />
-            </div>
+         <form id="signupForm" method="post">
+  <div class="form-group">
+    <label for="name">Full Name</label>
+    <input type="text" id="name" name="name" placeholder="Enter your name" required />
+  </div>
 
-            <div class="form-group">
-              <label for="email">Email</label>
-              <input type="email" id="email" placeholder="Enter your email" required />
-            </div>
+  <div class="form-group">
+    <label for="email">Email</label>
+    <input type="email" id="email" name="email" placeholder="Enter your email" required />
+  </div>
 
-            <div class="form-group">
-              <label for="password">Password</label>
-              <input type="password" id="password" placeholder="Enter your password" required />
-            </div>
+  <div class="form-group">
+    <label for="password">Password</label>
+    <input type="password" id="password" name="password" placeholder="Enter your password" required />
+  </div>
 
-            <div class="form-group">
-              <label for="confirm-password">Confirm Password</label>
-              <input type="password" id="confirm-password" placeholder="Re-enter password" required />
-            </div>
+  <div class="form-group">
+    <label for="confirm-password">Confirm Password</label>
+    <input type="password" id="confirm-password" name="confirm_password" placeholder="Re-enter password" required />
+  </div>
 
-            <button type="submit" class="signup-btn">Sign Up</button>
+  <button type="submit" class="signup-btn">Sign Up</button>
+</form>
+<script>
+document.getElementById("signupForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
 
-            <p class="alt-link">
-              Already have an account? <a href="./stu_login.html">Log in</a>
-            </p>
-          </form>
+  const form = e.target;
+  const formData = new FormData(form);
+
+  try {
+    const res = await fetch("../STUDENT-INFO-API/api/register.php", {
+      method: "POST",
+      body: formData
+    });
+
+    const data = await res.json();
+
+    if (data.success) {
+      alert("Signup successful! Please login.");
+      window.location.href = "stu_login.html";
+    } else {
+      alert(data.message || "Signup failed");
+    }
+  } catch (err) {
+    console.error(err);
+    alert("Server error");
+  }
+});
+</script>
+</body>
+</html>
+
+
         </div>
       </div>
 
       <!-- Right Panel (Full Height Image) -->
       <div class="signup-right">
-        <img src="./img/create a account.png alt="Student Signup Illustration"  />
+        <img src="./img/create a account.png" alt="Student Signup Illustration"  />
       </div>
     </div>
   </body>
