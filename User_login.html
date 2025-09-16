@@ -1,32 +1,43 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Login</title>
-    <link rel="stylesheet" href="style.css" />
-  </head>
-  <body>
-    <div class="login-page">
-      <div class="login-container">
-        <!-- Left Side (Login text + buttons) -->
-        <div class="login-left">
-          <h1 class="login-title">Login</h1>
-<a href="./stu_login.html">
-          <button class="login-btn student"> <span class="icon">👤</span> Student login
-          </button>
-          </a>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login Page</title>
+  <link rel="stylesheet" href="userlogin.css" />
+</head>
+<body>
+  <div class="container">
+    <!-- Left Section: Login Form -->
+    <div class="login-left">
+      <h1>Welcome Back!</h1>
+      <p>Log in to access your dashboard and manage your account easily.</p>
 
+      <div class="login-buttons">
+        <a href="./stu_login.html">
+          <button class="login-btn student">
+            <span class="icon">👤</span> Student Login
+          </button>
+        </a>
+
+        <a href="./admin_login.html">
           <button class="login-btn admin">
-            <span class="icon">👤</span> Admin login
+            <span class="icon">🛠️</span> Admin Login
           </button>
-        </div>
-
-        <!-- Right Side (Illustration) -->
-        <div class="login-right">
-          <img src="./img/login_img.png" alt="Login Illustration" />
-        </div>
+        </a>
       </div>
+
+      <p class="forgot">Forgot your password? <a href="./forgotpass.html">Click here</a></p>
     </div>
-  </body>
+
+    <!-- Right Section: Illustration & Welcome -->
+    <div class="login-right">
+      <div class="welcome-text">
+        <h2>Secure and Fast Login</h2>
+        <p>Access your personalized dashboard, manage courses, and monitor progress in a few clicks.</p>
+      </div>
+      <img src="./img/login_img.png" alt="Login Illustration" />
+    </div>
+  </div>
+</body>
 </html>

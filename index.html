@@ -3,76 +3,171 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="style.css">
-  <title>Student Management System</title>
-  <style>
-    
-  </style>
+  <title>Roland Institute of Technology</title>
+  <link rel="stylesheet" href="index.css">
 </head>
 <body>
 
-  <!-- Header -->
+  <!-- HEADER / NAV -->
   <header class="header">
     <div class="logo-section">
-      <img src="./img/rit logo.png" alt="Logo">
-      <div>
+      <img src="./img/rit logo.png" alt="RIT Logo">
+      <div class="logo-text">
         <h1>Roland Institute Of Technology</h1>
-        <p style="font-size: 0.8rem;">Est. 2002 | ISO 9001:2015 Certified Institution</p>
+        <p>Est. 2002 | ISO 9001:2015 Certified</p>
       </div>
     </div>
-
+    <nav class="nav-links">
+      <a href="#about">About</a>
+      <a href="#departments">Departments</a>
+      <a href="#courses">Courses</a>
+      <a href="#facilities">Facilities</a>
+      <a href="#contact">Contact</a>
+    </nav>
     <div class="header-buttons">
-      <a href="./User_login.html"><button >Login</button></a>
-      <a href="./register.html"><button  style="background: linear-gradient(to right, #9b6eff, #c68cff);">Register</button></a>
+      <a href="./User_login.html" class="btn-login">Login</a>
+      <a href="./register.html" class="btn-register">Register</a>
     </div>
   </header>
 
-  <!-- Main Section -->
-  <section class="container">
-    <div class="left-section">
-      <h2>Message from the Principal</h2>
-      <h3>Welcome to Roland Institute of Technology, where innovation, excellence, and integrity converge to shape the future of engineering and technology.
-</h3>
-      <p>
-        
-At our institution, we nurture talent and creativity by providing a dynamic learning environment that connects theory with practice. With dedicated faculty, modern facilities, and an industry-aligned curriculum, we empower students to develop critical thinking, problem-solving, and leadership skills.
-
-Engineering goes beyond building solutions—it drives positive societal change. We equip students with technical expertise, responsibility, ethics, and adaptability to succeed in a fast-changing world.
-
-Explore the opportunities we offer, from research projects and hands-on training to extracurricular activities and community engagement. Let’s shape a brighter, sustainable, and inclusive future together.
-      </p>
-      <div class="principal-card">
-        Prof. Gunamani Jena <br>
-        <span style="font-size: 0.8rem;">Principal, Roland Institute of Technology</span>
-      </div>
+  <!-- HERO SECTION -->
+  <section class="hero" id="home">
+    <div class="hero-text">
+      <h1>Welcome to Roland Institute of Technology</h1>
+      <p>Empowering the future of engineering through innovation, excellence, and integrity. Join us to unlock your potential and shape a brighter world.</p>
+      <a href="#about" class="btn-hero">Explore More</a>
     </div>
-
-    <div class="right-section">
+    <div class="hero-image">
       <img src="./img/clg img.png" alt="College Building">
     </div>
   </section>
 
+  <!-- ABOUT SECTION -->
+  <section class="section" id="about">
+    <h2>About RIT</h2>
+    <div class="cards">
+      <!-- Card 1 -->
+      <label class="card">
+        <input type="checkbox">
+        <h3>Our Mission</h3>
+        <p>To provide high-quality technical education, foster innovation, and develop future leaders in engineering and technology.</p>
+        <div class="card-popup">
+          <div class="card-popup-content">
+            <span class="close" onclick="this.parentElement.parentElement.previousElementSibling.checked=false;">×</span>
+            <h3>Our Mission</h3>
+            <p>At Roland Institute of Technology, we aim to nurture students' technical expertise and innovative thinking to prepare them for a competitive global environment.</p>
+          </div>
+        </div>
+      </label>
 
+      <!-- Card 2 -->
+      <label class="card">
+        <input type="checkbox">
+        <h3>Principal's Message</h3>
+        <p>We nurture talent and creativity by providing a dynamic learning environment that connects theory with practice. - Prof. Gunamani Jena</p>
+        <div class="card-popup">
+          <div class="card-popup-content">
+            <span class="close" onclick="this.parentElement.parentElement.previousElementSibling.checked=false;">×</span>
+            <h3>Principal's Message</h3>
+            <p>We focus on holistic development, blending academics, research, and practical exposure to produce industry-ready graduates with leadership qualities.</p>
+          </div>
+        </div>
+      </label>
 
-  <section class="ticket-wrapper">
-    
-<!-- SMT: Professional Full-Width Ticker (place right after the main section) -->
-<div class="smt-ticker" role="region" aria-label="Announcements">
-  <div class="smt-ticker__wrap">
-    <div class="smt-ticker__track" aria-hidden="false">
-      <!-- Items will be injected by JS OR you may put static items here -->
-      <span class="smt-item">🚀 Industry-Aligned Curriculum</span>
-      <span class="smt-item">🏆 100% Placement Support</span>
-      <span class="smt-item">💡 Innovative Research Projects</span>
-      <span class="smt-item">📚 Expert Faculty & Mentorship</span>
-      <span class="smt-item">🌎 Global Collaboration Opportunities</span>
-      <span class="smt-item">🎯 Career-Focused Training Programs</span>
+      <!-- Card 3 -->
+      <label class="card">
+        <input type="checkbox">
+        <h3>Our Vision</h3>
+        <p>To be a leading engineering institution, known for excellence, innovation, and societal contribution.</p>
+        <div class="card-popup">
+          <div class="card-popup-content">
+            <span class="close" onclick="this.parentElement.parentElement.previousElementSibling.checked=false;">×</span>
+            <h3>Our Vision</h3>
+            <p>We aspire to lead in technological education, research, and innovation, contributing meaningfully to society and the engineering community.</p>
+          </div>
+        </div>
+      </label>
     </div>
-    <!-- duplicated track is created by JS for seamless loop (or you can keep a second identical block) -->
-  </div>
   </section>
 
-  
+  <!-- DEPARTMENTS SECTION -->
+  <section class="section" id="departments">
+    <h2>Departments</h2>
+    <div class="cards">
+      <label class="card">
+        <input type="checkbox">
+        Computer Science & Engineering
+        <div class="card-popup">
+          <div class="card-popup-content">
+            <span class="close" onclick="this.parentElement.parentElement.previousElementSibling.checked=false;">×</span>
+            <h3>Computer Science & Engineering</h3>
+            <p>Offering courses in AI, ML, Cybersecurity, and Software Engineering with advanced labs and research opportunities.</p>
+          </div>
+        </div>
+      </label>
+
+      <label class="card">
+        <input type="checkbox">
+        Electronics & Communication
+        <div class="card-popup">
+          <div class="card-popup-content">
+            <span class="close" onclick="this.parentElement.parentElement.previousElementSibling.checked=false;">×</span>
+            <h3>Electronics & Communication</h3>
+            <p>Focuses on embedded systems, VLSI design, and communication technologies with hands-on lab experience.</p>
+          </div>
+        </div>
+      </label>
+
+      <label class="card">
+        <input type="checkbox">
+        Mechanical Engineering
+        <div class="card-popup">
+          <div class="card-popup-content">
+            <span class="close" onclick="this.parentElement.parentElement.previousElementSibling.checked=false;">×</span>
+            <h3>Mechanical Engineering</h3>
+            <p>Equipped with workshops and labs for CAD, robotics, and manufacturing processes for practical learning.</p>
+          </div>
+        </div>
+      </label>
+
+      <label class="card">
+        <input type="checkbox">
+        Civil Engineering
+        <div class="card-popup">
+          <div class="card-popup-content">
+            <span class="close" onclick="this.parentElement.parentElement.previousElementSibling.checked=false;">×</span>
+            <h3>Civil Engineering</h3>
+            <p>Emphasizes structural design, construction management, and sustainable development projects.</p>
+          </div>
+        </div>
+      </label>
+    </div>
+  </section>
+
+  <!-- INFO TICKER -->
+  <div class="smt-ticker">
+    <div class="smt-ticker__wrap">
+      <div class="smt-ticker__track">
+        <span class="smt-item">🚀 Industry-Aligned Curriculum</span>
+        <span class="smt-item">🏆 100% Placement Support</span>
+        <span class="smt-item">💡 Innovative Research Projects</span>
+        <span class="smt-item">📚 Expert Faculty & Mentorship</span>
+        <span class="smt-item">🌎 Global Collaboration Opportunities</span>
+        <span class="smt-item">🎯 Career-Focused Training Programs</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <h3>Roland Institute of Technology</h3>
+    <p>&copy; 2025 All Rights Reserved.</p>
+    <div class="social-links">
+      <a href="#">Facebook</a>
+      <a href="#">Twitter</a>
+      <a href="#">LinkedIn</a>
+    </div>
+  </footer>
 
 </body>
 </html>

@@ -4,53 +4,41 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Student Signup</title>
-    <link rel="stylesheet" href="./style.css" />
+    <link rel="stylesheet" href="./studentsignup.css" />
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
     />
   </head>
   <body>
-    <div class="signup-wrapper">
-      <!-- Left Panel -->
-      <div class="signup-left">
-        <div class="form-container">
-          <h1>Create Your Account</h1>
-          <p class="subtitle">Join us and access your student portal instantly.</p>
+    <div class="container">
+      <!-- Left Section (Signup Form) -->
+      <div class="login-left">
+        <h1>Create Your Account</h1>
+        <p class="subtitle">Join us and access your student portal instantly.</p>
 
-          <form>
-            <div class="form-group">
-              <label for="name">Full Name</label>
-              <input type="text" id="name" placeholder="Enter your name" required />
-            </div>
+        <form>
+          <input type="text" id="name" placeholder="Full Name" required />
+          <input type="email" id="email" placeholder="Email" required />
+          <input type="password" id="password" placeholder="Password" required />
+          <input type="password" id="confirm-password" placeholder="Confirm Password" required />
 
-            <div class="form-group">
-              <label for="email">Email</label>
-              <input type="email" id="email" placeholder="Enter your email" required />
-            </div>
+          <button type="submit" class="login-btn">Sign Up</button>
 
-            <div class="form-group">
-              <label for="password">Password</label>
-              <input type="password" id="password" placeholder="Enter your password" required />
-            </div>
-
-            <div class="form-group">
-              <label for="confirm-password">Confirm Password</label>
-              <input type="password" id="confirm-password" placeholder="Re-enter password" required />
-            </div>
-
-            <button type="submit" class="signup-btn">Sign Up</button>
-
-            <p class="alt-link">
-              Already have an account? <a href="./stu_login.html">Log in</a>
-            </p>
-          </form>
-        </div>
+          <p class="alt-link">
+            Already have an account? <a href="./stu_login.html">Log in</a>
+          </p>
+        </form>
       </div>
 
-      <!-- Right Panel (Full Height Image) -->
-      <div class="signup-right">
-        <img src="./img/create a account.png" alt="Student Signup Illustration"  />
+      <!-- Right Section (Illustration) -->
+      <div class="login-right">
+        <div class="welcome-text">
+          <h1>Welcome!</h1>
+          <h2>Join Our Portal</h2>
+          <p>Access exclusive student resources by creating an account.</p>
+        </div>
+        <img src="./img/create a account.png" alt="Student Signup Illustration" />
       </div>
     </div>
   </body>

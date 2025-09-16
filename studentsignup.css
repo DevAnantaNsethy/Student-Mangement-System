@@ -1,0 +1,130 @@
+/* General Reset */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+  background: #0f1c3f;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+/* Main container */
+.container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 90%;
+  max-width: 1100px;
+  background: #101c3d;
+  border-radius: 15px;
+  padding: 40px;
+  box-shadow: 0px 8px 25px rgba(0, 0, 0, 0.4);
+}
+
+/* Left Section */
+.login-left {
+  flex: 1;
+  background: rgba(0, 0, 0, 0.4);
+  padding: 30px;
+  border-radius: 15px;
+  margin-right: 30px;
+}
+
+.login-left h1 {
+  color: #fff;
+  margin-bottom: 10px;
+  font-size: 28px;
+}
+
+.login-left .subtitle {
+  color: #c9c9c9;
+  margin-bottom: 25px;
+  font-size: 15px;
+}
+
+.login-left input {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 15px;
+  border: none;
+  border-radius: 8px;
+  background: #2c3554;
+  color: #fff;
+  font-size: 14px;
+}
+
+.login-left input::placeholder {
+  color: #b3b3b3;
+}
+
+.login-btn {
+  width: 100%;
+  padding: 12px;
+  background: linear-gradient(135deg, #7b61ff, #b66dff);
+  border: none;
+  border-radius: 25px;
+  font-size: 16px;
+  font-weight: bold;
+  color: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.login-btn:hover {
+  opacity: 0.9;
+}
+
+.alt-link {
+  margin-top: 15px;
+  text-align: center;
+  color: #ccc;
+}
+
+.alt-link a {
+  color: #7b61ff;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.alt-link a:hover {
+  text-decoration: underline;
+}
+
+/* Right Section */
+.login-right {
+  flex: 1;
+  text-align: center;
+  padding: 20px;
+}
+
+.login-right .welcome-text {
+  margin-bottom: 20px;
+}
+
+.login-right h1 {
+  color: #fff;
+  font-size: 28px;
+}
+
+.login-right h2 {
+  color: #b66dff;
+  font-size: 22px;
+  margin-top: 10px;
+}
+
+.login-right p {
+  color: #ddd;
+  margin-top: 10px;
+  font-size: 14px;
+}
+
+.login-right img {
+  max-width: 100%;
+  height: auto;
+}
