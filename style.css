@@ -363,12 +363,13 @@
 }
 
 .login-right img {
-  max-width: 200%;
+  
+  max-width: 200;
   height: auto;
 }
 
 /* Responsive */
-@media (max-width: 900px) {
+@media (max-width: 300px) {
   .login-container {
     flex-direction: column;
     text-align: center;

@@ -4,13 +4,18 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Student Signup</title>
+<<<<<<< HEAD
     <link rel="stylesheet" href="./style.css" />
+=======
+    <link rel="stylesheet" href="./studentsignup.css" />
+>>>>>>> d29ce8dcfbcb6b74b6aa5354739f65bdccf3bf4a
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
     />
   </head>
   <body>
+<<<<<<< HEAD
     <div class="signup-wrapper">
       <!-- Left Panel -->
       <div class="signup-left">
@@ -51,6 +56,94 @@
       <!-- Right Panel (Full Height Image) -->
       <div class="signup-right">
         <img src="./img/create a account.png" alt="Student Signup Illustration"  />
+=======
+    <div class="container">
+      <!-- Left Section (Signup Form) -->
+      <div class="login-left">
+        <h1>Create Your Account</h1>
+        <p class="subtitle">Join us and access your student portal instantly.</p>
+
+<<<<<<< HEAD
+        <form>
+          <input type="text" id="name" placeholder="Full Name" required />
+          <input type="email" id="email" placeholder="Email" required />
+          <input type="password" id="password" placeholder="Password" required />
+          <input type="password" id="confirm-password" placeholder="Confirm Password" required />
+
+          <button type="submit" class="login-btn">Sign Up</button>
+
+          <p class="alt-link">
+            Already have an account? <a href="./stu_login.html">Log in</a>
+          </p>
+        </form>
+=======
+         <form id="signupForm" method="post">
+  <div class="form-group">
+    <label for="name">Full Name</label>
+    <input type="text" id="name" name="name" placeholder="Enter your name" required />
+  </div>
+
+  <div class="form-group">
+    <label for="email">Email</label>
+    <input type="email" id="email" name="email" placeholder="Enter your email" required />
+  </div>
+
+  <div class="form-group">
+    <label for="password">Password</label>
+    <input type="password" id="password" name="password" placeholder="Enter your password" required />
+  </div>
+
+  <div class="form-group">
+    <label for="confirm-password">Confirm Password</label>
+    <input type="password" id="confirm-password" name="confirm_password" placeholder="Re-enter password" required />
+  </div>
+
+  <button type="submit" class="signup-btn">Sign Up</button>
+</form>
+<script>
+document.getElementById("signupForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const form = e.target;
+  const formData = new FormData(form);
+
+  try {
+    const res = await fetch("../STUDENT-INFO-API/api/register.php", {
+      method: "POST",
+      body: formData
+    });
+
+    const data = await res.json();
+
+    if (data.success) {
+      alert("Signup successful! Please login.");
+      window.location.href = "stu_login.html";
+    } else {
+      alert(data.message || "Signup failed");
+    }
+  } catch (err) {
+    console.error(err);
+    alert("Server error");
+  }
+});
+</script>
+</body>
+</html>
+
+
+        </div>
+>>>>>>> ff11215c98e1847b40d1d55f3fcaac2569de6e61
+      </div>
+
+      <!-- Right Section (Illustration) -->
+      <div class="login-right">
+        <div class="welcome-text">
+          <h1>Welcome!</h1>
+          <h2>Join Our Portal</h2>
+          <p>Access exclusive student resources by creating an account.</p>
+        </div>
+        <img src="./img/create a account.png" alt="Student Signup Illustration" />
+>>>>>>> d29ce8dcfbcb6b74b6aa5354739f65bdccf3bf4a
       </div>
     </div>
   </body>
