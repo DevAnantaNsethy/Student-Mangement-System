@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Verification - Student Management System</title>
+    <link rel="stylesheet" href="otp-verification.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Left Section (OTP Form) -->
+        <div class="otp-left">
+            <div class="verification-icon">
+                <i class="fas fa-envelope-open-text"></i>
+            </div>
+            
+            <h1>Verify Your Email</h1>
+            <p class="subtitle">We've sent a 6-digit verification code to</p>
+            <p class="email-display" id="emailDisplay">your-email@example.com</p>
+            
+            <form id="otpForm">
+                <div class="otp-input-container">
+                    <input type="text" id="otp1" maxlength="1" class="otp-digit" required>
+                    <input type="text" id="otp2" maxlength="1" class="otp-digit" required>
+                    <input type="text" id="otp3" maxlength="1" class="otp-digit" required>
+                    <input type="text" id="otp4" maxlength="1" class="otp-digit" required>
+                    <input type="text" id="otp5" maxlength="1" class="otp-digit" required>
+                    <input type="text" id="otp6" maxlength="1" class="otp-digit" required>
+                </div>
+                
+                <div class="error-message" id="errorMessage"></div>
+                <div class="success-message" id="successMessage"></div>
+                
+                <button type="submit" class="verify-btn" id="verifyBtn">
+                    <span class="btn-text">Verify Email</span>
+                    <i class="fas fa-spinner fa-spin btn-spinner" style="display: none;"></i>
+                </button>
+                
+                <div class="resend-section">
+                    <p>Didn't receive the code?</p>
+                    <button type="button" class="resend-btn" id="resendBtn">
+                        Resend OTP
+                    </button>
+                    <div class="countdown" id="countdown" style="display: none;"></div>
+                </div>
+                
+                <p class="back-link">
+                    <a href="./stu_signup.html">
+                        <i class="fas fa-arrow-left"></i> Back to Sign Up
+                    </a>
+                </p>
+            </form>
+        </div>
+
+        <!-- Right Section (Illustration) -->
+        <div class="otp-right">
+            <div class="welcome-text">
+                <h1>Almost There!</h1>
+                <h2>Email Verification</h2>
+                <p>Complete your registration by verifying your email address. This helps us secure your account and send you important updates.</p>
+            </div>
+            <img src="./img/pen.png" alt="Email Verification Illustration">
+        </div>
+    </div>
+
+    <script src="otp-verification.js"></script>
+</body>
+</html>

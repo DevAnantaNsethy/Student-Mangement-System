@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Get OTP Code</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        padding: 20px;
+        background: #f0f0f0;
+      }
+      .container {
+        max-width: 600px;
+        margin: 0 auto;
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+      }
+      button {
+        background: #007bff;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+      .otp-display {
+        background: #e9ecef;
+        padding: 15px;
+        border-radius: 5px;
+        margin: 10px 0;
+        font-family: monospace;
+        font-size: 18px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>🔑 Get Your OTP Code</h1>
+      <p>
+        Since this is testing mode, OTP codes are not sent to real emails. Click
+        the button below to get your OTP:
+      </p>
+
+      <button onclick="getOTP()">📧 Get OTP Code</button>
+
+      <div id="result"></div>
+
+      <h3>📝 Instructions:</h3>
+      <ol>
+        <li>Click "Get OTP Code" button above</li>
+        <li>Copy the OTP code that appears</li>
+        <li>Go back to the signup verification page</li>
+        <li>Enter the OTP code to complete registration</li>
+      </ol>
+    </div>
+
+    <script>
+      async function getOTP() {
+        try {
+          const response = await fetch("http://localhost:3001/api/send-otp", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              email: "test@example.com",
+            }),
+          });
+
+          const data = await response.json();
+
+          if (data.success) {
+            document.getElementById("result").innerHTML = `
+                        <div class="otp-display">
+                            <h3>✅ OTP Generated Successfully!</h3>
+                            <p><strong>Note:</strong> In testing mode, the OTP is displayed in the server console.</p>
+                            <p>Check the terminal window where you started the server to see the actual OTP code.</p>
+                        </div>
+                    `;
+          } else {
+            document.getElementById("result").innerHTML = `
+                        <div style="color: red;">
+                            <h3>❌ Error:</h3>
+                            <p>${data.message}</p>
+                        </div>
+                    `;
+          }
+        } catch (error) {
+          document.getElementById("result").innerHTML = `
+                    <div style="color: red;">
+                        <h3>❌ Connection Error:</h3>
+                        <p>${error.message}</p>
+                        <p>Make sure the API server is running on port 3001</p>
+                    </div>
+                `;
+        }
+      }
+    </script>
+  </body>
+</html>

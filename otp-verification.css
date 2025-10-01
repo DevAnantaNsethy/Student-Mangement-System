@@ -1,0 +1,276 @@
+/* General Reset */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+  background: #0f1c3f;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+/* Main container */
+.container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 90%;
+  max-width: 1100px;
+  background: #101c3d;
+  border-radius: 15px;
+  padding: 40px;
+  box-shadow: 0px 8px 25px rgba(0, 0, 0, 0.4);
+}
+
+/* Left Section */
+.otp-left {
+  flex: 1;
+  background: rgba(0, 0, 0, 0.4);
+  padding: 40px;
+  border-radius: 15px;
+  margin-right: 30px;
+  text-align: center;
+}
+
+.verification-icon {
+  margin-bottom: 20px;
+}
+
+.verification-icon i {
+  font-size: 48px;
+  color: #7b61ff;
+  background: linear-gradient(135deg, #7b61ff, #b66dff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.otp-left h1 {
+  color: #fff;
+  margin-bottom: 10px;
+  font-size: 28px;
+}
+
+.otp-left .subtitle {
+  color: #c9c9c9;
+  margin-bottom: 5px;
+  font-size: 15px;
+}
+
+.email-display {
+  color: #7b61ff;
+  font-weight: bold;
+  margin-bottom: 30px;
+  font-size: 16px;
+}
+
+/* OTP Input Container */
+.otp-input-container {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.otp-digit {
+  width: 50px;
+  height: 50px;
+  border: 2px solid #2c3554;
+  border-radius: 8px;
+  background: #2c3554;
+  color: #fff;
+  font-size: 20px;
+  font-weight: bold;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.otp-digit:focus {
+  outline: none;
+  border-color: #7b61ff;
+  background: #3c4554;
+  box-shadow: 0 0 0 3px rgba(123, 97, 255, 0.2);
+}
+
+.otp-digit.filled {
+  border-color: #22c55e;
+  background: #22c55e;
+  color: white;
+}
+
+/* Error and Success Messages */
+.error-message {
+  color: #ef4444;
+  font-size: 14px;
+  margin-bottom: 15px;
+  min-height: 20px;
+  display: none;
+}
+
+.error-message.show {
+  display: block;
+}
+
+.success-message {
+  color: #22c55e;
+  font-size: 14px;
+  margin-bottom: 15px;
+  min-height: 20px;
+  display: none;
+}
+
+.success-message.show {
+  display: block;
+}
+
+/* Verify Button */
+.verify-btn {
+  width: 100%;
+  padding: 12px;
+  background: linear-gradient(135deg, #7b61ff, #b66dff);
+  border: none;
+  border-radius: 25px;
+  font-size: 16px;
+  font-weight: bold;
+  color: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-bottom: 20px;
+  position: relative;
+}
+
+.verify-btn:hover:not(:disabled) {
+  opacity: 0.9;
+  transform: translateY(-2px);
+}
+
+.verify-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-spinner {
+  margin-left: 10px;
+}
+
+/* Resend Section */
+.resend-section {
+  margin-bottom: 20px;
+}
+
+.resend-section p {
+  color: #c9c9c9;
+  font-size: 14px;
+  margin-bottom: 10px;
+}
+
+.resend-btn {
+  background: none;
+  border: 1px solid #7b61ff;
+  color: #7b61ff;
+  padding: 8px 20px;
+  border-radius: 20px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.resend-btn:hover:not(:disabled) {
+  background: #7b61ff;
+  color: white;
+}
+
+.resend-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.countdown {
+  color: #f59e0b;
+  font-size: 12px;
+  margin-top: 5px;
+}
+
+/* Back Link */
+.back-link {
+  margin-top: 20px;
+}
+
+.back-link a {
+  color: #7b61ff;
+  text-decoration: none;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.back-link a:hover {
+  color: #b66dff;
+  text-decoration: underline;
+}
+
+.back-link i {
+  margin-right: 5px;
+}
+
+/* Right Section */
+.otp-right {
+  flex: 1;
+  text-align: center;
+  padding: 20px;
+}
+
+.otp-right .welcome-text {
+  margin-bottom: 20px;
+}
+
+.otp-right h1 {
+  color: #fff;
+  font-size: 28px;
+}
+
+.otp-right h2 {
+  color: #b66dff;
+  font-size: 22px;
+  margin-top: 10px;
+}
+
+.otp-right p {
+  color: #ddd;
+  margin-top: 10px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.otp-right img {
+  max-width: 100%;
+  height: auto;
+  opacity: 0.8;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .container {
+    flex-direction: column;
+    padding: 20px;
+  }
+  
+  .otp-left {
+    margin-right: 0;
+    margin-bottom: 20px;
+  }
+  
+  .otp-input-container {
+    gap: 8px;
+  }
+  
+  .otp-digit {
+    width: 40px;
+    height: 40px;
+    font-size: 18px;
+  }
+}

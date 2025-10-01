@@ -96,6 +96,46 @@ body {
   text-decoration: underline;
 }
 
+/* Error and Success Messages */
+.error-message {
+  color: #ef4444;
+  font-size: 14px;
+  margin-bottom: 15px;
+  min-height: 20px;
+  display: none;
+  text-align: center;
+  padding: 10px;
+  background: rgba(239, 68, 68, 0.1);
+  border-radius: 8px;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.error-message.show {
+  display: block;
+}
+
+.success-message {
+  color: #22c55e;
+  font-size: 14px;
+  margin-bottom: 15px;
+  min-height: 20px;
+  display: none;
+  text-align: center;
+  padding: 10px;
+  background: rgba(34, 197, 94, 0.1);
+  border-radius: 8px;
+  border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+.success-message.show {
+  display: block;
+}
+
+/* Button Loading State */
+.btn-spinner {
+  margin-left: 10px;
+}
+
 /* Right Section */
 .login-right {
   flex: 1;
