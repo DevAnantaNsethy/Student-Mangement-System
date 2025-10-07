@@ -69,19 +69,77 @@ app.post("/api/send-otp", async (req, res) => {
     const transporter = nodemailer.createTransport({
       service: "gmail",
       auth: {
-        user: "ananta10092004@gmail.com", // Your email
-        pass: "fopj wngw nscr fksu", // Your app password
+        user: "ananta10092004@gmail.com",
+        pass: "fopj wngw nscr fksu",
       },
     });
 
-    await transporter.sendMail({
-      from: "ananta10092004@gmail.com",
+    // --- Creative & Modern HTML Email Template ---
+    const mailOptions = {
+      from: '"Student Portal" <ananta10092004@gmail.com>',
       to: email,
-      subject: "Your OTP Code",
-      text: `Your OTP code is: ${otp}`,
-    });
+      subject: "Your Verification Code for Student Portal",
+      html: `
+        <body style="margin: 0; padding: 0; font-family: 'Poppins', sans-serif; background-color: #f0f2f5;">
+          <table border="0" cellpadding="0" cellspacing="0" width="100%">
+            <tr>
+              <td style="padding: 20px 0;">
+                <table align="center" border="0" cellpadding="0" cellspacing="0" width="600" style="border-collapse: collapse; background-color: #ffffff; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.05);">
+                  
+                  <!-- Header -->
+                  <tr>
+                    <td align="center" style="background: linear-gradient(90deg, #6a11cb 0%, #2575fc 100%); padding: 30px 0; border-radius: 12px 12px 0 0;">
+                      <h1 style="color: #ffffff; font-size: 28px; margin: 0;">Verification Required</h1>
+                    </td>
+                  </tr>
 
-    console.log(`[INFO] OTP sent to ${email}`);
+                  <!-- Content -->
+                  <tr>
+                    <td style="padding: 40px 30px;">
+                      <p style="color: #333333; font-size: 16px; margin: 0 0 20px 0;">Hi there,</p>
+                      <p style="color: #555555; font-size: 16px; line-height: 1.5;">
+                        Your verification code for the <strong>Student Portal</strong> is ready. Use the code below to complete your sign-up process.
+                      </p>
+                      
+                      <!-- OTP Code Box -->
+                      <table border="0" cellpadding="0" cellspacing="0" width="100%" style="margin: 30px 0;">
+                        <tr>
+                          <td align="center">
+                            <div style="background-color: #f0f2f5; border: 2px dashed #cccccc; border-radius: 8px; padding: 15px 25px; display: inline-block;">
+                              <p style="color: #0f1c3f; font-size: 32px; font-weight: 600; letter-spacing: 4px; margin: 0;">
+                                ${otp}
+                              </p>
+                            </div>
+                          </td>
+                        </tr>
+                      </table>
+
+                      <p style="color: #555555; font-size: 16px; line-height: 1.5;">
+                        This code will expire in 10 minutes. If you did not request this, please disregard this email.
+                      </p>
+                    </td>
+                  </tr>
+
+                  <!-- Footer -->
+                  <tr>
+                    <td style="background-color: #f9f9f9; padding: 20px 30px; border-radius: 0 0 12px 12px;">
+                      <p style="color: #999999; font-size: 12px; text-align: center; margin: 0;">
+                        &copy; ${new Date().getFullYear()} Student Management System. All Rights Reserved.
+                      </p>
+                    </td>
+                  </tr>
+
+                </table>
+              </td>
+            </tr>
+          </table>
+        </body>
+      `,
+    };
+
+    await transporter.sendMail(mailOptions);
+
+    console.log(`[INFO] Modern OTP email sent to ${email}`);
     return res.json({ success: true, message: "OTP sent successfully." });
   } catch (error) {
     console.error(`[ERROR] /api/send-otp failed for ${email}:`, error.message);
