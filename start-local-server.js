@@ -2,161 +2,236 @@ const express = require("express");
 const cors = require("cors");
 const nodemailer = require("nodemailer");
 const mongoose = require("mongoose");
+
 const app = express();
 
+// --- Middleware ---
 app.use(
   cors({
-    origin: ["http://localhost:8000", "http://localhost:3000"], // allow both ports
+    origin: [
+      "http://localhost:8000",
+      "http://localhost:3000",
+      "http://localhost:3001",
+    ],
     methods: ["GET", "POST", "OPTIONS"],
     allowedHeaders: ["Content-Type"],
   })
 );
-
 app.use(express.json());
+app.use(express.static(__dirname)); // Serve static files like stu_signup.html
 
-// Serve static files from the current directory
-app.use(express.static(__dirname));
-
-// Replace with your connection string
+// --- MongoDB Connection ---
 const MONGO_URI =
   "mongodb+srv://ananta_db_user:Ananta%407532@cluster0.39xr1bs.mongodb.net/?retryWrites=true&w=majority";
 mongoose
   .connect(MONGO_URI)
-  .then(() => console.log("✅ Connected to MongoDB Atlas"))
-  .catch((err) => console.error("❌ MongoDB connection error:", err));
+  .then(() => console.log("✅ [SUCCESS] Connected to MongoDB Atlas."))
+  .catch((err) =>
+    console.error("❌ [FATAL] MongoDB connection error:", err.message)
+  );
 
+// --- Mongoose Schemas ---
 const userSchema = new mongoose.Schema({
-  name: String,
-  email: { type: String, unique: true },
-  password: String,
-  otp: String,
-  otpExpires: Date,
+  name: { type: String, required: true },
+  email: { type: String, required: true, unique: true },
+  password: { type: String, required: true },
 });
 const User = mongoose.model("User", userSchema);
 
+const pendingUserSchema = new mongoose.Schema({
+  email: { type: String, required: true, unique: true },
+  otp: { type: String, required: true },
+  otpExpires: { type: Date, required: true },
+});
+const PendingUser = mongoose.model("PendingUser", pendingUserSchema);
+
+// --- API Endpoints ---
+
+// Endpoint 1: Send OTP
 app.post("/api/send-otp", async (req, res) => {
   const { email } = req.body;
   if (!email) {
-    return res.status(400).json({ success: false, message: "Email required" });
+    return res
+      .status(400)
+      .json({ success: false, message: "Email is required." });
   }
 
-  // Generate a 6-digit OTP
   const otp = Math.floor(100000 + Math.random() * 900000).toString();
   const otpExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
 
-  // Only update OTP if user exists, do NOT create new user here
-  let user = await User.findOne({ email });
-  if (user) {
-    user.otp = otp;
-    user.otpExpires = otpExpires;
-    await user.save();
-  } else {
-    // Do NOT create a new user here
-    return res.status(404).json({
-      success: false,
-      message: "User not found. Please register first.",
-    });
-  }
-
-  // Send OTP email
-  let transporter = nodemailer.createTransport({
-    service: "gmail",
-    auth: {
-      user: "ananta10092004@gmail.com",
-      pass: "fopj wngw nscr fksu",
-    },
-  });
-
-  let mailOptions = {
-    from: "ananta10092004@gmail.com",
-    to: email,
-    subject: "Your OTP Code",
-    text: `Your OTP code is: ${otp}`,
-  };
-
   try {
-    await transporter.sendMail(mailOptions);
-    res.json({ success: true, message: "OTP sent" });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: "Failed to send OTP",
-      error: error.message,
+    await PendingUser.findOneAndUpdate(
+      { email },
+      { otp, otpExpires },
+      { upsert: true, new: true, runValidators: true }
+    );
+
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: "ananta10092004@gmail.com", // Your email
+        pass: "fopj wngw nscr fksu", // Your app password
+      },
     });
+
+    await transporter.sendMail({
+      from: "ananta10092004@gmail.com",
+      to: email,
+      subject: "Your OTP Code",
+      text: `Your OTP code is: ${otp}`,
+    });
+
+    console.log(`[INFO] OTP sent to ${email}`);
+    return res.json({ success: true, message: "OTP sent successfully." });
+  } catch (error) {
+    console.error(`[ERROR] /api/send-otp failed for ${email}:`, error.message);
+    return res
+      .status(500)
+      .json({ success: false, message: "Failed to send OTP." });
   }
 });
 
+// Endpoint 2: Verify OTP
 app.post("/api/verify-otp", async (req, res) => {
   const { email, otp } = req.body;
   if (!email || !otp) {
     return res
       .status(400)
-      .json({ success: false, message: "Email and OTP required" });
+      .json({ success: false, message: "Email and OTP are required." });
   }
-  const user = await User.findOne({ email });
-  if (!user) {
-    return res.status(404).json({
-      success: false,
-      message: "User data not found. Please sign up again.",
-    });
+
+  const pending = await PendingUser.findOne({ email });
+  if (!pending) {
+    console.warn(`[WARN] /api/verify-otp: No pending user found for ${email}`);
+    return res
+      .status(404)
+      .json({ success: false, message: "OTP not requested for this email." });
   }
-  if (user.otp !== otp || !user.otpExpires || user.otpExpires < new Date()) {
+
+  if (pending.otp !== otp || pending.otpExpires < new Date()) {
+    console.warn(`[WARN] /api/verify-otp: Invalid or expired OTP for ${email}`);
     return res
       .status(400)
-      .json({ success: false, message: "Invalid or expired OTP" });
+      .json({ success: false, message: "Invalid or expired OTP." });
   }
-  // OTP is valid, clear it
-  user.otp = undefined;
-  user.otpExpires = undefined;
-  await user.save();
-  res.json({ success: true, message: "OTP verified" });
+
+  // CORRECT LOGIC: DO NOT DELETE THE PENDING USER HERE.
+  console.log(`[INFO] OTP verified for ${email}`);
+  return res.json({ success: true, message: "OTP verified." });
 });
 
+// Endpoint 3: Register User
 app.post("/api/register", async (req, res) => {
   const { name, email, password } = req.body;
+  console.log(`[INFO] /api/register attempt for: ${email}`); // Log the attempt
+
   if (!name || !email || !password) {
-    return res
-      .status(400)
-      .json({ success: false, message: "All fields required" });
+    console.error("[ERROR] /api/register: Missing fields.", req.body);
+    return res.status(400).json({
+      success: false,
+      message: "Name, email, and password are required.",
+    });
   }
+
+  // CORRECT LOGIC: Check for the pending user again.
+  const pending = await PendingUser.findOne({ email });
+  if (!pending) {
+    console.error(
+      `[ERROR] /api/register: No verified pending user found for ${email}.`
+    );
+    return res.status(400).json({
+      success: false,
+      message: "Email not verified. Please complete OTP step first.",
+    });
+  }
+
   try {
-    const existing = await User.findOne({ email });
-    if (existing)
-      return res
-        .status(400)
-        .json({ success: false, message: "Email already registered" });
-    await User.create({ name, email, password });
-    res.json({ success: true, message: "Registration successful" });
-  } catch (err) {
-    res.status(500).json({ success: false, message: "Error registering user" });
+    const newUser = await User.create({ name, email, password });
+    console.log(`[SUCCESS] /api/register: User ${newUser.email} created.`);
+
+    // CORRECT LOGIC: NOW delete the pending user.
+    await PendingUser.deleteOne({ email });
+    console.log(`[INFO] /api/register: Pending user ${email} cleaned up.`);
+
+    return res
+      .status(201)
+      .json({ success: true, message: "Registration successful!" });
+  } catch (error) {
+    if (error.code === 11000) {
+      // This is the MongoDB error for a duplicate entry
+      console.error(`[ERROR] /api/register: User ${email} already exists.`);
+      return res.status(409).json({
+        // This sends the 409 Conflict error
+        success: false,
+        message: "User with this email already exists.",
+      });
+    }
+    console.error(
+      `[ERROR] /api/register: Database error for ${email}:`,
+      error.message
+    );
+    return res.status(500).json({
+      success: false,
+      message: "Registration failed. Please try again.",
+    });
   }
 });
 
+// Endpoint 4: Login User
 app.post("/api/login", async (req, res) => {
   const { email, password } = req.body;
+  console.log(`[INFO] /api/login attempt for: ${email}`);
+
+  if (!email || !password) {
+    return res
+      .status(400)
+      .json({ success: false, message: "Email and password are required." });
+  }
+
   try {
-    const user = await User.findOne({ email, password });
-    if (!user)
+    const user = await User.findOne({ email });
+    if (!user) {
+      console.warn(`[WARN] /api/login: User not found for ${email}`);
       return res
-        .status(400)
-        .json({ success: false, message: "Invalid credentials" });
-    res.json({ success: true, message: "Login successful" });
-  } catch (err) {
-    res.status(500).json({ success: false, message: "Error logging in" });
+        .status(404)
+        .json({ success: false, message: "Invalid email or password." });
+    }
+
+    // IMPORTANT: This is an insecure password check. In a real app, you must hash passwords.
+    if (user.password !== password) {
+      console.warn(`[WARN] /api/login: Invalid password for ${email}`);
+      return res
+        .status(401)
+        .json({ success: false, message: "Invalid email or password." });
+    }
+
+    console.log(`[SUCCESS] /api/login: User ${email} logged in successfully.`);
+    return res.json({ success: true, message: "Login successful." });
+  } catch (error) {
+    console.error(
+      `[ERROR] /api/login: Server error for ${email}:`,
+      error.message
+    );
+    return res
+      .status(500)
+      .json({ success: false, message: "Server error during login." });
   }
 });
 
+// --- DEBUGGING ENDPOINT ---
+// WARNING: This is for debugging only. Remove it in a real application.
 app.get("/api/all-users", async (req, res) => {
-  const users = await User.find({}, { password: 0, otp: 0, otpExpires: 0 }); // hide sensitive fields
-  res.json(users);
+  try {
+    // Find all users, but hide the password field for security
+    const users = await User.find({}, { password: 0 });
+    console.log("[DEBUG] Fetched all users:", users);
+    res.json(users);
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Failed to fetch users." });
+  }
 });
 
-app.post("/api/delete-user", async (req, res) => {
-  const { email } = req.body;
-  await User.deleteOne({ email });
-  res.json({ success: true, message: "User deleted" });
-});
-
+// --- Server Start ---
 const PORT = 3001; // or any port you want your backend to run on
 
 // Start server

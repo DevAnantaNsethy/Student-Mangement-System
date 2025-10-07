@@ -1,32 +1,85 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Student Login Portal</title>
-  <link rel="stylesheet" href="./style.css">
-  <link rel="stylesheet" href="./studentogin.css">
-</head>
-<body>
-  <div class="container">
-    <!-- Left Section (Login Form) -->
-    <div class="login-left">
-      <h1>Login</h1>
-      <p>Enter your account details</p>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Student Login Portal</title>
+    <link rel="stylesheet" href="./style.css" />
+    <link rel="stylesheet" href="./studentogin.css" />
+  </head>
+  <body>
+    <div class="container">
+      <!-- Left Section (Login Form) -->
+      <div class="login-left">
+        <h1>Login</h1>
+        <p>Enter your account details</p>
 
-      <form>
-        <input type="text" placeholder="Username" required>
-        <input type="password" placeholder="Password" required>
-        <a href="#" class="forgot">Forgot Password?</a>
-        <button type="submit" class="login-btn">Login</button>
-      </form>
+        <form id="loginForm" onsubmit="return false;">
+          <input type="email" id="email" placeholder="Email" required />
+          <input
+            type="password"
+            id="password"
+            placeholder="Password"
+            required
+          />
+          <a href="#" class="forgot">Forgot Password?</a>
+          <button type="button" id="loginBtn" class="login-btn">Login</button>
+          <div
+            class="error-message"
+            id="errorMessage"
+            style="font-size: 1.2em; margin-top: 15px"
+          ></div>
+        </form>
+      </div>
+
+      <!-- Right Section (Welcome Illustration) -->
+      <div class="login-right">
+        <img src="./img/student portal.png" alt="Login Illustration" />
+      </div>
     </div>
 
-    <!-- Right Section (Welcome Illustration) -->
-    <div class="login-right">
-      
-      <img src="./img/student portal.png" alt="Login Illustration">
-    </div>
-  </div>
-</body>
+    <script>
+      const loginBtn = document.getElementById("loginBtn");
+      const emailInput = document.getElementById("email");
+      const passwordInput = document.getElementById("password");
+      const errorMessage = document.getElementById("errorMessage");
+
+      loginBtn.onclick = async function () {
+        const email = emailInput.value;
+        const password = passwordInput.value;
+
+        if (!email || !password) {
+          errorMessage.textContent = "Email and password are required.";
+          return;
+        }
+
+        errorMessage.textContent = "Logging in...";
+        loginBtn.disabled = true;
+
+        try {
+          const res = await fetch("http://localhost:3001/api/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, password }),
+          });
+
+          if (res.ok) {
+            // On successful login, redirect to a dashboard
+            errorMessage.textContent = "";
+            window.location.href = "/dashboard.html";
+          } else {
+            // On failed login, show an error message
+            const data = await res.json();
+            errorMessage.textContent =
+              data.message || "Login failed. Please check your credentials.";
+          }
+        } catch (error) {
+          errorMessage.textContent =
+            "A network error occurred. Please try again.";
+        } finally {
+          loginBtn.disabled = false; // Re-enable the button
+        }
+      };
+    </script>
+  </body>
 </html>

@@ -168,3 +168,105 @@ body {
   max-width: 100%;
   height: auto;
 }
+
+/* --- New Button Styling for Signup Form --- */
+
+/* General style for all buttons in the form */
+#signupForm button {
+  display: block;
+  width: 100%;
+  padding: 14px;
+  margin-top: 15px;
+  border: none;
+  border-radius: 8px;
+  background: linear-gradient(90deg, #6a11cb 0%, #2575fc 100%);
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Hover effect to make buttons feel interactive */
+#signupForm button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* Style for when a button is disabled (e.g., during processing) */
+#signupForm button:disabled {
+  background: #cccccc;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Specific margin adjustments if needed */
+#sendOtpBtn,
+#verifyOtpBtn {
+  margin-top: 10px;
+}
+
+#signupBtn {
+  margin-top: 20px;
+}
+
+/* --- Responsiveness --- */
+
+/* For tablets and smaller devices */
+@media (max-width: 800px) {
+  .container {
+    flex-direction: column; /* Stack form and image vertically */
+    padding: 25px;
+    width: 90%;
+  }
+
+  .login-left {
+    margin-right: 0;
+    margin-bottom: 30px; /* Add space between form and image */
+    width: 100%;
+  }
+
+  .login-right {
+    /* Optional: Hide the image on tablets to focus on the form */
+    display: none;
+  }
+
+  /* Adjust button padding and font size for tablets */
+  #signupForm button {
+    padding: 12px;
+    font-size: 15px;
+  }
+}
+
+/* For mobile phones */
+@media (max-width: 480px) {
+  .container {
+    padding: 20px;
+  }
+
+  .login-left h1 {
+    font-size: 24px; /* Make heading smaller on mobile */
+  }
+
+  .login-left .subtitle {
+    font-size: 14px;
+  }
+
+  .login-left input {
+    padding: 11px;
+    font-size: 14px;
+  }
+
+  /* Further reduce button padding and font size for mobile */
+  #signupForm button {
+    padding: 12px;
+    font-size: 14px;
+    margin-top: 10px;
+  }
+
+  #signupBtn {
+    margin-top: 15px;
+  }
+}
