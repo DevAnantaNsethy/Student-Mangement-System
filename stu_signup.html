@@ -33,7 +33,10 @@
               placeholder="Enter your email"
               required
             />
-            <button type="button" id="sendOtpBtn">Send OTP</button>
+            <button type="button" id="sendOtpBtn">
+              <span class="button-text">Send OTP</span>
+              <div class="spinner"></div>
+            </button>
           </div>
 
           <!-- Step 2: OTP Verification -->
@@ -45,7 +48,10 @@
               placeholder="Enter OTP"
               required
             />
-            <button type="button" id="verifyOtpBtn">Verify OTP</button>
+            <button type="button" id="verifyOtpBtn">
+              <span class="button-text">Verify OTP</span>
+              <div class="spinner"></div>
+            </button>
           </div>
 
           <!-- Step 3: Registration Details -->
@@ -71,7 +77,10 @@
               placeholder="Confirm Password"
               required
             />
-            <button type="button" id="signupBtn">Sign Up</button>
+            <button type="button" id="signupBtn">
+              <span class="button-text">Sign Up</span>
+              <div class="spinner"></div>
+            </button>
           </div>
 
           <div class="error-message" id="errorMessage"></div>
@@ -91,78 +100,97 @@
     </div>
 
     <script>
-      // --- DOM Elements ---
       const emailSection = document.getElementById("emailSection");
       const otpSection = document.getElementById("otpSection");
       const registerSection = document.getElementById("registerSection");
-      const altLink = document.querySelector(".alt-link");
-      altLink.innerHTML =
-        'Already have an account? <a href="/student-login.html">Log in</a>'; // Corrected link
-
-      const emailInput = document.getElementById("email");
-      const otpInput = document.getElementById("otp");
-
       const sendOtpBtn = document.getElementById("sendOtpBtn");
       const verifyOtpBtn = document.getElementById("verifyOtpBtn");
       const signupBtn = document.getElementById("signupBtn");
-
       const errorMessage = document.getElementById("errorMessage");
       const successMessage = document.getElementById("successMessage");
 
       let verifiedEmail = null;
 
-      // --- Event Listeners ---
+      // --- Helper to display clear errors ---
+      function showError(message) {
+        successMessage.textContent = "";
+        errorMessage.textContent = message;
+        errorMessage.style.display = "block";
+      }
+
+      // 1. Send OTP - UPDATED
       sendOtpBtn.onclick = async function () {
-        const email = emailInput.value;
+        const email = document.getElementById("email").value;
         if (!email) {
-          errorMessage.textContent = "Please enter an email address.";
+          showError("Please enter an email address.");
           return;
         }
-        successMessage.textContent = "Sending OTP...";
-        errorMessage.textContent = "";
+
+        sendOtpBtn.disabled = true;
+        sendOtpBtn.classList.add("loading");
+        errorMessage.style.display = "none";
+        successMessage.textContent = "Checking email...";
+
         const res = await fetch("http://localhost:3001/api/send-otp", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email }),
         });
+
         const data = await res.json();
-        if (data.success) {
+        sendOtpBtn.disabled = false;
+        sendOtpBtn.classList.remove("loading");
+
+        if (res.ok) {
           successMessage.textContent = "OTP sent to your email!";
           emailSection.style.display = "none";
           otpSection.style.display = "block";
         } else {
-          errorMessage.textContent = data.message || "Failed to send OTP.";
-          successMessage.textContent = "";
+          // Check for our custom 'userExists' flag
+          if (data.userExists) {
+            showError(data.message);
+          } else {
+            showError(data.message || "Failed to send OTP.");
+          }
         }
       };
 
+      // 2. Verify OTP - UPDATED
       verifyOtpBtn.onclick = async function () {
-        const email = emailInput.value;
-        const otp = otpInput.value;
+        const email = document.getElementById("email").value;
+        const otp = document.getElementById("otp").value;
         if (!otp) {
-          errorMessage.textContent = "Please enter the OTP.";
+          showError("Please enter the OTP.");
           return;
         }
-        successMessage.textContent = "Verifying OTP...";
-        errorMessage.textContent = "";
+
+        verifyOtpBtn.disabled = true;
+        verifyOtpBtn.classList.add("loading");
+        errorMessage.style.display = "none";
+        successMessage.textContent = "Verifying...";
+
         const res = await fetch("http://localhost:3001/api/verify-otp", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email, otp }),
         });
+
         const data = await res.json();
-        if (data.success) {
+        verifyOtpBtn.disabled = false;
+        verifyOtpBtn.classList.remove("loading");
+
+        if (res.ok) {
           verifiedEmail = email;
           successMessage.textContent =
             "OTP Verified! Please complete your registration.";
           otpSection.style.display = "none";
           registerSection.style.display = "block";
         } else {
-          errorMessage.textContent = data.message || "Invalid or expired OTP.";
-          successMessage.textContent = "";
+          showError(data.message || "Invalid or expired OTP.");
         }
       };
 
+      // 3. Register User
       signupBtn.onclick = async function () {
         const name = document.getElementById("name").value;
         const password = document.getElementById("password").value;
@@ -182,6 +210,7 @@
         }
 
         signupBtn.disabled = true;
+        signupBtn.classList.add("loading"); // Show spinner
         errorMessage.textContent = "";
         successMessage.textContent = "Processing...";
         successMessage.style.fontSize = "1.2em"; // Make message bigger
@@ -211,11 +240,13 @@
             errorMessage.textContent = data.message || "Registration failed.";
             successMessage.textContent = "";
             signupBtn.disabled = false;
+            signupBtn.classList.remove("loading"); // Hide spinner on failure
           }
         } catch (error) {
           errorMessage.textContent = "A network error occurred.";
           successMessage.textContent = "";
           signupBtn.disabled = false;
+          signupBtn.classList.remove("loading"); // Hide spinner on failure
         }
       };
     </script>

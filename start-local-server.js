@@ -2,6 +2,9 @@ const express = require("express");
 const cors = require("cors");
 const nodemailer = require("nodemailer");
 const mongoose = require("mongoose");
+const crypto = require("crypto"); // Add this to the top with other requires
+const bcrypt = require("bcrypt"); // Add this to the top
+const jwt = require("jsonwebtoken"); // Add this to the top
 
 const app = express();
 
@@ -35,6 +38,9 @@ const userSchema = new mongoose.Schema({
   name: { type: String, required: true },
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
+  // --- ADD THESE TWO LINES ---
+  resetPasswordToken: { type: String },
+  resetPasswordExpires: { type: Date },
 });
 const User = mongoose.model("User", userSchema);
 
@@ -47,7 +53,7 @@ const PendingUser = mongoose.model("PendingUser", pendingUserSchema);
 
 // --- API Endpoints ---
 
-// Endpoint 1: Send OTP
+// Endpoint 1: Send OTP - UPDATED
 app.post("/api/send-otp", async (req, res) => {
   const { email } = req.body;
   if (!email) {
@@ -56,10 +62,24 @@ app.post("/api/send-otp", async (req, res) => {
       .json({ success: false, message: "Email is required." });
   }
 
-  const otp = Math.floor(100000 + Math.random() * 900000).toString();
-  const otpExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
-
   try {
+    // --- NEW: Check if user is already registered ---
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      console.warn(
+        `[WARN] /api/send-otp: Signup attempt for existing user ${email}`
+      );
+      // Send a specific response indicating the user already exists.
+      return res.status(409).json({
+        success: false,
+        userExists: true, // Custom flag for the frontend
+        message: "A user with this email already exists. Please log in.",
+      });
+    }
+
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const otpExpires = new Date(Date.now() + 10 * 60 * 1000);
+
     await PendingUser.findOneAndUpdate(
       { email },
       { otp, otpExpires },
@@ -139,7 +159,7 @@ app.post("/api/send-otp", async (req, res) => {
 
     await transporter.sendMail(mailOptions);
 
-    console.log(`[INFO] Modern OTP email sent to ${email}`);
+    console.log(`[INFO] Professional OTP email sent to ${email}`);
     return res.json({ success: true, message: "OTP sent successfully." });
   } catch (error) {
     console.error(`[ERROR] /api/send-otp failed for ${email}:`, error.message);
@@ -204,7 +224,16 @@ app.post("/api/register", async (req, res) => {
   }
 
   try {
-    const newUser = await User.create({ name, email, password });
+    // BEFORE saving the user, hash the password
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    // Create the user with the HASHED password
+    const newUser = await User.create({
+      name,
+      email,
+      password: hashedPassword,
+    });
     console.log(`[SUCCESS] /api/register: User ${newUser.email} created.`);
 
     // CORRECT LOGIC: NOW delete the pending user.
@@ -235,36 +264,41 @@ app.post("/api/register", async (req, res) => {
   }
 });
 
-// Endpoint 4: Login User
+// Endpoint 4: Login User - UPDATED
 app.post("/api/login", async (req, res) => {
   const { email, password } = req.body;
-  console.log(`[INFO] /api/login attempt for: ${email}`);
-
-  if (!email || !password) {
-    return res
-      .status(400)
-      .json({ success: false, message: "Email and password are required." });
-  }
 
   try {
     const user = await User.findOne({ email });
     if (!user) {
-      console.warn(`[WARN] /api/login: User not found for ${email}`);
-      return res
-        .status(404)
-        .json({ success: false, message: "Invalid email or password." });
-    }
-
-    // IMPORTANT: This is an insecure password check. In a real app, you must hash passwords.
-    if (user.password !== password) {
-      console.warn(`[WARN] /api/login: Invalid password for ${email}`);
       return res
         .status(401)
         .json({ success: false, message: "Invalid email or password." });
     }
 
-    console.log(`[SUCCESS] /api/login: User ${email} logged in successfully.`);
-    return res.json({ success: true, message: "Login successful." });
+    const validPassword = await bcrypt.compare(password, user.password);
+    if (!validPassword) {
+      return res
+        .status(401)
+        .json({ success: false, message: "Invalid email or password." });
+    }
+
+    // --- Generate JWT Token ---
+    const token = jwt.sign(
+      { id: user._id }, // Payload: contains user's unique ID
+      "your_jwt_secret_key", // Secret Key: CHANGE THIS to a long, random string
+      { expiresIn: "1d" } // Token expires in 1 day
+    );
+
+    console.log(
+      `[SUCCESS] /api/login: User ${email} logged in. Token generated.`
+    );
+    // Send the token back to the client
+    return res.json({
+      success: true,
+      message: "Login successful.",
+      token: token,
+    });
   } catch (error) {
     console.error(
       `[ERROR] /api/login: Server error for ${email}:`,
@@ -274,6 +308,114 @@ app.post("/api/login", async (req, res) => {
       .status(500)
       .json({ success: false, message: "Server error during login." });
   }
+});
+
+// --- NEW PROTECTED ENDPOINT ---
+// This endpoint will only be accessible if a valid token is provided.
+app.get("/api/profile", async (req, res) => {
+  try {
+    // Check for the token in the Authorization header
+    const token = req.headers.authorization.split(" ")[1]; // "Bearer TOKEN"
+    if (!token) {
+      return res
+        .status(401)
+        .json({ success: false, message: "Not authorized, no token" });
+    }
+
+    // Verify the token
+    const decoded = jwt.verify(token, "your_jwt_secret_key"); // Use the same secret key
+
+    // Get user from the token's ID, but don't send back the password
+    const user = await User.findById(decoded.id).select("-password");
+
+    if (user) {
+      res.json(user);
+    } else {
+      res.status(404).json({ success: false, message: "User not found" });
+    }
+  } catch (error) {
+    res
+      .status(401)
+      .json({ success: false, message: "Not authorized, token failed" });
+  }
+});
+
+// Endpoint 5: Forgot Password - Generate Token
+app.post("/api/forgot-password", async (req, res) => {
+  const { email } = req.body;
+  const user = await User.findOne({ email });
+
+  if (!user) {
+    // To prevent email enumeration, we send a generic success response even if the user doesn't exist.
+    console.warn(
+      `[WARN] /api/forgot-password: Attempt for non-existent user ${email}`
+    );
+    return res.json({
+      success: true,
+      message:
+        "If an account with that email exists, a password reset link has been sent.",
+    });
+  }
+
+  // Generate a random token
+  const token = crypto.randomBytes(20).toString("hex");
+
+  user.resetPasswordToken = token;
+  user.resetPasswordExpires = Date.now() + 3600000; // Token expires in 1 hour
+
+  await user.save();
+
+  const resetURL = `http://localhost:3001/reset-password.html?token=${token}`;
+
+  // Send the email to the user
+  const transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+      user: "ananta10092004@gmail.com",
+      pass: "fopj wngw nscr fksu",
+    },
+  });
+  await transporter.sendMail({
+    to: user.email,
+    from: '"Student Management System" <ananta10092004@gmail.com>',
+    subject: "Password Reset Request",
+    html: `
+      <p>You are receiving this because you (or someone else) have requested the reset of the password for your account.</p>
+      <p>Please click on the following link, or paste this into your browser to complete the process:</p>
+      <p><a href="${resetURL}">${resetURL}</a></p>
+      <p>If you did not request this, please ignore this email and your password will remain unchanged.</p>
+    `,
+  });
+
+  res.json({
+    success: true,
+    message: "A password reset link has been sent to your email.",
+  });
+});
+
+// Endpoint 6: Reset Password - Update Password
+app.post("/api/reset-password", async (req, res) => {
+  const { token, password } = req.body;
+
+  const user = await User.findOne({
+    resetPasswordToken: token,
+    resetPasswordExpires: { $gt: Date.now() }, // Check if token is not expired
+  });
+
+  if (!user) {
+    return res.status(400).json({
+      success: false,
+      message: "Password reset token is invalid or has expired.",
+    });
+  }
+
+  // Hash the new password before saving it
+  const salt = await bcrypt.genSalt(10);
+  user.password = await bcrypt.hash(password, salt);
+
+  await user.save();
+
+  res.json({ success: true, message: "Password has been successfully reset." });
 });
 
 // --- DEBUGGING ENDPOINT ---

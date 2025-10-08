@@ -27,7 +27,7 @@ body {
   padding: 40px;
   width: 90%;
   max-width: 1100px;
-  box-shadow: 0px 4px 20px rgba(0,0,0,0.5);
+  box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.5);
 }
 
 /* LEFT SECTION (LOGIN FORM) */
@@ -120,6 +120,19 @@ body {
   max-width: 80%;
   object-fit: contain;
   margin-top: 10px;
+}
+
+/* --- Improved Error Message Styling --- */
+.error-message {
+  color: #ff4d4d; /* Bright red color */
+  background-color: rgba(255, 77, 77, 0.1); /* Faint red background */
+  border: 1px solid rgba(255, 77, 77, 0.4);
+  border-radius: 6px;
+  padding: 12px;
+  margin-top: 15px;
+  font-weight: 500;
+  display: none; /* Hide by default, shown by JavaScript */
+  text-align: center;
 }
 
 /* RESPONSIVE */

@@ -98,20 +98,15 @@ body {
 
 /* Error and Success Messages */
 .error-message {
-  color: #ef4444;
-  font-size: 14px;
-  margin-bottom: 15px;
-  min-height: 20px;
-  display: none;
+  color: #ff4d4d; /* Bright red color */
+  background-color: rgba(255, 77, 77, 0.1); /* Faint red background */
+  border: 1px solid rgba(255, 77, 77, 0.4);
+  border-radius: 6px;
+  padding: 12px;
+  margin-top: 15px;
+  font-weight: 500;
+  display: none; /* Hide by default, shown by JavaScript */
   text-align: center;
-  padding: 10px;
-  background: rgba(239, 68, 68, 0.1);
-  border-radius: 8px;
-  border: 1px solid rgba(239, 68, 68, 0.3);
-}
-
-.error-message.show {
-  display: block;
 }
 
 .success-message {
@@ -269,4 +264,37 @@ body {
   #signupBtn {
     margin-top: 15px;
   }
+}
+
+/* --- Button Loading Spinner Animation --- */
+
+/* The spinner element, hidden by default */
+.spinner {
+  border: 3px solid rgba(255, 255, 255, 0.3); /* Light grey circle */
+  border-top: 3px solid #ffffff; /* White spinning part */
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  animation: spin 1s linear infinite;
+  display: none; /* IMPORTANT: Hide by default */
+  margin: 0 auto; /* Center the spinner inside the button */
+}
+
+/* The spinning keyframe animation */
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* When a button has the 'loading' class... */
+button.loading .button-text {
+  display: none; /* ...hide the button's text */
+}
+
+button.loading .spinner {
+  display: block; /* ...and show the spinner */
 }
