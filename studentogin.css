@@ -154,19 +154,6 @@ body {
   margin-top: 10px;
 }
 
-/* --- Improved Error Message Styling --- */
-.error-message {
-  color: #ff4d4d; /* Bright red color */
-  background-color: rgba(255, 77, 77, 0.1); /* Faint red background */
-  border: 1px solid rgba(255, 77, 77, 0.4);
-  border-radius: 6px;
-  padding: 12px;
-  margin-top: 15px;
-  font-weight: 500;
-  display: none; /* Hide by default, shown by JavaScript */
-  text-align: center;
-}
-
 /* RESPONSIVE */
 @media (max-width: 768px) {
   .container {

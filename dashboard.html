@@ -1,1136 +1,698 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>R.I.T — Student Dashboard | Student Management System</title>
-    <meta
-      name="description"
-      content="R.I.T Student Dashboard — Student Management System"
-    />
-    <meta name="theme-color" content="#081025" />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&family=Poppins:wght@600;700&display=swap"
-      rel="stylesheet"
-    />
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
-      crossorigin="anonymous"
-    />
-    <link rel="stylesheet" href="dash.css" />
-  </head>
-  <body>
-    <a
-      href="#content"
-      style="
-        position: absolute;
-        left: -9999px;
-        top: auto;
-        width: 1px;
-        height: 1px;
-        overflow: hidden;
-      "
-      >Skip to content</a
-    >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>R.I.T — Admin Dashboard | Student Management System</title>
+  <meta name="description" content="R.I.T Admin Dashboard — Student Management System" />
+  <meta name="theme-color" content="#081025" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" crossorigin="anonymous">
+  <link rel="stylesheet" href="dash.css">
+</head>
+<body>
+  <a href="#content" style="position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden;">Skip to content</a>
 
-    <!-- Hamburger (top-left, outside main-wrap) -->
-    <button class="hamburger" id="hamburger" aria-label="Toggle menu">
-      <span></span>
-      <span></span>
-      <span></span>
-    </button>
+  <!-- Hamburger (top-left, outside main-wrap) -->
+  <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+    <span></span>
+    <span></span>
+    <span></span>
+  </button>
 
-    <!-- Sidebar -->
-    <aside class="sidebar" aria-label="Main navigation">
-      <div class="sidebar-inner">
-        <div class="brand">
-          <img src="assets/logo.png" alt="RIT Logo" class="brand-logo" />
-          <div class="brand-text">
-            <div class="brand-name">Roland Institute of Technology</div>
-            <div class="brand-sub">Estd. 2002 • ISO 9001:2015</div>
-          </div>
+  <!-- Sidebar -->
+  <aside class="sidebar" aria-label="Main navigation">
+    <div class="sidebar-inner">
+      <div class="brand">
+        <img src="assets/logo.png" alt="RIT Logo" class="brand-logo">
+        <div class="brand-text">
+          <div class="brand-name">Roland Institute of Technology</div>
+          <div class="brand-sub">Estd. 2002 • ISO 9001:2015</div>
         </div>
+      </div>
 
-        <div class="profile glass">
-          <img
-            src="assets/admin-profile.jpg"
-            alt="Student profile"
-            class="avatar"
-          />
-          <div class="profile-meta">
-            <div class="admin-name">Student Name</div>
-            <div class="admin-email">student@email.com</div>
-            <div class="admin-role">Student</div>
-          </div>
+      <div class="profile glass">
+        <img src="assets/admin-profile.jpg" alt="Admin profile" class="avatar">
+        <div class="profile-meta">
+          <div class="admin-name">Gunamani Jena</div>
+          <div class="admin-email">admin@rit.edu</div>
+          <div class="admin-role">System Administrator</div>
         </div>
+      </div>
 
-        <nav class="nav" id="side-nav">
-          <a href="#dashboard" class="nav-item"
-            ><i class="fa-solid fa-house"></i> Dashboard</a
-          >
-          <a href="#schedule" class="nav-item"
-            ><i class="fa-solid fa-calendar-days"></i> Schedule</a
-          >
-          <a href="#attendance" class="nav-item"
-            ><i class="fa-solid fa-check-to-slot"></i> Attendance</a
-          >
-          <a href="#batch" class="nav-item"
-            ><i class="fa-solid fa-users"></i> Batch</a
-          >
-          <a href="#exam" class="nav-item"
-            ><i class="fa-solid fa-pen-to-square"></i> Exam</a
-          >
-          <a href="#results" class="nav-item"
-            ><i class="fa-solid fa-list-check"></i> Results</a
-          >
-          <a href="#profile" class="nav-item"
-            ><i class="fa-solid fa-user-gear"></i> My Profile</a
-          >
-          <a href="#notices" class="nav-item"
-            ><i class="fa-solid fa-bell"></i> Notices</a
-          >
-          <a href="#support" class="nav-item"
-            ><i class="fa-solid fa-headset"></i> Support</a
-          >
-          <label for="logout-toggle" class="nav-item logout"
-            ><i class="fa-solid fa-right-from-bracket"></i> Log out</label
-          >
+      <nav class="nav" id="side-nav">
+        <a href="#dashboard" class="nav-item"><i class="fa-solid fa-house"></i> Dashboard</a>
+        <a href="#schedule" class="nav-item"><i class="fa-solid fa-calendar-days"></i> Schedule</a>
+        <a href="#attendance" class="nav-item"><i class="fa-solid fa-check-to-slot"></i> Attendance</a>
+        <a href="#batch" class="nav-item"><i class="fa-solid fa-users"></i> Batch</a>
+        <a href="#exam" class="nav-item"><i class="fa-solid fa-pen-to-square"></i> Exam</a>
+        <a href="#results" class="nav-item"><i class="fa-solid fa-list-check"></i> Results</a>
+        <a href="#profile" class="nav-item"><i class="fa-solid fa-user-gear"></i> My Profile</a>
+        <a href="#notices" class="nav-item"><i class="fa-solid fa-bell"></i> Notices</a>
+        <a href="#support" class="nav-item"><i class="fa-solid fa-headset"></i> Support</a>
+        <label for="logout-toggle" class="nav-item logout"><i class="fa-solid fa-right-from-bracket"></i> Log out</label>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="dept">Dept. of Computer Science</div>
+        <div class="sync">Last sync: <strong>2m ago</strong></div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Logout modal -->
+  <input id="logout-toggle" type="checkbox" hidden>
+  <div class="modal-overlay">
+    <div class="modal-panel glass">
+      <label for="logout-toggle" class="modal-close" title="Close">✕</label>
+      <h3>Confirm Logout</h3>
+      <p>Are you sure you want to log out of the Admin panel? Unsaved changes will be lost.</p>
+      <div class="modal-actions">
+        <label for="logout-toggle" class="btn btn-ghost">Cancel</label>
+        <a href="#" class="btn btn-danger">Yes, log me out</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Drawer overlay for mobile -->
+  <div class="drawer-overlay" id="drawer-overlay"></div>
+
+  <!-- Main content -->
+  <div class="main-wrap">
+    <header class="topbar glass">
+      <div class="topbar-left">
+        <img src="assets/aicte.png" alt="AICTE" class="badge">
+        <img src="assets/naac.png" alt="NAAC" class="badge">
+        <img src="assets/iso.png" alt="ISO" class="badge">
+        <div class="search glass">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input type="search" placeholder="Search students, courses, notices..." aria-label="Search">
+        </div>
+      </div>
+      <div class="topbar-right">
+        <nav class="top-tabs" id="top-tabs">
+          <a href="#dashboard" class="tab">Home</a>
+          <a href="#schedule" class="tab">Schedule</a>
+          <a href="#attendance" class="tab">Attendance</a>
+          <a href="#notices" class="tab">Announcements</a>
+          <a href="#support" class="tab">Help</a>
         </nav>
-
-        <div class="sidebar-footer">
-          <div class="dept">Dept. of Computer Science</div>
-          <div class="sync">Last sync: <strong>2m ago</strong></div>
+        <div class="top-icons">
+          <button class="icon-btn" title="Notifications"><i class="fa-solid fa-bell"></i><span class="dot"></span></button>
+          <a href="#profile" class="icon-btn" title="Profile"><i class="fa-solid fa-circle-user"></i></a>
         </div>
       </div>
-    </aside>
+    </header>
 
-    <!-- Logout modal -->
-    <input id="logout-toggle" type="checkbox" hidden />
-    <div class="modal-overlay">
-      <div class="modal-panel glass">
-        <label for="logout-toggle" class="modal-close" title="Close">✕</label>
-        <h3>Confirm Logout</h3>
-        <p>
-          Are you sure you want to log out of the Admin panel? Unsaved changes
-          will be lost.
-        </p>
-        <div class="modal-actions">
-          <label for="logout-toggle" class="btn btn-ghost">Cancel</label>
-          <a href="#" class="btn btn-danger">Yes, log me out</a>
+    <main class="content" id="content">
+      <!-- Dashboard -->
+      <section id="dashboard" class="section" tabindex="0" style="scroll-margin-top: var(--topbar-height);">
+        <div class="section-head">
+          <h1>Admin Dashboard</h1>
+          <p class="muted">Overview & quick actions • Campus administrative control panel</p>
         </div>
-      </div>
-    </div>
+        <div class="grid two-col">
+          <div class="col">
+            <article class="card glass">
+              <header class="card-head">
+                <h3><i class="fa-solid fa-bullhorn"></i> Latest Notifications</h3>
+                <div class="small muted">You have <strong>5</strong> unread</div>
+              </header>
+              <div class="card-body">
+                <details class="card-item" open>
+                  <summary>
+                    <div class="item-title">Semester Results Published</div>
+                    <div class="item-meta">Posted 2 hours ago — B.Tech CSE (Sem 4)</div>
+                  </summary>
+                  <div class="item-content">
+                    <p>Official semester results for all departments released.</p>
+                    <ul>
+                      <li>Download provisional transcripts from Results → Manage</li>
+                      <li>Appeal window open until 30 April</li>
+                      <li>Contact: examoffice@rit.edu</li>
+                    </ul>
+                  </div>
+                </details>
+                <details class="card-item">
+                  <summary>
+                    <div class="item-title">Fee Payment Reminder</div>
+                    <div class="item-meta">Due in 3 days — Accounts Office</div>
+                  </summary>
+                  <div class="item-content">
+                    <p>Second installment due for most undergraduate batches. Late fees apply after deadline.</p>
+                    <p><strong>Action:</strong> Generate reminders and bulk-email students.</p>
+                  </div>
+                </details>
+                <details class="card-item">
+                  <summary>
+                    <div class="item-title">New Course Material Available</div>
+                    <div class="item-meta">Mathematics • Unit 4</div>
+                  </summary>
+                  <div class="item-content">
+                    <p>Dr. S. Reddy uploaded new lecture slides, sample solutions and assignments.</p>
+                    <p><strong>Files:</strong> Unit4_slides.pdf • Unit4_assign.zip</p>
+                  </div>
+                </details>
+                <div class="card-actions">
+                  <a href="#notices" class="btn btn-outline">View All Notifications</a>
+                </div>
+              </div>
+            </article>
+          </div>
+          <aside class="col side">
+            <article class="card glass">
+              <header class="card-head">
+                <h3><i class="fa-solid fa-link"></i> Quick Links</h3>
+                <div class="small muted">Shortcuts you often use</div>
+              </header>
+              <div class="card-body quick-list">
+                <a href="#exam" class="quick-btn"><i class="fa-solid fa-file-lines"></i> Download Hall Ticket</a>
+                <a href="#payments" class="quick-btn"><i class="fa-solid fa-wallet"></i> Pay Fees</a>
+                <a href="#library" class="quick-btn"><i class="fa-solid fa-book"></i> Library Portal</a>
+                <a href="#vlab" class="quick-btn"><i class="fa-solid fa-desktop"></i> Virtual Lab</a>
+                <a href="#intern" class="quick-btn"><i class="fa-solid fa-briefcase"></i> Internship Cell</a>
+                <a href="#transcript" class="quick-btn"><i class="fa-solid fa-scroll"></i> Transcript Request</a>
+              </div>
+            </article>
+          </aside>
+        </div>
+      </section>
 
-    <!-- Drawer overlay for mobile -->
-    <div class="drawer-overlay" id="drawer-overlay"></div>
-
-    <!-- Main content -->
-    <div class="main-wrap">
-      <header class="topbar glass">
-        <div class="topbar-left">
-          <img src="assets/aicte.png" alt="AICTE" class="badge" />
-          <img src="assets/naac.png" alt="NAAC" class="badge" />
-          <img src="assets/iso.png" alt="ISO" class="badge" />
-          <div class="search glass">
-            <i class="fa-solid fa-magnifying-glass"></i>
-            <input
-              type="search"
-              placeholder="Search students, courses, notices..."
-              aria-label="Search"
-            />
+      <!-- Schedule (new section) -->
+      <section id="schedule" class="section hidden" tabindex="0" style="scroll-margin-top: var(--topbar-height);">
+        <div class="section-head">
+          <h2>Schedule / Timetable</h2>
+          <p class="muted">Today's classes and events.</p>
+        </div>
+        <div class="card glass">
+          <header class="card-head">
+            <h3><i class="fa-solid fa-calendar"></i> Today's Timetable</h3>
+            <div class="small muted">Wednesday • 16 April 2025</div>
+          </header>
+          <div class="card-body timetable">
+            <div class="tt-row"><div class="tt-time">09:00 - 10:00</div><div class="tt-block blue">Data Structures — Prof. Joe</div></div>
+            <div class="tt-row"><div class="tt-time">10:30 - 11:30</div><div class="tt-block blue">Mathematics-III — Dr. Mervin</div></div>
+            <div class="tt-row"><div class="tt-time">12:00 - 13:00</div><div class="tt-block blue">Computer Networks — Ms. Kevin</div></div>
+            <div class="tt-row"><div class="tt-time">14:00 - 15:00</div><div class="tt-block green">Soft Skills Workshop — Guest</div></div>
           </div>
         </div>
-        <div class="topbar-right">
-          <nav class="top-tabs" id="top-tabs">
-            <a href="#dashboard" class="tab">Home</a>
-            <a href="#schedule" class="tab">Schedule</a>
-            <a href="#attendance" class="tab">Attendance</a>
-            <a href="#notices" class="tab">Announcements</a>
-            <a href="#support" class="tab">Help</a>
-          </nav>
-          <div class="top-icons">
-            <button class="icon-btn" title="Notifications">
-              <i class="fa-solid fa-bell"></i><span class="dot"></span>
-            </button>
-            <a href="#profile" class="icon-btn" title="Profile"
-              ><i class="fa-solid fa-circle-user"></i
-            ></a>
+        <div class="card glass">
+          <header class="card-head">
+            <h3><i class="fa-solid fa-fire-flame-curved"></i> Streak Tracker</h3>
+            <div class="small muted">Keep your learning streak alive</div>
+          </header>
+          <div class="card-body streak-card">
+            <div class="streak-left">
+              <div class="streak-blob">🔥</div>
+              <div class="streak-days">7 <span class="tiny muted">days</span></div>
+            </div>
+            <div class="streak-right">
+              <p><strong>Rewards:</strong> 50 bonus points unlocked • Next reward at 10 days</p>
+              <p class="muted">Tip: Complete at least one micro-challenge daily.</p>
+              <button class="btn btn-sm" disabled>How to keep streak</button>
+            </div>
           </div>
         </div>
-      </header>
+      </section>
 
-      <main class="content" id="content">
-        <!-- Dashboard -->
-        <section
-          id="dashboard"
-          class="section"
-          tabindex="0"
-          style="scroll-margin-top: var(--topbar-height)"
-        >
-          <div class="section-head">
-            <h1>Admin Dashboard</h1>
-            <p class="muted">
-              Overview & quick actions • Campus administrative control panel
-            </p>
-          </div>
-          <div class="grid two-col">
-            <div class="col">
-              <article class="card glass">
-                <header class="card-head">
-                  <h3>
-                    <i class="fa-solid fa-bullhorn"></i> Latest Notifications
-                  </h3>
-                  <div class="small muted">
-                    You have <strong>5</strong> unread
+      <!-- Attendance (new section) -->
+      <section id="attendance" class="section hidden" tabindex="0" style="scroll-margin-top: var(--topbar-height);">
+        <div class="section-head">
+          <h2>Attendance Overview</h2>
+          <p class="muted">Track student attendance and filter by batch, course, or date.</p>
+        </div>
+        <div class="grid two-col">
+          <div class="col">
+            <article class="card glass">
+              <header class="card-head">
+                <h3><i class="fa-solid fa-user-check"></i> Attendance Overview</h3>
+                <div class="small muted">Last 30 days • Updated today</div>
+              </header>
+              <div class="card-body attendance-body">
+                <div class="donut-wrap">
+                  <div class="donut" aria-hidden="true">
+                    <div class="donut-inner">85%</div>
                   </div>
-                </header>
-                <div class="card-body">
-                  <details class="card-item" open>
-                    <summary>
-                      <div class="item-title">Semester Results Published</div>
-                      <div class="item-meta">
-                        Posted 2 hours ago — B.Tech CSE (Sem 4)
-                      </div>
-                    </summary>
-                    <div class="item-content">
-                      <p>
-                        Official semester results for all departments released.
-                      </p>
-                      <ul>
-                        <li>
-                          Download provisional transcripts from Results → Manage
-                        </li>
-                        <li>Appeal window open until 30 April</li>
-                        <li>Contact: examoffice@rit.edu</li>
-                      </ul>
-                    </div>
-                  </details>
-                  <details class="card-item">
-                    <summary>
-                      <div class="item-title">Fee Payment Reminder</div>
-                      <div class="item-meta">
-                        Due in 3 days — Accounts Office
-                      </div>
-                    </summary>
-                    <div class="item-content">
-                      <p>
-                        Second installment due for most undergraduate batches.
-                        Late fees apply after deadline.
-                      </p>
-                      <p>
-                        <strong>Action:</strong> Generate reminders and
-                        bulk-email students.
-                      </p>
-                    </div>
-                  </details>
-                  <details class="card-item">
-                    <summary>
-                      <div class="item-title">
-                        New Course Material Available
-                      </div>
-                      <div class="item-meta">Mathematics • Unit 4</div>
-                    </summary>
-                    <div class="item-content">
-                      <p>
-                        Dr. S. Reddy uploaded new lecture slides, sample
-                        solutions and assignments.
-                      </p>
-                      <p>
-                        <strong>Files:</strong> Unit4_slides.pdf •
-                        Unit4_assign.zip
-                      </p>
-                    </div>
-                  </details>
-                  <div class="card-actions">
-                    <a href="#notices" class="btn btn-outline"
-                      >View All Notifications</a
-                    >
+                  <div class="legend">
+                    <span class="dot present"></span> Present
+                    <span class="dot absent"></span> Absent
                   </div>
                 </div>
-              </article>
-            </div>
-            <aside class="col side">
-              <article class="card glass">
-                <header class="card-head">
-                  <h3><i class="fa-solid fa-link"></i> Quick Links</h3>
-                  <div class="small muted">Shortcuts you often use</div>
-                </header>
-                <div class="card-body quick-list">
-                  <a href="#exam" class="quick-btn"
-                    ><i class="fa-solid fa-file-lines"></i> Download Hall
-                    Ticket</a
-                  >
-                  <a href="#payments" class="quick-btn"
-                    ><i class="fa-solid fa-wallet"></i> Pay Fees</a
-                  >
-                  <a href="#library" class="quick-btn"
-                    ><i class="fa-solid fa-book"></i> Library Portal</a
-                  >
-                  <a href="#vlab" class="quick-btn"
-                    ><i class="fa-solid fa-desktop"></i> Virtual Lab</a
-                  >
-                  <a href="#intern" class="quick-btn"
-                    ><i class="fa-solid fa-briefcase"></i> Internship Cell</a
-                  >
-                  <a href="#transcript" class="quick-btn"
-                    ><i class="fa-solid fa-scroll"></i> Transcript Request</a
-                  >
-                </div>
-              </article>
-            </aside>
-          </div>
-        </section>
-
-        <!-- Schedule (new section) -->
-        <section
-          id="schedule"
-          class="section hidden"
-          tabindex="0"
-          style="scroll-margin-top: var(--topbar-height)"
-        >
-          <div class="section-head">
-            <h2>Schedule / Timetable</h2>
-            <p class="muted">Today's classes and events.</p>
-          </div>
-          <div class="card glass">
-            <header class="card-head">
-              <h3><i class="fa-solid fa-calendar"></i> Today's Timetable</h3>
-              <div class="small muted">Wednesday • 16 April 2025</div>
-            </header>
-            <div class="card-body timetable">
-              <div class="tt-row">
-                <div class="tt-time">09:00 - 10:00</div>
-                <div class="tt-block blue">Data Structures — Prof. Joe</div>
-              </div>
-              <div class="tt-row">
-                <div class="tt-time">10:30 - 11:30</div>
-                <div class="tt-block blue">Mathematics-III — Dr. Mervin</div>
-              </div>
-              <div class="tt-row">
-                <div class="tt-time">12:00 - 13:00</div>
-                <div class="tt-block blue">Computer Networks — Ms. Kevin</div>
-              </div>
-              <div class="tt-row">
-                <div class="tt-time">14:00 - 15:00</div>
-                <div class="tt-block green">Soft Skills Workshop — Guest</div>
-              </div>
-            </div>
-          </div>
-          <div class="card glass">
-            <header class="card-head">
-              <h3>
-                <i class="fa-solid fa-fire-flame-curved"></i> Streak Tracker
-              </h3>
-              <div class="small muted">Keep your learning streak alive</div>
-            </header>
-            <div class="card-body streak-card">
-              <div class="streak-left">
-                <div class="streak-blob">🔥</div>
-                <div class="streak-days">
-                  7 <span class="tiny muted">days</span>
-                </div>
-              </div>
-              <div class="streak-right">
-                <p>
-                  <strong>Rewards:</strong> 50 bonus points unlocked • Next
-                  reward at 10 days
-                </p>
-                <p class="muted">
-                  Tip: Complete at least one micro-challenge daily.
-                </p>
-                <button class="btn btn-sm" disabled>How to keep streak</button>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <!-- Attendance (new section) -->
-        <section
-          id="attendance"
-          class="section hidden"
-          tabindex="0"
-          style="scroll-margin-top: var(--topbar-height)"
-        >
-          <div class="section-head">
-            <h2>Attendance Overview</h2>
-            <p class="muted">
-              Track student attendance and filter by batch, course, or date.
-            </p>
-          </div>
-          <div class="grid two-col">
-            <div class="col">
-              <article class="card glass">
-                <header class="card-head">
-                  <h3>
-                    <i class="fa-solid fa-user-check"></i> Attendance Overview
-                  </h3>
-                  <div class="small muted">Last 30 days • Updated today</div>
-                </header>
-                <div class="card-body attendance-body">
-                  <div class="donut-wrap">
-                    <div class="donut" aria-hidden="true">
-                      <div class="donut-inner">85%</div>
-                    </div>
-                    <div class="legend">
-                      <span class="dot present"></span> Present
-                      <span class="dot absent"></span> Absent
-                    </div>
+                <div class="attendance-details">
+                  <h4>Overall Attendance</h4>
+                  <p>Semester Average: <strong>87%</strong></p>
+                  <p>Current Month: <strong>85% Present</strong> (3 days absent)</p>
+                  <div class="progress-bars">
+                    <div class="pb-row"><div class="pb-label">Data Structures</div><div class="pb"><span style="width:90%"></span></div></div>
+                    <div class="pb-row"><div class="pb-label">Mathematics-III</div><div class="pb"><span style="width:78%"></span></div></div>
+                    <div class="pb-row"><div class="pb-label">Computer Networks</div><div class="pb"><span style="width:95%"></span></div></div>
                   </div>
-                  <div class="attendance-details">
-                    <h4>Overall Attendance</h4>
-                    <p>Semester Average: <strong>87%</strong></p>
-                    <p>
-                      Current Month: <strong>85% Present</strong> (3 days
-                      absent)
-                    </p>
-                    <div class="progress-bars">
-                      <div class="pb-row">
-                        <div class="pb-label">Data Structures</div>
-                        <div class="pb"><span style="width: 90%"></span></div>
-                      </div>
-                      <div class="pb-row">
-                        <div class="pb-label">Mathematics-III</div>
-                        <div class="pb"><span style="width: 78%"></span></div>
-                      </div>
-                      <div class="pb-row">
-                        <div class="pb-label">Computer Networks</div>
-                        <div class="pb"><span style="width: 95%"></span></div>
-                      </div>
-                    </div>
-                    <div class="small muted" style="margin-top: 10px">
-                      Tip: Click on a module in Schedule → Manage to inspect
-                      student-wise attendance.
-                    </div>
-                  </div>
-                </div>
-              </article>
-
-              <article class="card glass">
-                <header class="card-head">
-                  <h3>
-                    <i class="fa-solid fa-table-list"></i> Attendance — Detailed
-                  </h3>
-                  <div class="small muted">Filter by Batch / Course / Date</div>
-                </header>
-                <div class="card-body table-wrap">
-                  <form class="filter-row" action="#" method="get">
-                    <select name="batch">
-                      <option>All Batches</option>
-                      <option>2023 — CSE</option>
-                      <option>2022 — IT</option>
-                    </select>
-                    <select name="course">
-                      <option>All Courses</option>
-                      <option>Data Structures</option>
-                      <option>Maths-III</option>
-                    </select>
-                    <input type="date" name="date" />
-                    <button class="btn btn-sm">Apply</button>
-                  </form>
-                  <table>
-                    <thead>
-                      <tr>
-                        <th>Roll No</th>
-                        <th>Student Name</th>
-                        <th>Course</th>
-                        <th>Date</th>
-                        <th>Status</th>
-                        <th>Remarks</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr>
-                        <td>CS2101</td>
-                        <td>Aisha Patel</td>
-                        <td>Data Structures</td>
-                        <td>2025-04-16</td>
-                        <td class="status present">Present</td>
-                        <td>On time</td>
-                      </tr>
-                      <tr>
-                        <td>CS2102</td>
-                        <td>Ravi Kumar</td>
-                        <td>Data Structures</td>
-                        <td>2025-04-16</td>
-                        <td class="status absent">Absent</td>
-                        <td>Medical</td>
-                      </tr>
-                      <tr>
-                        <td>CS2103</td>
-                        <td>Meera Singh</td>
-                        <td>Data Structures</td>
-                        <td>2025-04-16</td>
-                        <td class="status present">Present</td>
-                        <td>—</td>
-                      </tr>
-                      <tr>
-                        <td>CS2104</td>
-                        <td>Karan Verma</td>
-                        <td>Mathematics-III</td>
-                        <td>2025-04-16</td>
-                        <td class="status present">Present</td>
-                        <td>—</td>
-                      </tr>
-                      <tr>
-                        <td>CS2105</td>
-                        <td>Priya Rao</td>
-                        <td>Computer Networks</td>
-                        <td>2025-04-16</td>
-                        <td class="status present">Present</td>
-                        <td>—</td>
-                      </tr>
-                      <tr>
-                        <td>CS2106</td>
-                        <td>Adil Khan</td>
-                        <td>Computer Networks</td>
-                        <td>2025-04-16</td>
-                        <td class="status absent">Absent</td>
-                        <td>—</td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-              </article>
-            </div>
-          </div>
-        </section>
-
-        <!-- Batch -->
-        <section
-          id="batch"
-          class="section hidden"
-          tabindex="0"
-          style="scroll-margin-top: var(--topbar-height)"
-        >
-          <div class="section-head">
-            <h2>Batch / Class Management</h2>
-            <p class="muted">
-              Manage batches, enrollments, class assignments and mentors.
-            </p>
-          </div>
-          <div class="card glass">
-            <header class="card-head">
-              <h3>Active Batches</h3>
-              <div class="small muted">Current academic year</div>
-            </header>
-            <div class="card-body batch-grid">
-              <div class="batch-card">
-                <h4>2023 — CSE (A)</h4>
-                <p class="muted">
-                  Students: 62 • Mentor: Dr. R. Sharma • Section: A
-                </p>
-                <div class="small">Programs: B.Tech • Avg. Attendance: 88%</div>
-                <div class="card-actions">
-                  <a class="btn btn-sm" href="#profile">Manage</a>
-                  <a class="btn btn-outline btn-sm" href="#notices"
-                    >Send Notice</a
-                  >
-                  <a class="btn btn-outline btn-sm" href="#exam">View Exams</a>
+                  <div class="small muted" style="margin-top:10px;">Tip: Click on a module in Schedule → Manage to inspect student-wise attendance.</div>
                 </div>
               </div>
-              <div class="batch-card">
-                <h4>2023 — CSE (B)</h4>
-                <p class="muted">Students: 60 • Mentor: Ms. L. Bose</p>
-                <div class="card-actions">
-                  <a class="btn btn-sm" href="#profile">Manage</a>
-                  <a class="btn btn-outline btn-sm" href="#exam">View Exams</a>
-                </div>
-              </div>
-              <div class="batch-card">
-                <h4>2022 — IT</h4>
-                <p class="muted">Students: 58 • Mentor: Mr. P. Singh</p>
-                <div class="card-actions">
-                  <a class="btn btn-sm" href="#profile">Manage</a>
-                  <a class="btn btn-outline btn-sm" href="#exam">View Exams</a>
-                </div>
-              </div>
-              <div class="batch-card">
-                <h4>2021 — ECE</h4>
-                <p class="muted">Students: 64 • Mentor: Dr. S. Kumar</p>
-                <div class="card-actions">
-                  <a class="btn btn-sm" href="#profile">Manage</a>
-                  <a class="btn btn-outline btn-sm" href="#exam">View Exams</a>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
+            </article>
 
-        <!-- Exam -->
-        <section
-          id="exam"
-          class="section hidden"
-          tabindex="0"
-          style="scroll-margin-top: var(--topbar-height)"
-        >
-          <div class="section-head">
-            <h2>Examination Management</h2>
-            <p class="muted">
-              Create exams, assign halls, review schedules & monitor progress.
-            </p>
-          </div>
-          <div class="card glass">
-            <header class="card-head">
-              <h3>Create New Exam</h3>
-            </header>
-            <div class="card-body">
-              <form class="form-grid">
-                <div class="form-group">
-                  <label for="exam-name">Exam Name</label>
-                  <input
-                    type="text"
-                    id="exam-name"
-                    placeholder="Mid Term / End Sem"
-                  />
-                </div>
-                <div class="form-group">
-                  <label for="exam-batch">Batch</label>
-                  <select id="exam-batch">
-                    <option>2023 — CSE (A)</option>
-                    <option>2023 — CSE (B)</option>
-                    <option>2022 — IT</option>
-                  </select>
-                </div>
-                <div class="form-group">
-                  <label for="exam-date">Date</label>
-                  <input type="date" id="exam-date" />
-                </div>
-                <div class="form-group">
-                  <label for="exam-time">Time</label>
-                  <input type="time" id="exam-time" />
-                </div>
-                <div class="form-group full">
-                  <label for="exam-desc">Description</label>
-                  <textarea
-                    id="exam-desc"
-                    placeholder="Exam instructions, allowed materials, etc."
-                  ></textarea>
-                </div>
-                <div class="form-actions">
-                  <button type="submit" class="btn btn-primary">
-                    Create Exam
-                  </button>
-                  <button type="reset" class="btn btn-outline">Clear</button>
-                </div>
-              </form>
-            </div>
-          </div>
-          <div class="card glass">
-            <header class="card-head">
-              <h3>Upcoming Exams</h3>
-              <div class="small muted">Next 2 weeks</div>
-            </header>
-            <div class="card-body table-wrap">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Exam</th>
-                    <th>Batch</th>
-                    <th>Date</th>
-                    <th>Time</th>
-                    <th>Hall</th>
-                    <th>Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td>Mid Term CSE</td>
-                    <td>2023 — CSE (A)</td>
-                    <td>2025-04-20</td>
-                    <td>09:00 - 12:00</td>
-                    <td>Hall 1</td>
-                    <td><span class="status pending">Pending</span></td>
-                  </tr>
-                  <tr>
-                    <td>Mid Term CSE</td>
-                    <td>2023 — CSE (B)</td>
-                    <td>2025-04-21</td>
-                    <td>09:00 - 12:00</td>
-                    <td>Hall 2</td>
-                    <td><span class="status pending">Pending</span></td>
-                  </tr>
-                  <tr>
-                    <td>End Sem IT</td>
-                    <td>2022 — IT</td>
-                    <td>2025-05-02</td>
-                    <td>10:00 - 13:00</td>
-                    <td>Hall 3</td>
-                    <td><span class="status scheduled">Scheduled</span></td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </section>
-
-        <!-- Results -->
-        <section
-          id="results"
-          class="section hidden"
-          tabindex="0"
-          style="scroll-margin-top: var(--topbar-height)"
-        >
-          <div class="section-head">
-            <h2>Results Management</h2>
-            <p class="muted">
-              View, upload, and analyze exam results by batch and course.
-            </p>
-          </div>
-          <div class="card glass">
-            <header class="card-head">
-              <h3>Upload Results</h3>
-            </header>
-            <div class="card-body">
-              <form class="form-grid">
-                <div class="form-group">
-                  <label for="result-batch">Batch</label>
-                  <select id="result-batch">
-                    <option>2023 — CSE (A)</option>
-                    <option>2023 — CSE (B)</option>
-                    <option>2022 — IT</option>
-                  </select>
-                </div>
-                <div class="form-group">
-                  <label for="result-course">Course</label>
-                  <select id="result-course">
-                    <option>Data Structures</option>
-                    <option>Mathematics-III</option>
-                    <option>Computer Networks</option>
-                  </select>
-                </div>
-                <div class="form-group">
-                  <label for="result-file">Upload File (CSV / Excel)</label>
-                  <input type="file" id="result-file" />
-                </div>
-                <div class="form-actions">
-                  <button type="submit" class="btn btn-primary">
-                    Upload Results
-                  </button>
-                  <button type="reset" class="btn btn-outline">Clear</button>
-                </div>
-              </form>
-            </div>
-          </div>
-          <div class="card glass">
-            <header class="card-head">
-              <h3>Recent Results</h3>
-              <div class="small muted">Last uploaded results</div>
-            </header>
-            <div class="card-body table-wrap">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Batch</th>
-                    <th>Course</th>
-                    <th>Date Uploaded</th>
-                    <th>Uploaded By</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td>2023 — CSE (A)</td>
-                    <td>Data Structures</td>
-                    <td>2025-04-16</td>
-                    <td>Gunamani Jena</td>
-                    <td>
-                      <a class="btn btn-sm" href="#">View</a>
-                      <a class="btn btn-outline btn-sm" href="#">Download</a>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>2023 — CSE (B)</td>
-                    <td>Mathematics-III</td>
-                    <td>2025-04-15</td>
-                    <td>Gunamani Jena</td>
-                    <td>
-                      <a class="btn btn-sm" href="#">View</a>
-                      <a class="btn btn-outline btn-sm" href="#">Download</a>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>2022 — IT</td>
-                    <td>Computer Networks</td>
-                    <td>2025-04-14</td>
-                    <td>Gunamani Jena</td>
-                    <td>
-                      <a class="btn btn-sm" href="#">View</a>
-                      <a class="btn btn-outline btn-sm" href="#">Download</a>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </section>
-
-        <!-- Profile -->
-        <section
-          id="profile"
-          class="section hidden"
-          tabindex="0"
-          style="scroll-margin-top: var(--topbar-height)"
-        >
-          <div class="section-head">
-            <h2>My Profile</h2>
-            <p class="muted">
-              Manage your account, contact info, and preferences.
-            </p>
-          </div>
-          <div class="card glass profile-card">
-            <header class="card-head">
-              <h3>Account Details</h3>
-            </header>
-            <div class="card-body">
-              <div class="profile-main">
-                <img
-                  src="assets/admin-profile.jpg"
-                  alt="Admin profile"
-                  class="avatar-large"
-                />
-                <div class="profile-info">
-                  <h4>Gunamani Jena</h4>
-                  <p class="muted">System Administrator</p>
-                  <p>Email: admin@rit.edu</p>
-                  <p>Phone: +91 9876543210</p>
-                  <p>Department: Computer Science</p>
-                </div>
-              </div>
-              <form class="form-grid profile-form">
-                <div class="form-group">
-                  <label for="profile-name">Full Name</label>
-                  <input type="text" id="profile-name" value="Gunamani Jena" />
-                </div>
-                <div class="form-group">
-                  <label for="profile-email">Email</label>
-                  <input
-                    type="email"
-                    id="profile-email"
-                    value="admin@rit.edu"
-                  />
-                </div>
-                <div class="form-group">
-                  <label for="profile-phone">Phone</label>
-                  <input
-                    type="text"
-                    id="profile-phone"
-                    value="+91 9876543210"
-                  />
-                </div>
-                <div class="form-group full">
-                  <label for="profile-address">Address</label>
-                  <textarea id="profile-address">
-123, Campus Street, Roland City</textarea
-                  >
-                </div>
-                <div class="form-actions">
-                  <button type="submit" class="btn btn-primary">
-                    Save Changes
-                  </button>
-                  <button type="reset" class="btn btn-outline">Reset</button>
-                </div>
-              </form>
-            </div>
-          </div>
-        </section>
-
-        <!-- Notices -->
-        <section
-          id="notices"
-          class="section hidden"
-          tabindex="0"
-          style="scroll-margin-top: var(--topbar-height)"
-        >
-          <div class="section-head">
-            <h2>Notices / Announcements</h2>
-            <p class="muted">
-              Create and manage official notices for students and staff.
-            </p>
-          </div>
-          <div class="card glass">
-            <header class="card-head">
-              <h3>Create Notice</h3>
-            </header>
-            <div class="card-body">
-              <form class="form-grid">
-                <div class="form-group">
-                  <label for="notice-title">Title</label>
-                  <input
-                    type="text"
-                    id="notice-title"
-                    placeholder="Enter notice title"
-                  />
-                </div>
-                <div class="form-group full">
-                  <label for="notice-content">Content</label>
-                  <textarea
-                    id="notice-content"
-                    placeholder="Enter notice content"
-                  ></textarea>
-                </div>
-                <div class="form-group">
-                  <label for="notice-batch">Target Batch</label>
-                  <select id="notice-batch">
+            <article class="card glass">
+              <header class="card-head">
+                <h3><i class="fa-solid fa-table-list"></i> Attendance — Detailed</h3>
+                <div class="small muted">Filter by Batch / Course / Date</div>
+              </header>
+              <div class="card-body table-wrap">
+                <form class="filter-row" action="#" method="get">
+                  <select name="batch">
                     <option>All Batches</option>
-                    <option>2023 — CSE (A)</option>
-                    <option>2023 — CSE (B)</option>
+                    <option>2023 — CSE</option>
                     <option>2022 — IT</option>
                   </select>
-                </div>
-                <div class="form-actions">
-                  <button type="submit" class="btn btn-primary">
-                    Publish Notice
-                  </button>
-                  <button type="reset" class="btn btn-outline">Clear</button>
-                </div>
-              </form>
-            </div>
-          </div>
-          <div class="card glass">
-            <header class="card-head">
-              <h3>Recent Notices</h3>
-              <div class="small muted">Last 10 notices</div>
-            </header>
-            <div class="card-body table-wrap">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Title</th>
-                    <th>Batch</th>
-                    <th>Date</th>
-                    <th>Published By</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td>Semester Break</td>
-                    <td>All Batches</td>
-                    <td>2025-04-10</td>
-                    <td>Gunamani Jena</td>
-                    <td>
-                      <a class="btn btn-sm" href="#">View</a>
-                      <a class="btn btn-outline btn-sm" href="#">Edit</a>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>Lab Schedule Update</td>
-                    <td>2023 — CSE (A)</td>
-                    <td>2025-04-08</td>
-                    <td>Gunamani Jena</td>
-                    <td>
-                      <a class="btn btn-sm" href="#">View</a>
-                      <a class="btn btn-outline btn-sm" href="#">Edit</a>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>Workshop on AI</td>
-                    <td>2022 — IT</td>
-                    <td>2025-04-05</td>
-                    <td>Gunamani Jena</td>
-                    <td>
-                      <a class="btn btn-sm" href="#">View</a>
-                      <a class="btn btn-outline btn-sm" href="#">Edit</a>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </section>
-
-        <!-- Support -->
-        <section
-          id="support"
-          class="section hidden"
-          tabindex="0"
-          style="scroll-margin-top: var(--topbar-height)"
-        >
-          <div class="section-head">
-            <h2>Support / Help Desk</h2>
-            <p class="muted">
-              Handle queries, issues, and support tickets from students or
-              staff.
-            </p>
-          </div>
-          <div class="card glass">
-            <header class="card-head">
-              <h3>Submit Ticket</h3>
-            </header>
-            <div class="card-body">
-              <form class="form-grid">
-                <div class="form-group">
-                  <label for="ticket-title">Title</label>
-                  <input
-                    type="text"
-                    id="ticket-title"
-                    placeholder="Issue title"
-                  />
-                </div>
-                <div class="form-group full">
-                  <label for="ticket-desc">Description</label>
-                  <textarea
-                    id="ticket-desc"
-                    placeholder="Describe the issue in detail"
-                  ></textarea>
-                </div>
-                <div class="form-group">
-                  <label for="ticket-priority">Priority</label>
-                  <select id="ticket-priority">
-                    <option>Low</option>
-                    <option>Medium</option>
-                    <option>High</option>
+                  <select name="course">
+                    <option>All Courses</option>
+                    <option>Data Structures</option>
+                    <option>Maths-III</option>
                   </select>
-                </div>
-                <div class="form-actions">
-                  <button type="submit" class="btn btn-primary">
-                    Submit Ticket
-                  </button>
-                  <button type="reset" class="btn btn-outline">Reset</button>
-                </div>
-              </form>
+                  <input type="date" name="date">
+                  <button class="btn btn-sm">Apply</button>
+                </form>
+                <table>
+                  <thead>
+                    <tr><th>Roll No</th><th>Student Name</th><th>Course</th><th>Date</th><th>Status</th><th>Remarks</th></tr>
+                  </thead>
+                  <tbody>
+                    <tr><td>CS2101</td><td>Aisha Patel</td><td>Data Structures</td><td>2025-04-16</td><td class="status present">Present</td><td>On time</td></tr>
+                    <tr><td>CS2102</td><td>Ravi Kumar</td><td>Data Structures</td><td>2025-04-16</td><td class="status absent">Absent</td><td>Medical</td></tr>
+                    <tr><td>CS2103</td><td>Meera Singh</td><td>Data Structures</td><td>2025-04-16</td><td class="status present">Present</td><td>—</td></tr>
+                    <tr><td>CS2104</td><td>Karan Verma</td><td>Mathematics-III</td><td>2025-04-16</td><td class="status present">Present</td><td>—</td></tr>
+                    <tr><td>CS2105</td><td>Priya Rao</td><td>Computer Networks</td><td>2025-04-16</td><td class="status present">Present</td><td>—</td></tr>
+                    <tr><td>CS2106</td><td>Adil Khan</td><td>Computer Networks</td><td>2025-04-16</td><td class="status absent">Absent</td><td>—</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <!-- Batch -->
+      <section id="batch" class="section hidden" tabindex="0" style="scroll-margin-top: var(--topbar-height);">
+        <div class="section-head">
+          <h2>Batch / Class Management</h2>
+          <p class="muted">Manage batches, enrollments, class assignments and mentors.</p>
+        </div>
+        <div class="card glass">
+          <header class="card-head">
+            <h3>Active Batches</h3>
+            <div class="small muted">Current academic year</div>
+          </header>
+          <div class="card-body batch-grid">
+            <div class="batch-card">
+              <h4>2023 — CSE (A)</h4>
+              <p class="muted">Students: 62 • Mentor: Dr. R. Sharma • Section: A</p>
+              <div class="small">Programs: B.Tech • Avg. Attendance: 88%</div>
+              <div class="card-actions">
+                <a class="btn btn-sm" href="#profile">Manage</a>
+                <a class="btn btn-outline btn-sm" href="#notices">Send Notice</a>
+                <a class="btn btn-outline btn-sm" href="#exam">View Exams</a>
+              </div>
+            </div>
+            <div class="batch-card">
+              <h4>2023 — CSE (B)</h4>
+              <p class="muted">Students: 60 • Mentor: Ms. L. Bose</p>
+              <div class="card-actions">
+                <a class="btn btn-sm" href="#profile">Manage</a>
+                <a class="btn btn-outline btn-sm" href="#exam">View Exams</a>
+              </div>
+            </div>
+            <div class="batch-card">
+              <h4>2022 — IT</h4>
+              <p class="muted">Students: 58 • Mentor: Mr. P. Singh</p>
+              <div class="card-actions">
+                <a class="btn btn-sm" href="#profile">Manage</a>
+                <a class="btn btn-outline btn-sm" href="#exam">View Exams</a>
+              </div>
+            </div>
+            <div class="batch-card">
+              <h4>2021 — ECE</h4>
+              <p class="muted">Students: 64 • Mentor: Dr. S. Kumar</p>
+              <div class="card-actions">
+                <a class="btn btn-sm" href="#profile">Manage</a>
+                <a class="btn btn-outline btn-sm" href="#exam">View Exams</a>
+              </div>
             </div>
           </div>
-          <div class="card glass">
-            <header class="card-head">
-              <h3>Open Tickets</h3>
-              <div class="small muted">Pending tickets</div>
-            </header>
-            <div class="card-body table-wrap">
-              <table>
-                <thead>
-                  <tr>
-                    <th>ID</th>
-                    <th>Title</th>
-                    <th>Submitted By</th>
-                    <th>Priority</th>
-                    <th>Status</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td>#101</td>
-                    <td>Password Reset</td>
-                    <td>Student — CS2101</td>
-                    <td>High</td>
-                    <td class="status open">Open</td>
-                    <td>
-                      <a class="btn btn-sm" href="#">View</a>
-                      <a class="btn btn-outline btn-sm" href="#">Resolve</a>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>#102</td>
-                    <td>Lab Computer Issue</td>
-                    <td>Student — CS2103</td>
-                    <td>Medium</td>
-                    <td class="status open">Open</td>
-                    <td>
-                      <a class="btn btn-sm" href="#">View</a>
-                      <a class="btn btn-outline btn-sm" href="#">Resolve</a>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>#103</td>
-                    <td>Fee Payment Error</td>
-                    <td>Student — IT2202</td>
-                    <td>High</td>
-                    <td class="status open">Open</td>
-                    <td>
-                      <a class="btn btn-sm" href="#">View</a>
-                      <a class="btn btn-outline btn-sm" href="#">Resolve</a>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
+        </div>
+      </section>
+
+      <!-- Exam -->
+      <section id="exam" class="section hidden" tabindex="0" style="scroll-margin-top: var(--topbar-height);">
+        <div class="section-head">
+          <h2>Examination Management</h2>
+          <p class="muted">Create exams, assign halls, review schedules & monitor progress.</p>
+        </div>
+        <div class="card glass">
+          <header class="card-head">
+            <h3>Create New Exam</h3>
+          </header>
+          <div class="card-body">
+            <form class="form-grid">
+              <div class="form-group">
+                <label for="exam-name">Exam Name</label>
+                <input type="text" id="exam-name" placeholder="Mid Term / End Sem">
+              </div>
+              <div class="form-group">
+                <label for="exam-batch">Batch</label>
+                <select id="exam-batch">
+                  <option>2023 — CSE (A)</option>
+                  <option>2023 — CSE (B)</option>
+                  <option>2022 — IT</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="exam-date">Date</label>
+                <input type="date" id="exam-date">
+              </div>
+              <div class="form-group">
+                <label for="exam-time">Time</label>
+                <input type="time" id="exam-time">
+              </div>
+              <div class="form-group full">
+                <label for="exam-desc">Description</label>
+                <textarea id="exam-desc" placeholder="Exam instructions, allowed materials, etc."></textarea>
+              </div>
+              <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Create Exam</button>
+                <button type="reset" class="btn btn-outline">Clear</button>
+              </div>
+            </form>
           </div>
-        </section>
-      </main>
-    </div>
+        </div>
+        <div class="card glass">
+          <header class="card-head">
+            <h3>Upcoming Exams</h3>
+            <div class="small muted">Next 2 weeks</div>
+          </header>
+          <div class="card-body table-wrap">
+            <table>
+              <thead>
+                <tr><th>Exam</th><th>Batch</th><th>Date</th><th>Time</th><th>Hall</th><th>Status</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>Mid Term CSE</td><td>2023 — CSE (A)</td><td>2025-04-20</td><td>09:00 - 12:00</td><td>Hall 1</td><td><span class="status pending">Pending</span></td></tr>
+                <tr><td>Mid Term CSE</td><td>2023 — CSE (B)</td><td>2025-04-21</td><td>09:00 - 12:00</td><td>Hall 2</td><td><span class="status pending">Pending</span></td></tr>
+                <tr><td>End Sem IT</td><td>2022 — IT</td><td>2025-05-02</td><td>10:00 - 13:00</td><td>Hall 3</td><td><span class="status scheduled">Scheduled</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
 
-    <!-- Inline SPA script (no frameworks) -->
-    <script>
-      (function () {
-        const sidebar = document.querySelector(".sidebar");
-        const overlay = document.getElementById("drawer-overlay");
-        const hamburger = document.getElementById("hamburger");
-        const sideLinks = Array.from(
-          document.querySelectorAll("#side-nav .nav-item")
-        );
-        const topTabs = Array.from(document.querySelectorAll("#top-tabs .tab"));
-        const sections = Array.from(document.querySelectorAll("main .section"));
+      <!-- Results -->
+      <section id="results" class="section hidden" tabindex="0" style="scroll-margin-top: var(--topbar-height);">
+        <div class="section-head">
+          <h2>Results Management</h2>
+          <p class="muted">View, upload, and analyze exam results by batch and course.</p>
+        </div>
+        <div class="card glass">
+          <header class="card-head">
+            <h3>Upload Results</h3>
+          </header>
+          <div class="card-body">
+            <form class="form-grid">
+              <div class="form-group">
+                <label for="result-batch">Batch</label>
+                <select id="result-batch">
+                  <option>2023 — CSE (A)</option>
+                  <option>2023 — CSE (B)</option>
+                  <option>2022 — IT</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="result-course">Course</label>
+                <select id="result-course">
+                  <option>Data Structures</option>
+                  <option>Mathematics-III</option>
+                  <option>Computer Networks</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="result-file">Upload File (CSV / Excel)</label>
+                <input type="file" id="result-file">
+              </div>
+              <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Upload Results</button>
+                <button type="reset" class="btn btn-outline">Clear</button>
+              </div>
+            </form>
+          </div>
+        </div>
+        <div class="card glass">
+          <header class="card-head">
+            <h3>Recent Results</h3>
+            <div class="small muted">Last uploaded results</div>
+          </header>
+          <div class="card-body table-wrap">
+            <table>
+              <thead>
+                <tr><th>Batch</th><th>Course</th><th>Date Uploaded</th><th>Uploaded By</th><th>Actions</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>2023 — CSE (A)</td><td>Data Structures</td><td>2025-04-16</td><td>Gunamani Jena</td><td><a class="btn btn-sm" href="#">View</a> <a class="btn btn-outline btn-sm" href="#">Download</a></td></tr>
+                <tr><td>2023 — CSE (B)</td><td>Mathematics-III</td><td>2025-04-15</td><td>Gunamani Jena</td><td><a class="btn btn-sm" href="#">View</a> <a class="btn btn-outline btn-sm" href="#">Download</a></td></tr>
+                <tr><td>2022 — IT</td><td>Computer Networks</td><td>2025-04-14</td><td>Gunamani Jena</td><td><a class="btn btn-sm" href="#">View</a> <a class="btn btn-outline btn-sm" href="#">Download</a></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
 
-        function setActiveLink(hash) {
-          sideLinks.forEach((a) => {
-            const active = a.getAttribute("href") === hash;
-            a.classList.toggle("active", active);
-            if (active) a.setAttribute("aria-current", "page");
-            else a.removeAttribute("aria-current");
-          });
-          topTabs.forEach((a) =>
-            a.classList.toggle("active", a.getAttribute("href") === hash)
-          );
-        }
+      <!-- Profile -->
+      <section id="profile" class="section hidden" tabindex="0" style="scroll-margin-top: var(--topbar-height);">
+        <div class="section-head">
+          <h2>My Profile</h2>
+          <p class="muted">Manage your account, contact info, and preferences.</p>
+        </div>
+        <div class="card glass profile-card">
+          <header class="card-head">
+            <h3>Account Details</h3>
+          </header>
+          <div class="card-body">
+            <div class="profile-main">
+              <img src="assets/admin-profile.jpg" alt="Admin profile" class="avatar-large">
+              <div class="profile-info">
+                <h4>Gunamani Jena</h4>
+                <p class="muted">System Administrator</p>
+                <p>Email: admin@rit.edu</p>
+                <p>Phone: +91 9876543210</p>
+                <p>Department: Computer Science</p>
+              </div>
+            </div>
+            <form class="form-grid profile-form">
+              <div class="form-group">
+                <label for="profile-name">Full Name</label>
+                <input type="text" id="profile-name" value="Gunamani Jena">
+              </div>
+              <div class="form-group">
+                <label for="profile-email">Email</label>
+                <input type="email" id="profile-email" value="admin@rit.edu">
+              </div>
+              <div class="form-group">
+                <label for="profile-phone">Phone</label>
+                <input type="text" id="profile-phone" value="+91 9876543210">
+              </div>
+              <div class="form-group full">
+                <label for="profile-address">Address</label>
+                <textarea id="profile-address">123, Campus Street, Roland City</textarea>
+              </div>
+              <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Save Changes</button>
+                <button type="reset" class="btn btn-outline">Reset</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </section>
 
-        function showSection(hash) {
-          const target = (hash || "#dashboard").replace("#", "");
-          sections.forEach((sec) =>
-            sec.classList.toggle("hidden", sec.id !== target)
-          );
-          setActiveLink("#" + target);
-          window.scrollTo({ top: 0, behavior: "smooth" });
-        }
+      <!-- Notices -->
+      <section id="notices" class="section hidden" tabindex="0" style="scroll-margin-top: var(--topbar-height);">
+        <div class="section-head">
+          <h2>Notices / Announcements</h2>
+          <p class="muted">Create and manage official notices for students and staff.</p>
+        </div>
+        <div class="card glass">
+          <header class="card-head">
+            <h3>Create Notice</h3>
+          </header>
+          <div class="card-body">
+            <form class="form-grid">
+              <div class="form-group">
+                <label for="notice-title">Title</label>
+                <input type="text" id="notice-title" placeholder="Enter notice title">
+              </div>
+              <div class="form-group full">
+                <label for="notice-content">Content</label>
+                <textarea id="notice-content" placeholder="Enter notice content"></textarea>
+              </div>
+              <div class="form-group">
+                <label for="notice-batch">Target Batch</label>
+                <select id="notice-batch">
+                  <option>All Batches</option>
+                  <option>2023 — CSE (A)</option>
+                  <option>2023 — CSE (B)</option>
+                  <option>2022 — IT</option>
+                </select>
+              </div>
+              <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Publish Notice</button>
+                <button type="reset" class="btn btn-outline">Clear</button>
+              </div>
+            </form>
+          </div>
+        </div>
+        <div class="card glass">
+          <header class="card-head">
+            <h3>Recent Notices</h3>
+            <div class="small muted">Last 10 notices</div>
+          </header>
+          <div class="card-body table-wrap">
+            <table>
+              <thead>
+                <tr><th>Title</th><th>Batch</th><th>Date</th><th>Published By</th><th>Actions</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>Semester Break</td><td>All Batches</td><td>2025-04-10</td><td>Gunamani Jena</td><td><a class="btn btn-sm" href="#">View</a> <a class="btn btn-outline btn-sm" href="#">Edit</a></td></tr>
+                <tr><td>Lab Schedule Update</td><td>2023 — CSE (A)</td><td>2025-04-08</td><td>Gunamani Jena</td><td><a class="btn btn-sm" href="#">View</a> <a class="btn btn-outline btn-sm" href="#">Edit</a></td></tr>
+                <tr><td>Workshop on AI</td><td>2022 — IT</td><td>2025-04-05</td><td>Gunamani Jena</td><td><a class="btn btn-sm" href="#">View</a> <a class="btn btn-outline btn-sm" href="#">Edit</a></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
 
-        function closeDrawer() {
-          sidebar.classList.remove("open");
-          overlay.classList.remove("visible");
-          document.body.classList.remove("no-scroll");
-          document.body.classList.remove("sidebar-open"); // <-- update
-        }
+      <!-- Support -->
+      <section id="support" class="section hidden" tabindex="0" style="scroll-margin-top: var(--topbar-height);">
+        <div class="section-head">
+          <h2>Support / Help Desk</h2>
+          <p class="muted">Handle queries, issues, and support tickets from students or staff.</p>
+        </div>
+        <div class="card glass">
+          <header class="card-head">
+            <h3>Submit Ticket</h3>
+          </header>
+          <div class="card-body">
+            <form class="form-grid">
+              <div class="form-group">
+                <label for="ticket-title">Title</label>
+                <input type="text" id="ticket-title" placeholder="Issue title">
+              </div>
+              <div class="form-group full">
+                <label for="ticket-desc">Description</label>
+                <textarea id="ticket-desc" placeholder="Describe the issue in detail"></textarea>
+              </div>
+              <div class="form-group">
+                <label for="ticket-priority">Priority</label>
+                <select id="ticket-priority">
+                  <option>Low</option>
+                  <option>Medium</option>
+                  <option>High</option>
+                </select>
+              </div>
+              <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Submit Ticket</button>
+                <button type="reset" class="btn btn-outline">Reset</button>
+              </div>
+            </form>
+          </div>
+        </div>
+        <div class="card glass">
+          <header class="card-head">
+            <h3>Open Tickets</h3>
+            <div class="small muted">Pending tickets</div>
+          </header>
+          <div class="card-body table-wrap">
+            <table>
+              <thead>
+                <tr><th>ID</th><th>Title</th><th>Submitted By</th><th>Priority</th><th>Status</th><th>Actions</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>#101</td><td>Password Reset</td><td>Student — CS2101</td><td>High</td><td class="status open">Open</td><td><a class="btn btn-sm" href="#">View</a> <a class="btn btn-outline btn-sm" href="#">Resolve</a></td></tr>
+                <tr><td>#102</td><td>Lab Computer Issue</td><td>Student — CS2103</td><td>Medium</td><td class="status open">Open</td><td><a class="btn btn-sm" href="#">View</a> <a class="btn btn-outline btn-sm" href="#">Resolve</a></td></tr>
+                <tr><td>#103</td><td>Fee Payment Error</td><td>Student — IT2202</td><td>High</td><td class="status open">Open</td><td><a class="btn btn-sm" href="#">View</a> <a class="btn btn-outline btn-sm" href="#">Resolve</a></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
 
-        function openDrawer() {
-          sidebar.classList.add("open");
-          overlay.classList.add("visible");
-          document.body.classList.add("no-scroll");
-          document.body.classList.add("sidebar-open"); // <-- update
-        }
+  <!-- Inline SPA script (no frameworks) -->
+  <script>
+    (function() {
+      const sidebar = document.querySelector('.sidebar');
+      const overlay = document.getElementById('drawer-overlay');
+      const hamburger = document.getElementById('hamburger');
+      const sideLinks = Array.from(document.querySelectorAll('#side-nav .nav-item'));
+      const topTabs = Array.from(document.querySelectorAll('#top-tabs .tab'));
+      const sections = Array.from(document.querySelectorAll('main .section'));
 
-        hamburger.addEventListener("click", () => {
-          if (sidebar.classList.contains("open")) closeDrawer();
-          else openDrawer();
+      function setActiveLink(hash) {
+        sideLinks.forEach(a => {
+          const active = a.getAttribute('href') === hash;
+          a.classList.toggle('active', active);
+          if (active) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current');
         });
-        overlay.addEventListener("click", closeDrawer);
+        topTabs.forEach(a => a.classList.toggle('active', a.getAttribute('href') === hash));
+      }
 
-        sideLinks.forEach((a) => {
-          a.addEventListener("click", (e) => {
-            const href = a.getAttribute("href");
-            if (href.startsWith("#")) {
-              e.preventDefault();
-              window.location.hash = href;
-              closeDrawer();
-            }
-          });
+      function showSection(hash) {
+        const target = (hash || '#dashboard').replace('#','');
+        sections.forEach(sec => sec.classList.toggle('hidden', sec.id !== target));
+        setActiveLink('#' + target);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+
+      function closeDrawer() {
+        sidebar.classList.remove('open');
+        overlay.classList.remove('visible');
+        document.body.classList.remove('no-scroll');
+        document.body.classList.remove('sidebar-open'); // <-- update
+      }
+
+      function openDrawer() {
+        sidebar.classList.add('open');
+        overlay.classList.add('visible');
+        document.body.classList.add('no-scroll');
+        document.body.classList.add('sidebar-open'); // <-- update
+      }
+
+      hamburger.addEventListener('click', () => {
+        if (sidebar.classList.contains('open')) closeDrawer(); else openDrawer();
+      });
+      overlay.addEventListener('click', closeDrawer);
+
+      sideLinks.forEach(a => {
+        a.addEventListener('click', (e) => {
+          const href = a.getAttribute('href');
+          if (href.startsWith('#')) {
+            e.preventDefault();
+            window.location.hash = href;
+            closeDrawer();
+          }
         });
+      });
 
-        topTabs.forEach((a) => {
-          a.addEventListener("click", (e) => {
-            const href = a.getAttribute("href");
-            if (href.startsWith("#")) {
-              e.preventDefault();
-              window.location.hash = href;
-            }
-          });
+      topTabs.forEach(a => {
+        a.addEventListener('click', (e) => {
+          const href = a.getAttribute('href');
+          if (href.startsWith('#')) {
+            e.preventDefault();
+            window.location.hash = href;
+          }
         });
+      });
 
-        window.addEventListener("hashchange", () =>
-          showSection(window.location.hash)
-        );
-        if (!window.location.hash) window.location.hash = "#dashboard";
-        showSection(window.location.hash || "#dashboard");
-      })();
-    </script>
-  </body>
+      window.addEventListener('hashchange', () => showSection(window.location.hash));
+      if (!window.location.hash) window.location.hash = '#dashboard';
+      showSection(window.location.hash || '#dashboard');
+    })();
+  </script>
+</body>
 </html>
