@@ -1,0 +1,20 @@
+# Email Configuration for OTP Verification
+# Replace these values with your actual email credentials
+
+# Gmail SMTP Configuration
+EMAIL_USER=your-email@gmail.com
+EMAIL_PASS=your-app-password
+
+# Server Configuration
+PORT=3001
+
+# Instructions:
+# 1. Create a Gmail account or use existing one
+# 2. Enable 2-factor authentication
+# 3. Generate an App Password:
+#    - Go to Google Account settings
+#    - Security > 2-Step Verification > App passwords
+#    - Generate password for "Mail"
+# 4. Copy the generated password to EMAIL_PASS
+# 5. Copy your email to EMAIL_USER
+# 6. Create a .env file with these values

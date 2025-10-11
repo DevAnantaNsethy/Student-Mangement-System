@@ -98,6 +98,38 @@ body {
 
 /* Error and Success Messages */
 .error-message {
+  /* Spinner Animation */
+  .btn-spinner {
+    vertical-align: middle;
+    margin-left: 8px;
+  }
+  .spinner {
+    animation: rotate 1s linear infinite;
+  }
+  .spinner .path {
+    stroke: #7b61ff;
+    stroke-linecap: round;
+    animation: dash 1.5s ease-in-out infinite;
+  }
+  @keyframes rotate {
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+  @keyframes dash {
+    0% {
+      stroke-dasharray: 1, 150;
+      stroke-dashoffset: 0;
+    }
+    50% {
+      stroke-dasharray: 90, 150;
+      stroke-dashoffset: -35;
+    }
+    100% {
+      stroke-dasharray: 90, 150;
+      stroke-dashoffset: -124;
+    }
+  }
   color: #ef4444;
   font-size: 14px;
   margin-bottom: 15px;
