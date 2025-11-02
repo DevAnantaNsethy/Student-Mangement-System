@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Dashboard - Roland Institute of Technology</title>
+    <link rel="stylesheet" href="./admin-dashboard.css" />
+    <link rel="stylesheet" href="./style.css" />
+    <link rel="stylesheet" href="./messages.css" />
+</head>
+<body>
+    <div class="dashboard-container">
+      <!-- Header -->
+      <header class="dashboard-header">
+        <div class="header-left">
+          <img src="./img/rit logo.png" alt="RIT Logo" class="logo" />
+          <h1>Admin Dashboard</h1>
+        </div>
+        <div class="header-right">
+          <div class="user-info">
+            <span id="userName">Loading...</span>
+            <span id="userEmail">Loading...</span>
+      </div>
+          <button class="logout-btn" onclick="logout()">Logout</button>
+        </div>
+      </header>
+
+      <!-- Navigation -->
+      <nav class="dashboard-nav">
+        <a href="#overview" class="nav-item active" data-section="overview">
+          <span class="nav-icon">📊</span>
+          Overview
+        </a>
+        <a href="#students" class="nav-item" data-section="students">
+          <span class="nav-icon">👥</span>
+          Students
+        </a>
+        <a href="#attendance" class="nav-item" data-section="attendance">
+          <span class="nav-icon">📅</span>
+          Attendance
+        </a>
+        <a href="#results" class="nav-item" data-section="results">
+          <span class="nav-icon">📈</span>
+          Results
+        </a>
+        <a href="#assignments" class="nav-item" data-section="assignments">
+          <span class="nav-icon">📝</span>
+          Assignments
+        </a>
+        <a href="#notices" class="nav-item" data-section="notices">
+          <span class="nav-icon">📢</span>
+          Notices
+        </a>
+        <a href="#settings" class="nav-item" data-section="settings">
+          <span class="nav-icon">⚙️</span>
+          Settings
+        </a>
+      </nav>
+
+      <!-- Main Content -->
+      <main class="dashboard-main">
+        <!-- Overview Section -->
+        <section id="overview" class="dashboard-section active">
+          <h2>Admin Overview</h2>
+        <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-icon">👥</div>
+            <div class="stat-content">
+                <h3>Total Students</h3>
+                <p class="stat-value" id="totalStudents">1,250</p>
+            </div>
+          </div>
+            <div class="stat-card">
+              <div class="stat-icon">📊</div>
+            <div class="stat-content">
+                <h3>Average Attendance</h3>
+                <p class="stat-value" id="avgAttendance">87%</p>
+            </div>
+          </div>
+            <div class="stat-card">
+              <div class="stat-icon">📈</div>
+            <div class="stat-content">
+                <h3>Pass Rate</h3>
+                <p class="stat-value" id="passRate">94%</p>
+            </div>
+          </div>
+            <div class="stat-card">
+              <div class="stat-icon">📢</div>
+            <div class="stat-content">
+                <h3>Active Notices</h3>
+                <p class="stat-value" id="activeNotices">12</p>
+            </div>
+          </div>
+        </div>
+        
+          <div class="admin-actions">
+            <h3>Quick Actions</h3>
+            <div class="action-buttons">
+              <button class="action-btn" onclick="addStudent()">
+                <span class="btn-icon">➕</span>
+                Add Student
+                </button>
+              <button class="action-btn" onclick="markAttendance()">
+                <span class="btn-icon">📅</span>
+                Mark Attendance
+                </button>
+              <button class="action-btn" onclick="uploadResults()">
+                <span class="btn-icon">📊</span>
+                Upload Results
+                </button>
+              <button class="action-btn" onclick="createNotice()">
+                <span class="btn-icon">📢</span>
+                Create Notice
+              </button>
+              <button class="action-btn" onclick="generateReport()">
+                <span class="btn-icon">📋</span>
+                Generate Report
+              </button>
+              <button class="action-btn" onclick="manageUsers()">
+                <span class="btn-icon">👤</span>
+                Manage Users
+                </button>
+              </div>
+                    </div>
+
+          <div class="recent-activity">
+            <h3>Recent Activity</h3>
+            <div class="activity-list" id="recentActivity">
+                  <div class="activity-item">
+                <span class="activity-icon">👥</span>
+                    <div class="activity-content">
+                  <p>New student registered: John Doe</p>
+                  <span class="activity-time">1 hour ago</span>
+                    </div>
+                  </div>
+                  <div class="activity-item">
+                <span class="activity-icon">📅</span>
+                    <div class="activity-content">
+                  <p>Attendance marked for Computer Science</p>
+                  <span class="activity-time">2 hours ago</span>
+                    </div>
+                  </div>
+                  <div class="activity-item">
+                <span class="activity-icon">📢</span>
+                    <div class="activity-content">
+                  <p>Notice published: Exam schedule</p>
+                  <span class="activity-time">3 hours ago</span>
+                    </div>
+                  </div>
+                </div>
+        </div>
+      </section>
+
+        <!-- Students Section -->
+        <section id="students" class="dashboard-section">
+          <h2>Student Management</h2>
+          <div class="section-header">
+            <div class="search-box">
+              <input
+                type="text"
+                placeholder="Search students..."
+                id="studentSearch"
+              />
+              <button class="search-btn">🔍</button>
+        </div>
+            <button class="add-btn" onclick="addStudent()">Add Student</button>
+          </div>
+          <div class="students-table">
+                <table>
+                  <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Registration No.</th>
+                  <th>Course</th>
+                  <th>Year</th>
+                  <th>Attendance</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+                  </thead>
+              <tbody id="studentsTableBody">
+                <!-- Students will be loaded here -->
+                  </tbody>
+                </table>
+        </div>
+      </section>
+
+        <!-- Attendance Section -->
+        <section id="attendance" class="dashboard-section">
+          <h2>Attendance Management</h2>
+          <div class="attendance-controls">
+            <div class="filter-controls">
+              <select id="courseFilter">
+                <option value="">All Courses</option>
+                <option value="CSE">Computer Science</option>
+                <option value="ECE">Electronics</option>
+                <option value="ME">Mechanical</option>
+                <option value="CE">Civil</option>
+                </select>
+              <select id="yearFilter">
+                <option value="">All Years</option>
+                <option value="1st Year">1st Year</option>
+                <option value="2nd Year">2nd Year</option>
+                <option value="3rd Year">3rd Year</option>
+                <option value="4th Year">4th Year</option>
+              </select>
+              <input type="date" id="dateFilter" />
+              </div>
+            <button class="mark-attendance-btn" onclick="markAttendance()">
+              Mark Attendance
+            </button>
+              </div>
+          <div class="attendance-table">
+            <table>
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Subject</th>
+                  <th>Course</th>
+                  <th>Year</th>
+                  <th>Present</th>
+                  <th>Absent</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="attendanceTableBody">
+                <!-- Attendance records will be loaded here -->
+              </tbody>
+            </table>
+        </div>
+      </section>
+
+        <!-- Results Section -->
+        <section id="results" class="dashboard-section">
+          <h2>Results Management</h2>
+          <div class="results-controls">
+            <button class="upload-btn" onclick="uploadResults()">
+              Upload Results
+            </button>
+            <button class="export-btn" onclick="exportResults()">
+              Export Results
+            </button>
+        </div>
+          <div class="results-table">
+            <table>
+              <thead>
+                <tr>
+                  <th>Exam</th>
+                  <th>Subject</th>
+                  <th>Course</th>
+                  <th>Date</th>
+                  <th>Total Students</th>
+                  <th>Pass Rate</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="resultsTableBody">
+                <!-- Results will be loaded here -->
+              </tbody>
+            </table>
+        </div>
+      </section>
+
+        <!-- Assignments Section -->
+        <section id="assignments" class="dashboard-section">
+          <h2>Assignment Management</h2>
+          <div class="assignments-controls">
+            <button class="create-btn" onclick="createAssignment()">
+              Create Assignment
+            </button>
+        </div>
+          <div class="assignments-table">
+            <table>
+              <thead>
+                <tr>
+                  <th>Title</th>
+                  <th>Subject</th>
+                  <th>Course</th>
+                  <th>Due Date</th>
+                  <th>Submissions</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="assignmentsTableBody">
+                <!-- Assignments will be loaded here -->
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- Notices Section -->
+        <section id="notices" class="dashboard-section">
+          <h2>Notice Management</h2>
+          <div class="notices-controls">
+            <button class="create-notice-btn" onclick="createNotice()">
+              Create Notice
+            </button>
+          </div>
+          <div class="notices-list" id="noticesList">
+            <!-- Notices will be loaded here -->
+        </div>
+      </section>
+
+        <!-- Settings Section -->
+        <section id="settings" class="dashboard-section">
+          <h2>System Settings</h2>
+          <div class="settings-grid">
+            <div class="settings-card">
+              <h3>General Settings</h3>
+              <div class="setting-item">
+                <label>Institute Name</label>
+                <input type="text" value="Roland Institute of Technology" />
+        </div>
+              <div class="setting-item">
+                <label>Academic Year</label>
+                <input type="text" value="2024-2025" />
+              </div>
+              </div>
+            <div class="settings-card">
+              <h3>Email Settings</h3>
+              <div class="setting-item">
+                <label>SMTP Server</label>
+                <input type="text" value="smtp.gmail.com" />
+              </div>
+              <div class="setting-item">
+                <label>Email Template</label>
+                <select>
+                  <option>Default Template</option>
+                  <option>Custom Template</option>
+                </select>
+              </div>
+              </div>
+            <div class="settings-card">
+              <h3>Security Settings</h3>
+              <div class="setting-item">
+                <label>Password Policy</label>
+                <select>
+                  <option>Standard</option>
+                  <option>Strong</option>
+                  <option>Very Strong</option>
+                </select>
+          </div>
+              <div class="setting-item">
+                <label>Session Timeout</label>
+                <input type="number" value="30" min="5" max="120" />
+        </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+    <!-- Success/Error Messages -->
+    <div class="message-container">
+      <div class="success-message" id="successMessage"></div>
+      <div class="error-message" id="errorMessage"></div>
+    </div>
+
+    <script>
+      // Check if user is logged in and is admin
+      function checkAuth() {
+        const user = localStorage.getItem("user");
+        if (!user) {
+          window.location.href = "./admin-login.html";
+          return null;
+        }
+
+        const userData = JSON.parse(user);
+        if (userData.role !== "admin") {
+          showMessage("Access denied. Admin privileges required.", "error");
+          setTimeout(() => {
+            window.location.href = "./admin-login.html";
+      }, 2000);
+          return null;
+        }
+
+        return userData;
+      }
+
+      // Initialize dashboard
+      function initDashboard() {
+        const user = checkAuth();
+        if (!user) return;
+
+        // Update user info in header
+        document.getElementById("userName").textContent = user.name;
+        document.getElementById("userEmail").textContent = user.email;
+
+        // Load dashboard data
+        loadDashboardData(user);
+      }
+
+      // Load dashboard data
+      async function loadDashboardData(user) {
+        try {
+          // Load admin dashboard data
+          const response = await fetch(`/api/admin/dashboard/${user.id}`);
+          if (response.ok) {
+            const data = await response.json();
+            if (data.success) {
+              updateDashboardUI(data.data);
+            }
+          }
+        } catch (error) {
+          console.error("Error loading dashboard data:", error);
+          // Show mock data for demo
+          showMockData();
+        }
+      }
+
+      // Update dashboard UI with real data
+      function updateDashboardUI(data) {
+        // Update stats
+        if (data.stats) {
+          document.getElementById("totalStudents").textContent =
+            data.stats.totalStudents || "1,250";
+          document.getElementById("avgAttendance").textContent =
+            data.stats.avgAttendance || "87%";
+          document.getElementById("passRate").textContent =
+            data.stats.passRate || "94%";
+          document.getElementById("activeNotices").textContent =
+            data.stats.activeNotices || "12";
+        }
+      }
+
+      // Show mock data for demo
+      function showMockData() {
+        console.log("Using mock data for demo");
+        // Mock data is already in HTML
+      }
+
+      // Navigation handling
+      function setupNavigation() {
+        const navItems = document.querySelectorAll(".nav-item");
+        const sections = document.querySelectorAll(".dashboard-section");
+
+        navItems.forEach((item) => {
+          item.addEventListener("click", (e) => {
+        e.preventDefault();
+
+            // Remove active class from all items
+            navItems.forEach((nav) => nav.classList.remove("active"));
+            sections.forEach((section) => section.classList.remove("active"));
+
+            // Add active class to clicked item
+            item.classList.add("active");
+
+            // Show corresponding section
+            const targetSection = item.getAttribute("data-section");
+            document.getElementById(targetSection).classList.add("active");
+          });
+        });
+      }
+
+      // Admin action functions
+      function addStudent() {
+        showMessage("Add student feature coming soon!", "success");
+      }
+
+      function markAttendance() {
+        showMessage("Mark attendance feature coming soon!", "success");
+      }
+
+      function uploadResults() {
+        showMessage("Upload results feature coming soon!", "success");
+      }
+
+      function createNotice() {
+        showMessage("Create notice feature coming soon!", "success");
+      }
+
+      function generateReport() {
+        showMessage("Generate report feature coming soon!", "success");
+      }
+
+      function manageUsers() {
+        showMessage("Manage users feature coming soon!", "success");
+      }
+
+      function createAssignment() {
+        showMessage("Create assignment feature coming soon!", "success");
+      }
+
+      function exportResults() {
+        showMessage("Export results feature coming soon!", "success");
+      }
+
+      // Logout function
+      function logout() {
+        localStorage.removeItem("user");
+        window.location.href = "./admin-login.html";
+      }
+
+      // Show messages
+      function showMessage(message, type) {
+        const messageDiv = document.getElementById(
+          type === "success" ? "successMessage" : "errorMessage"
+        );
+        messageDiv.textContent = message;
+        messageDiv.style.display = "block";
+
+        setTimeout(() => {
+          messageDiv.style.display = "none";
+        }, 3000);
+      }
+
+      // Initialize when page loads
+      document.addEventListener("DOMContentLoaded", () => {
+        initDashboard();
+        setupNavigation();
+      });
+  </script>
+</body>
+</html>

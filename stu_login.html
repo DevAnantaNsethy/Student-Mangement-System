@@ -6,6 +6,7 @@
     <title>Student Login</title>
     <link rel="stylesheet" href="./studentogin.css" />
     <link rel="stylesheet" href="./style.css" />
+    <link rel="stylesheet" href="./messages.css" />
   </head>
   <body>
     <div class="stu-login-page">
@@ -15,7 +16,7 @@
           <h1 class="stu-login-title">Student Login</h1>
           <p class="subtitle">Welcome back! Please log in to continue.</p>
 
-          <form>
+          <form id="loginForm">
             <div class="form-group">
               <label for="email">Email</label>
               <input
@@ -36,6 +37,9 @@
               />
             </div>
 
+            <div class="error-message" id="errorMessage"></div>
+            <div class="success-message" id="successMessage"></div>
+
             <button type="submit" class="login-btn">Login</button>
             <p class="alt-link">
               Don't have an account? <a href="./stu_signup.html">Sign up</a>
@@ -52,5 +56,58 @@
         </div>
       </div>
     </div>
+
+    <script>
+      document
+        .getElementById("loginForm")
+        .addEventListener("submit", async function (e) {
+          e.preventDefault();
+
+          const email = document.getElementById("email").value;
+          const password = document.getElementById("password").value;
+          const errorMessage = document.getElementById("errorMessage");
+          const successMessage = document.getElementById("successMessage");
+
+          // Clear previous messages
+          errorMessage.textContent = "";
+          successMessage.textContent = "";
+
+          if (!email || !password) {
+            errorMessage.textContent = "Please fill in all fields";
+            return;
+          }
+
+          try {
+            successMessage.textContent = "Logging in...";
+
+            const response = await fetch("/api/login", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({ email, password, role: "student" }),
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+              successMessage.textContent = "Login successful! Redirecting...";
+              // Store user info in localStorage
+              localStorage.setItem("user", JSON.stringify(data.user));
+              // Redirect to student dashboard
+              setTimeout(() => {
+                window.location.href = "./student-dashboard.html";
+              }, 1500);
+            } else {
+              errorMessage.textContent = data.message || "Login failed";
+              successMessage.textContent = "";
+            }
+          } catch (error) {
+            console.error("Login error:", error);
+            errorMessage.textContent = "Network error. Please try again.";
+            successMessage.textContent = "";
+          }
+        });
+    </script>
   </body>
 </html>

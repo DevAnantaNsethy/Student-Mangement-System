@@ -2,9 +2,10 @@ const express = require("express");
 const cors = require("cors");
 const nodemailer = require("nodemailer");
 const mongoose = require("mongoose");
-const crypto = require("crypto"); // Add this to the top with other requires
-const bcrypt = require("bcrypt"); // Add this to the top
-const jwt = require("jsonwebtoken"); // Add this to the top
+const path = require("path");
+const fs = require("fs");
+// Optional: load environment variables from .env if present
+try { require('dotenv').config(); } catch (e) {}
 
 const app = express();
 
@@ -24,23 +25,42 @@ app.use(express.json());
 app.use(express.static(__dirname)); // Serve static files like stu_signup.html
 
 // --- MongoDB Connection ---
-const MONGO_URI =
-  "mongodb+srv://ananta_db_user:Ananta%407532@cluster0.39xr1bs.mongodb.net/?retryWrites=true&w=majority";
+const MONGO_URI = process.env.MONGO_URI || "mongodb://127.0.0.1:27017/sms";
 mongoose
   .connect(MONGO_URI)
-  .then(() => console.log("✅ [SUCCESS] Connected to MongoDB Atlas."))
+  .then(() => console.log("✅ [SUCCESS] Connected to MongoDB."))
   .catch((err) =>
     console.error("❌ [FATAL] MongoDB connection error:", err.message)
   );
+
+// Track DB availability and provide in-memory fallbacks when DB is down
+let dbAvailable = false;
+mongoose.connection.on('connected', () => {
+  dbAvailable = true;
+  console.log("📦 MongoDB connection: connected");
+});
+mongoose.connection.on('error', (err) => {
+  dbAvailable = false;
+  console.warn("📦 MongoDB connection error:", err.message);
+});
+mongoose.connection.on('disconnected', () => {
+  dbAvailable = false;
+  console.warn("📦 MongoDB connection: disconnected");
+});
+
+// In-memory fallbacks (used only when dbAvailable === false)
+const memoryUsers = new Map(); // key=email, value={name,email,password,role}
+const memoryPending = new Map(); // key=email, value={otp, otpExpires}
+const memoryResets = new Map(); // key=token, value={email, expires}
 
 // --- Mongoose Schemas ---
 const userSchema = new mongoose.Schema({
   name: { type: String, required: true },
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
-  // --- ADD THESE TWO LINES ---
-  resetPasswordToken: { type: String },
-  resetPasswordExpires: { type: Date },
+  role: { type: String, enum: ['student', 'admin'], default: 'student' },
+  resetToken: { type: String },
+  resetExpires: { type: Date }
 });
 const User = mongoose.model("User", userSchema);
 
@@ -53,7 +73,7 @@ const PendingUser = mongoose.model("PendingUser", pendingUserSchema);
 
 // --- API Endpoints ---
 
-// Endpoint 1: Send OTP - UPDATED
+// Endpoint 1: Send OTP
 app.post("/api/send-otp", async (req, res) => {
   const { email } = req.body;
   if (!email) {
@@ -62,41 +82,31 @@ app.post("/api/send-otp", async (req, res) => {
       .json({ success: false, message: "Email is required." });
   }
 
+  const otp = Math.floor(100000 + Math.random() * 900000).toString();
+  const otpExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+
   try {
-    // --- NEW: Check if user is already registered ---
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
-      console.warn(
-        `[WARN] /api/send-otp: Signup attempt for existing user ${email}`
+    if (dbAvailable) {
+      await PendingUser.findOneAndUpdate(
+        { email },
+        { otp, otpExpires },
+        { upsert: true, new: true, runValidators: true }
       );
-      // Send a specific response indicating the user already exists.
-      return res.status(409).json({
-        success: false,
-        userExists: true, // Custom flag for the frontend
-        message: "A user with this email already exists. Please log in.",
-      });
+    } else {
+      memoryPending.set(email, { otp, otpExpires });
     }
-
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    const otpExpires = new Date(Date.now() + 10 * 60 * 1000);
-
-    await PendingUser.findOneAndUpdate(
-      { email },
-      { otp, otpExpires },
-      { upsert: true, new: true, runValidators: true }
-    );
 
     const transporter = nodemailer.createTransport({
       service: "gmail",
       auth: {
-        user: "ananta10092004@gmail.com",
-        pass: "fopj wngw nscr fksu",
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
       },
     });
 
     // --- Creative & Modern HTML Email Template ---
     const mailOptions = {
-      from: '"Student Portal" <ananta10092004@gmail.com>',
+      from: `${process.env.EMAIL_USER ? '"Student Portal" <' + process.env.EMAIL_USER + '>' : '"Student Portal" <no-reply@example.com>'}`,
       to: email,
       subject: "Your Verification Code for Student Portal",
       html: `
@@ -159,13 +169,13 @@ app.post("/api/send-otp", async (req, res) => {
 
     await transporter.sendMail(mailOptions);
 
-    console.log(`[INFO] Professional OTP email sent to ${email}`);
+    console.log(`[INFO] Modern OTP email sent to ${email}`);
     return res.json({ success: true, message: "OTP sent successfully." });
   } catch (error) {
-    console.error(`[ERROR] /api/send-otp failed for ${email}:`, error.message);
-    return res
-      .status(500)
-      .json({ success: false, message: "Failed to send OTP." });
+    console.warn(`[WARN] /api/send-otp email send failed for ${email}:`, error.message);
+    // Development fallback: still succeed and log OTP to server if email fails
+    console.log(`[DEV] OTP for ${email}: ${otp} (email not sent, fallback mode)`);
+    return res.json({ success: true, message: "OTP generated (fallback mode)." });
   }
 });
 
@@ -178,7 +188,9 @@ app.post("/api/verify-otp", async (req, res) => {
       .json({ success: false, message: "Email and OTP are required." });
   }
 
-  const pending = await PendingUser.findOne({ email });
+  const pending = dbAvailable
+    ? await PendingUser.findOne({ email })
+    : memoryPending.get(email);
   if (!pending) {
     console.warn(`[WARN] /api/verify-otp: No pending user found for ${email}`);
     return res
@@ -186,7 +198,9 @@ app.post("/api/verify-otp", async (req, res) => {
       .json({ success: false, message: "OTP not requested for this email." });
   }
 
-  if (pending.otp !== otp || pending.otpExpires < new Date()) {
+  const pendingOtp = dbAvailable ? pending.otp : pending.otp;
+  const pendingExp = dbAvailable ? pending.otpExpires : pending.otpExpires;
+  if (pendingOtp !== otp || pendingExp < new Date()) {
     console.warn(`[WARN] /api/verify-otp: Invalid or expired OTP for ${email}`);
     return res
       .status(400)
@@ -200,7 +214,7 @@ app.post("/api/verify-otp", async (req, res) => {
 
 // Endpoint 3: Register User
 app.post("/api/register", async (req, res) => {
-  const { name, email, password } = req.body;
+  const { name, email, password, role } = req.body;
   console.log(`[INFO] /api/register attempt for: ${email}`); // Log the attempt
 
   if (!name || !email || !password) {
@@ -210,9 +224,12 @@ app.post("/api/register", async (req, res) => {
       message: "Name, email, and password are required.",
     });
   }
+  const safeRole = role === 'admin' ? 'admin' : 'student';
 
   // CORRECT LOGIC: Check for the pending user again.
-  const pending = await PendingUser.findOne({ email });
+  const pending = dbAvailable
+    ? await PendingUser.findOne({ email })
+    : memoryPending.get(email);
   if (!pending) {
     console.error(
       `[ERROR] /api/register: No verified pending user found for ${email}.`
@@ -224,21 +241,19 @@ app.post("/api/register", async (req, res) => {
   }
 
   try {
-    // BEFORE saving the user, hash the password
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
-
-    // Create the user with the HASHED password
-    const newUser = await User.create({
-      name,
-      email,
-      password: hashedPassword,
-    });
-    console.log(`[SUCCESS] /api/register: User ${newUser.email} created.`);
-
-    // CORRECT LOGIC: NOW delete the pending user.
-    await PendingUser.deleteOne({ email });
-    console.log(`[INFO] /api/register: Pending user ${email} cleaned up.`);
+    if (dbAvailable) {
+      const newUser = await User.create({ name, email, password, role: safeRole });
+      console.log(`[SUCCESS] /api/register: User ${newUser.email} created.`);
+      await PendingUser.deleteOne({ email });
+      console.log(`[INFO] /api/register: Pending user ${email} cleaned up.`);
+    } else {
+      if (memoryUsers.has(email)) {
+        return res.status(409).json({ success: false, message: "User with this email already exists." });
+      }
+      memoryUsers.set(email, { name, email, password, role: safeRole });
+      memoryPending.delete(email);
+      console.log(`[SUCCESS] /api/register: User ${email} created (memory).`);
+    }
 
     return res
       .status(201)
@@ -264,41 +279,53 @@ app.post("/api/register", async (req, res) => {
   }
 });
 
-// Endpoint 4: Login User - UPDATED
+// Endpoint 4: Login User
 app.post("/api/login", async (req, res) => {
-  const { email, password } = req.body;
+  const { email, password, role } = req.body;
+  console.log(`[INFO] /api/login attempt for: ${email}`);
+
+  if (!email || !password) {
+    return res
+      .status(400)
+      .json({ success: false, message: "Email and password are required." });
+  }
 
   try {
-    const user = await User.findOne({ email });
-    if (!user) {
-      return res
-        .status(401)
-        .json({ success: false, message: "Invalid email or password." });
+    if (dbAvailable) {
+      const user = await User.findOne({ email });
+      if (!user) {
+        console.warn(`[WARN] /api/login: User not found for ${email}`);
+        return res
+          .status(404)
+          .json({ success: false, message: "Invalid email or password." });
+      }
+
+      // Password check (plain for demo)
+      if (user.password !== password) {
+        console.warn(`[WARN] /api/login: Invalid password for ${email}`);
+        return res
+          .status(401)
+          .json({ success: false, message: "Invalid email or password." });
+      }
+      if (role && user.role !== role) {
+        return res.status(403).json({ success: false, message: "Invalid role for this account." });
+      }
+      console.log(`[SUCCESS] /api/login: User ${email} logged in successfully.`);
+      return res.json({ success: true, message: "Login successful.", user: { name: user.name, email: user.email, role: user.role } });
+    } else {
+      const user = memoryUsers.get(email);
+      if (!user || user.password !== password) {
+        console.warn(`[WARN] /api/login(memory): Invalid credentials for ${email}`);
+        return res
+          .status(401)
+          .json({ success: false, message: "Invalid email or password." });
+      }
+      if (role && user.role !== role) {
+        return res.status(403).json({ success: false, message: "Invalid role for this account." });
+      }
+      console.log(`[SUCCESS] /api/login: User ${email} logged in successfully.`);
+      return res.json({ success: true, message: "Login successful.", user: { name: user.name, email: user.email, role: user.role } });
     }
-
-    const validPassword = await bcrypt.compare(password, user.password);
-    if (!validPassword) {
-      return res
-        .status(401)
-        .json({ success: false, message: "Invalid email or password." });
-    }
-
-    // --- Generate JWT Token ---
-    const token = jwt.sign(
-      { id: user._id }, // Payload: contains user's unique ID
-      "your_jwt_secret_key", // Secret Key: CHANGE THIS to a long, random string
-      { expiresIn: "1d" } // Token expires in 1 day
-    );
-
-    console.log(
-      `[SUCCESS] /api/login: User ${email} logged in. Token generated.`
-    );
-    // Send the token back to the client
-    return res.json({
-      success: true,
-      message: "Login successful.",
-      token: token,
-    });
   } catch (error) {
     console.error(
       `[ERROR] /api/login: Server error for ${email}:`,
@@ -310,129 +337,114 @@ app.post("/api/login", async (req, res) => {
   }
 });
 
-// --- NEW PROTECTED ENDPOINT ---
-// This endpoint will only be accessible if a valid token is provided.
-app.get("/api/profile", async (req, res) => {
-  try {
-    // Check for the token in the Authorization header
-    const token = req.headers.authorization.split(" ")[1]; // "Bearer TOKEN"
-    if (!token) {
-      return res
-        .status(401)
-        .json({ success: false, message: "Not authorized, no token" });
-    }
-
-    // Verify the token
-    const decoded = jwt.verify(token, "your_jwt_secret_key"); // Use the same secret key
-
-    // Get user from the token's ID, but don't send back the password
-    const user = await User.findById(decoded.id).select("-password");
-
-    if (user) {
-      res.json(user);
-    } else {
-      res.status(404).json({ success: false, message: "User not found" });
-    }
-  } catch (error) {
-    res
-      .status(401)
-      .json({ success: false, message: "Not authorized, token failed" });
-  }
+// Health check
+app.get('/api/health', (req, res) => {
+  res.json({ status: 'ok', db: dbAvailable ? 'connected' : 'memory', timestamp: new Date().toISOString() });
 });
 
-// Endpoint 5: Forgot Password - Generate Token
-app.post("/api/forgot-password", async (req, res) => {
+
+// Forgot Password - request reset link
+app.post('/api/forgot-password', async (req, res) => {
   const { email } = req.body;
-  const user = await User.findOne({ email });
-
-  if (!user) {
-    // To prevent email enumeration, we send a generic success response even if the user doesn't exist.
-    console.warn(
-      `[WARN] /api/forgot-password: Attempt for non-existent user ${email}`
-    );
-    return res.json({
-      success: true,
-      message:
-        "If an account with that email exists, a password reset link has been sent.",
-    });
+  if (!email) {
+    return res.status(400).json({ success: false, message: 'Email is required' });
   }
+  try {
+    let user;
+    if (dbAvailable) {
+      user = await User.findOne({ email });
+    } else {
+      user = memoryUsers.get(email);
+    }
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'No account found for this email' });
+    }
+    const token = require('crypto').randomBytes(20).toString('hex');
+    const expires = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+    if (dbAvailable) {
+      await User.updateOne({ email }, { resetToken: token, resetExpires: expires });
+    } else {
+      memoryResets.set(token, { email, expires });
+    }
 
-  // Generate a random token
-  const token = crypto.randomBytes(20).toString("hex");
-
-  user.resetPasswordToken = token;
-  user.resetPasswordExpires = Date.now() + 3600000; // Token expires in 1 hour
-
-  await user.save();
-
-  const resetURL = `http://localhost:3001/reset-password.html?token=${token}`;
-
-  // Send the email to the user
-  const transporter = nodemailer.createTransport({
-    service: "gmail",
-    auth: {
-      user: "ananta10092004@gmail.com",
-      pass: "fopj wngw nscr fksu",
-    },
-  });
-  await transporter.sendMail({
-    to: user.email,
-    from: '"Student Management System" <ananta10092004@gmail.com>',
-    subject: "Password Reset Request",
-    html: `
-      <p>You are receiving this because you (or someone else) have requested the reset of the password for your account.</p>
-      <p>Please click on the following link, or paste this into your browser to complete the process:</p>
-      <p><a href="${resetURL}">${resetURL}</a></p>
-      <p>If you did not request this, please ignore this email and your password will remain unchanged.</p>
-    `,
-  });
-
-  res.json({
-    success: true,
-    message: "A password reset link has been sent to your email.",
-  });
+    const resetLink = `http://localhost:${process.env.PORT || 3001}/reset-password.html?token=${token}`;
+    try {
+      const transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS }
+      });
+      await transporter.sendMail({
+        from: process.env.EMAIL_USER ? `"Student Portal" <${process.env.EMAIL_USER}>` : 'no-reply@example.com',
+        to: email,
+        subject: 'Password Reset',
+        html: `<p>Click the link below to reset your password (valid for 1 hour):</p><p><a href="${resetLink}">${resetLink}</a></p>`
+      });
+      return res.json({ success: true, message: 'Password reset link sent to your email' });
+    } catch (err) {
+      console.warn('[WARN] reset email failed:', err.message);
+      console.log('[DEV] Password reset link:', resetLink);
+      return res.json({ success: true, message: 'Reset link generated (fallback mode). Check server console.' });
+    }
+  } catch (e) {
+    console.error('forgot-password error:', e.message);
+    return res.status(500).json({ success: false, message: 'Server error' });
+  }
 });
 
-// Endpoint 6: Reset Password - Update Password
-app.post("/api/reset-password", async (req, res) => {
-  const { token, password } = req.body;
-
-  const user = await User.findOne({
-    resetPasswordToken: token,
-    resetPasswordExpires: { $gt: Date.now() }, // Check if token is not expired
-  });
-
-  if (!user) {
-    return res.status(400).json({
-      success: false,
-      message: "Password reset token is invalid or has expired.",
-    });
+// Reset Password
+app.post('/api/reset-password', async (req, res) => {
+  const { token, newPassword, confirmPassword } = req.body;
+  if (!token || !newPassword || !confirmPassword) {
+    return res.status(400).json({ success: false, message: 'Token and passwords are required' });
   }
-
-  // Hash the new password before saving it
-  const salt = await bcrypt.genSalt(10);
-  user.password = await bcrypt.hash(password, salt);
-
-  await user.save();
-
-  res.json({ success: true, message: "Password has been successfully reset." });
+  if (newPassword !== confirmPassword) {
+    return res.status(400).json({ success: false, message: 'Passwords do not match' });
+  }
+  try {
+    if (dbAvailable) {
+      const user = await User.findOne({ resetToken: token, resetExpires: { $gt: new Date() } });
+      if (!user) return res.status(400).json({ success: false, message: 'Invalid or expired token' });
+      user.password = newPassword;
+      user.resetToken = undefined;
+      user.resetExpires = undefined;
+      await user.save();
+      return res.json({ success: true, message: 'Password reset successfully' });
+    } else {
+      const entry = memoryResets.get(token);
+      if (!entry || entry.expires < new Date()) return res.status(400).json({ success: false, message: 'Invalid or expired token' });
+      const u = memoryUsers.get(entry.email);
+      if (!u) return res.status(400).json({ success: false, message: 'User not found' });
+      u.password = newPassword;
+      memoryResets.delete(token);
+      return res.json({ success: true, message: 'Password reset successfully' });
+    }
+  } catch (e) {
+    console.error('reset-password error:', e.message);
+    return res.status(500).json({ success: false, message: 'Server error' });
+  }
 });
 
 // --- DEBUGGING ENDPOINT ---
 // WARNING: This is for debugging only. Remove it in a real application.
 app.get("/api/all-users", async (req, res) => {
   try {
-    // Find all users, but hide the password field for security
-    const users = await User.find({}, { password: 0 });
-    console.log("[DEBUG] Fetched all users:", users);
-    res.json(users);
+    if (dbAvailable) {
+      // Find all users, but hide the password field for security
+      const users = await User.find({}, { password: 0 });
+      console.log("[DEBUG] Fetched all users:", users);
+      res.json(users);
+    } else {
+      const users = Array.from(memoryUsers.values()).map(u => ({ name: u.name, email: u.email }));
+      console.log("[DEBUG] Fetched all memory users:", users);
+      res.json(users);
+    }
   } catch (error) {
     res.status(500).json({ success: false, message: "Failed to fetch users." });
   }
 });
 
 // --- Server Start ---
-const PORT = 3001; // or any port you want your backend to run on
+const PORT = process.env.PORT || 3001; // or any port you want your backend to run on
 
 // Start server
 app.listen(PORT, () => {
@@ -441,6 +453,6 @@ app.listen(PORT, () => {
   console.log(`🏠 Homepage: http://localhost:${PORT}/index.html`);
   console.log(`📝 Signup: http://localhost:${PORT}/stu_signup.html`);
   console.log("");
-  console.log("✅ Open http://localhost:3000/index.html in your browser");
+  console.log("✅ Open http://localhost:" + PORT + "/index.html in your browser");
   console.log("✅ Then test the signup form - it should work now!");
 });

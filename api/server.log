@@ -1,0 +1,8 @@
+
+🚀 Student Management System API Server
+📍 Running on port 3003
+🏥 Health check: http://localhost:3003/api/health
+🔧 Debug users: http://localhost:3003/api/debug/users
+📧 Email configured: ananta10092004@gmail.com
+🗄️ Database: In-Memory Mode
+============================================================

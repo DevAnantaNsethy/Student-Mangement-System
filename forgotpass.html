@@ -13,8 +13,12 @@
       <h1>Forgot Password?</h1>
       <p>Enter your email address below and we will send you a link to reset your password.</p>
 
-      <form class="forgot-form" action="./User_login.html" method="GET">
-        <input type="email" name="email" placeholder="Enter your email" required />
+      <form class="forgot-form" id="forgotPasswordForm">
+        <input type="email" id="email" name="email" placeholder="Enter your email" required />
+        
+        <div class="error-message" id="errorMessage"></div>
+        <div class="success-message" id="successMessage"></div>
+        
         <button type="submit" class="submit-btn">Send Reset Link</button>
       </form>
 
@@ -23,5 +27,50 @@
       </p>
     </div>
   </div>
+
+  <script>
+    document.getElementById('forgotPasswordForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      const email = document.getElementById('email').value;
+      const errorMessage = document.getElementById('errorMessage');
+      const successMessage = document.getElementById('successMessage');
+      
+      // Clear previous messages
+      errorMessage.textContent = '';
+      successMessage.textContent = '';
+      
+      if (!email) {
+        errorMessage.textContent = 'Please enter your email address';
+        return;
+      }
+      
+      try {
+        successMessage.textContent = 'Sending reset link...';
+        
+        const response = await fetch('/api/forgot-password', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ email })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+          successMessage.textContent = 'Password reset link sent to your email! Check the server console for the link.';
+          document.getElementById('email').value = '';
+        } else {
+          errorMessage.textContent = data.message || 'Failed to send reset link';
+          successMessage.textContent = '';
+        }
+      } catch (error) {
+        console.error('Forgot password error:', error);
+        errorMessage.textContent = 'Network error. Please try again.';
+        successMessage.textContent = '';
+      }
+    });
+  </script>
 </body>
 </html>

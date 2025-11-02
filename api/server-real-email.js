@@ -2,6 +2,8 @@ const express = require("express");
 const cors = require("cors");
 const nodemailer = require("nodemailer");
 const crypto = require("crypto");
+// Optional: load environment variables from .env if present
+try { require('dotenv').config(); } catch (e) {}
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -25,6 +27,7 @@ app.use(express.json());
 // In-memory storage for demo
 const otpStorage = new Map();
 const pendingUsers = new Map();
+const verifiedEmails = new Set();
 
 // Generate 6-digit OTP
 function generateOTP() {
@@ -32,11 +35,11 @@ function generateOTP() {
 }
 
 // REAL EMAIL CONFIGURATION - Replace these with your Gmail credentials
-const transporter = nodemailer.createTransporter({
+const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
-    user: "anantanarayansethy350@gmail.com", // YOUR Gmail address
-    pass: "your-app-password-here", // You need to set your Gmail App Password
+    user: process.env.EMAIL_USER || "your-email@gmail.com",
+    pass: process.env.EMAIL_PASS || "your-app-password",
   },
 });
 
@@ -162,6 +165,7 @@ app.post("/api/verify-otp", (req, res) => {
 
     // Verify OTP
     if (storedData.otp === otp) {
+      verifiedEmails.add(email);
       otpStorage.delete(email);
       res.json({
         success: true,
@@ -216,8 +220,19 @@ app.post("/api/register", (req, res) => {
       });
     }
 
+    // Ensure email was verified via OTP before registration
+    if (!verifiedEmails.has(email)) {
+      return res.status(400).json({
+        success: false,
+        message: "Email not verified. Please complete OTP verification first",
+      });
+    }
+
     // Store user data (in production, save to database)
     console.log("✅ USER REGISTERED:", { name, email, verified: true });
+
+    // Clear verification marker after successful registration
+    verifiedEmails.delete(email);
 
     res.json({
       success: true,

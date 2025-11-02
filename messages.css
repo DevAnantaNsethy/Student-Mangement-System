@@ -1,0 +1,42 @@
+.error-message {
+  color: #d73027;
+  background-color: #fdf2f2;
+  border: 1px solid #fecaca;
+  padding: 12px;
+  border-radius: 6px;
+  margin: 10px 0;
+  font-size: 14px;
+  display: block;
+  min-height: 20px;
+}
+
+.success-message {
+  color: #065f46;
+  background-color: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  padding: 12px;
+  border-radius: 6px;
+  margin: 10px 0;
+  font-size: 14px;
+  display: block;
+  min-height: 20px;
+}
+
+.error-message:empty,
+.success-message:empty {
+  display: none;
+}
+
+.alt-link {
+  text-align: center;
+  margin-top: 15px;
+}
+
+.alt-link a {
+  color: #7b61ff;
+  text-decoration: none;
+}
+
+.alt-link a:hover {
+  text-decoration: underline;
+}

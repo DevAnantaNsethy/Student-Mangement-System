@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Test Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .btn {
+            display: inline-block;
+            padding: 15px 30px;
+            margin: 10px;
+            background: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .btn:hover {
+            background: #0056b3;
+        }
+        .btn.admin {
+            background: #28a745;
+        }
+        .btn.admin:hover {
+            background: #1e7e34;
+        }
+        .test-section {
+            margin: 30px 0;
+            padding: 20px;
+            border: 2px dashed #ddd;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🧪 Login Redirection Test</h1>
+        <p>Use this page to test your login system and dashboard redirections.</p>
+        
+        <div class="test-section">
+            <h3>Student Portal</h3>
+            <a href="stu_login.html" class="btn">Go to Student Login</a>
+            <br>
+            <a href="student-dashboard.html" class="btn" style="background: #6c757d;">Direct to Student Dashboard</a>
+        </div>
+        
+        <div class="test-section">
+            <h3>Admin Portal</h3>
+            <a href="admin-login.html" class="btn admin">Go to Admin Login</a>
+            <br>
+            <a href="admin-dashboard.html" class="btn admin" style="background: #6c757d;">Direct to Admin Dashboard</a>
+        </div>
+        
+        <div class="test-section">
+            <h3>Quick Test (Simulate Login Success)</h3>
+            <button class="btn" onclick="testStudentRedirect()">Test Student Login → Dashboard</button>
+            <button class="btn admin" onclick="testAdminRedirect()">Test Admin Login → Dashboard</button>
+        </div>
+        
+        <div class="test-section">
+            <h3>Registration Pages</h3>
+            <a href="stu_signup.html" class="btn">Student Signup</a>
+            <a href="admin_signup.html" class="btn admin">Admin Signup</a>
+        </div>
+    </div>
+
+    <script>
+        function testStudentRedirect() {
+            alert('Testing Student Login Success...');
+            // Simulate storing user data
+            localStorage.setItem('user', JSON.stringify({
+                name: 'Test Student',
+                email: 'student@test.com',
+                role: 'student'
+            }));
+            // Redirect to student dashboard
+            setTimeout(() => {
+                window.location.href = './student-dashboard.html';
+            }, 1000);
+        }
+
+        function testAdminRedirect() {
+            alert('Testing Admin Login Success...');
+            // Simulate storing user data
+            localStorage.setItem('user', JSON.stringify({
+                name: 'Test Admin',
+                email: 'admin@test.com',
+                role: 'admin'
+            }));
+            // Redirect to admin dashboard
+            setTimeout(() => {
+                window.location.href = './admin-dashboard.html';
+            }, 1000);
+        }
+    </script>
+</body>
+</html>

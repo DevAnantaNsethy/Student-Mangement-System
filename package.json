@@ -1,20 +1,32 @@
 {
-  "name": "student-mangement-system",
+  "name": "student-management-system",
   "version": "1.0.0",
-  "main": "otp-verification.js",
+  "main": "api/unified-server.js",
   "scripts": {
+    "start": "node api/unified-server.js",
+    "dev": "nodemon api/unified-server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": "",
+  "keywords": [
+    "student",
+    "management",
+    "education",
+    "portal"
+  ],
+  "author": "Roland Institute of Technology",
+  "license": "MIT",
+  "description": "Student Management System with email verification and dashboard",
   "dependencies": {
-    "bcrypt": "^6.0.0",
+    "bcrypt": "^5.1.1",
     "cors": "^2.8.5",
-    "express": "^5.1.0",
-    "jsonwebtoken": "^9.0.2",
-    "mongoose": "^8.18.3",
-    "nodemailer": "^7.0.6"
+    "dotenv": "^16.4.5",
+    "express": "^4.18.2",
+    "express-rate-limit": "^7.2.0",
+    "helmet": "^7.1.0",
+    "mongoose": "^7.6.3",
+    "nodemailer": "^6.9.7"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
   }
 }

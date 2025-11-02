@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test React Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .btn {
+            display: inline-block;
+            padding: 15px 30px;
+            margin: 10px;
+            background: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .btn:hover {
+            background: #0056b3;
+        }
+        .btn.test {
+            background: #28a745;
+        }
+        .btn.test:hover {
+            background: #1e7e34;
+        }
+        .info {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid #2196f3;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🧪 React Dashboard Test</h1>
+        <p>Test your React Student Dashboard here!</p>
+        
+        <div class="info">
+            <h3>📋 How to Test:</h3>
+            <p>1. First, simulate a login to store user data</p>
+            <p>2. Then open the React dashboard</p>
+            <p>3. Navigate between sections to see SPA in action!</p>
+        </div>
+        
+        <button class="btn test" onclick="simulateLogin()">
+            1️⃣ Simulate Student Login
+        </button>
+        <br>
+        <a href="./student-dashboard-react/dist/index.html" class="btn">
+            2️⃣ Open React Dashboard
+        </a>
+        
+        <div class="info" style="margin-top: 30px;">
+            <h3>🔗 Other Options:</h3>
+            <a href="stu_login.html" class="btn">Real Student Login</a>
+            <a href="test-login.html" class="btn">Login Test Page</a>
+        </div>
+    </div>
+
+    <script>
+        function simulateLogin() {
+            // Store test user data in localStorage
+            const testUser = {
+                name: 'John Doe',
+                email: 'john.doe@student.rit.edu',
+                role: 'student',
+                id: 'CS2101'
+            };
+            
+            localStorage.setItem('user', JSON.stringify(testUser));
+            
+            alert('✅ Student login simulated!\n\nUser data stored:\n' + 
+                  '• Name: ' + testUser.name + '\n' + 
+                  '• Email: ' + testUser.email + '\n' + 
+                  '• Role: ' + testUser.role + '\n\n' +
+                  'Now click "Open React Dashboard" to see it in action!');
+        }
+
+        // Check if user is already logged in
+        window.addEventListener('load', function() {
+            const user = JSON.parse(localStorage.getItem('user') || 'null');
+            if (user && user.role === 'student') {
+                const userInfo = document.createElement('div');
+                userInfo.className = 'info';
+                userInfo.innerHTML = `
+                    <h3>👤 Current User Logged In:</h3>
+                    <p><strong>Name:</strong> ${user.name}</p>
+                    <p><strong>Email:</strong> ${user.email}</p>
+                    <p><strong>Role:</strong> ${user.role}</p>
+                    <button onclick="localStorage.removeItem('user'); location.reload();" class="btn" style="background: #dc3545;">
+                        Logout
+                    </button>
+                `;
+                document.querySelector('.test-container').appendChild(userInfo);
+            }
+        });
+    </script>
+</body>
+</html>

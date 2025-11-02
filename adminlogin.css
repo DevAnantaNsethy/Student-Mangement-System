@@ -27,7 +27,7 @@ body {
   padding: 40px;
   width: 90%;
   max-width: 1100px;
-  box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.5);
+  box-shadow: 0px 4px 20px rgba(0,0,0,0.5);
 }
 
 /* LEFT SECTION (ADMIN LOGIN FORM) */
@@ -99,38 +99,6 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  /* Spinner Animation */
-  .btn-spinner {
-    vertical-align: middle;
-    margin-left: 8px;
-  }
-  .spinner {
-    animation: rotate 1s linear infinite;
-  }
-  .spinner .path {
-    stroke: #7b61ff;
-    stroke-linecap: round;
-    animation: dash 1.5s ease-in-out infinite;
-  }
-  @keyframes rotate {
-    100% {
-      transform: rotate(360deg);
-    }
-  }
-  @keyframes dash {
-    0% {
-      stroke-dasharray: 1, 150;
-      stroke-dashoffset: 0;
-    }
-    50% {
-      stroke-dasharray: 90, 150;
-      stroke-dashoffset: -35;
-    }
-    100% {
-      stroke-dasharray: 90, 150;
-      stroke-dashoffset: -124;
-    }
-  }
 }
 
 .welcome-text h1 {
@@ -173,3 +141,4 @@ body {
     margin-top: 20px;
   }
 }
+
