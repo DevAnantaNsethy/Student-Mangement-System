@@ -453,10 +453,798 @@ function setupNavigation() {
   });
 }
 
-function markAttendance() { showMessage("Attendance marking feature coming soon!", "success"); }
-function viewResults() { document.querySelector('[data-section="results"]').click(); }
-function submitAssignment() { showMessage("Assignment submission feature coming soon!", "success"); }
+function markAttendance() { showMessage("Please scan your QR code using the admin dashboard", "info"); }
+function viewResults() { loadStudentResults(); }
+function submitAssignment() { loadStudentAssignments(); }
 function updateProfile() { document.querySelector('[data-section="profile"]').click(); }
+
+// New functionality
+async function loadStudentAttendance() {
+  try {
+    const user = checkAuth();
+    if (!user) return;
+
+    // Get current month dates
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const firstDay = `${year}-${month}-01`;
+    const lastDay = new Date(year, now.getMonth() + 1, 0).toISOString().split('T')[0];
+
+    const response = await fetch(`/api/student/${user.id}/attendance?from=${firstDay}&to=${lastDay}`);
+    const data = await response.json();
+
+    if (data.success) {
+      displayAttendanceCalendar(data.attendanceRecords);
+      updateAttendanceStats(data.summary);
+    }
+  } catch (error) {
+    console.error('Error loading attendance:', error);
+    displayAttendanceCalendar([]); // Show empty calendar on error
+  }
+}
+
+function displayAttendanceCalendar(attendanceRecords) {
+  const tbody = document.getElementById('attendanceTableBody');
+  tbody.innerHTML = '';
+
+  if (attendanceRecords.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align: center;">No attendance records found for this month</td></tr>';
+    return;
+  }
+
+  attendanceRecords.forEach(record => {
+    const row = document.createElement('tr');
+    const statusClass = record.status === 'present' ? 'present' : record.status === 'late' ? 'late' : 'absent';
+
+    row.innerHTML = `
+      <td>${new Date(record.date).toLocaleDateString()}</td>
+      <td>${record.subject || 'N/A'}</td>
+      <td><span class="attendance-status ${statusClass}">${record.status.charAt(0).toUpperCase() + record.status.slice(1)}</span></td>
+      <td>${record.markedBy?.name || 'Admin'}</td>
+    `;
+    tbody.appendChild(row);
+  });
+}
+
+function updateAttendanceStats(summary) {
+  if (summary && summary.currentMonth) {
+    document.getElementById('attendancePercentage').textContent = `${summary.currentMonth.percentage}%`;
+    document.querySelector('.summary-card:nth-child(3) p.summary-value').textContent = summary.currentMonth.totalDays;
+    document.querySelector('.summary-card:nth-child(2) p.summary-value').textContent = summary.currentMonth.presentDays;
+    document.querySelector('.summary-card:nth-child(1) p.summary-value').textContent = summary.currentMonth.absentDays;
+  }
+
+  // Update overview stats
+  if (summary.overall) {
+    document.getElementById('attendancePercentage').textContent = `${summary.overall.percentage}%`;
+  }
+}
+
+async function loadStudentResults() {
+  try {
+    const user = checkAuth();
+    if (!user) return;
+
+    const response = await fetch(`/api/student/${user.id}/results`);
+    const data = await response.json();
+
+    if (data.success) {
+      displayResultsGrid(data.results);
+      updateResultsStats(data.results);
+    }
+  } catch (error) {
+    console.error('Error loading results:', error);
+    displayResultsGrid([]); // Show empty results on error
+  }
+}
+
+function displayResultsGrid(results) {
+  const resultsGrid = document.getElementById('resultsGrid');
+  resultsGrid.innerHTML = '';
+
+  if (results.length === 0) {
+    resultsGrid.innerHTML = '<div class="no-results">No results available yet. Check back later!</div>';
+    return;
+  }
+
+  results.forEach(result => {
+    const resultCard = document.createElement('div');
+    resultCard.className = 'result-card';
+
+    const gradeClass = result.grade === 'A' ? 'grade-a' :
+                      result.grade === 'B' ? 'grade-b' :
+                      result.grade === 'C' ? 'grade-c' : 'grade-d';
+
+    resultCard.innerHTML = `
+      <div class="result-header">
+        <h4>${result.subject}</h4>
+        <div class="result-meta">
+          <span class="result-grade ${gradeClass}">${result.grade}</span>
+          <span class="result-marks">${result.marks}/${result.maxMarks}</span>
+        </div>
+      </div>
+      <div class="result-body">
+        <p><strong>Date:</strong> ${new Date(result.postedAt).toLocaleDateString()}</p>
+        <p><strong>Semester:</strong> ${result.semester || 'N/A'}</p>
+        ${result.remarks ? `<p><strong>Remarks:</strong> ${result.remarks}</p>` : ''}
+      </div>
+    `;
+    resultsGrid.appendChild(resultCard);
+  });
+}
+
+function updateResultsStats(results) {
+  if (results.length > 0) {
+    // Calculate average grade
+    const totalMarks = results.reduce((sum, r) => sum + (r.marks / r.maxMarks), 0);
+    const avgGrade = totalMarks / results.length;
+
+    let avgLetterGrade = 'A';
+    if (avgGrade >= 90) avgLetterGrade = 'A';
+    else if (avgGrade >= 80) avgLetterGrade = 'B';
+    else if (avgGrade >= 70) avgLetterGrade = 'C';
+    else if (avgGrade >= 60) avgLetterGrade = 'D';
+    else avgLetterGrade = 'F';
+
+    document.getElementById('averageGrade').textContent = avgLetterGrade;
+    document.getElementById('pendingAssignments').textContent = results.length;
+  }
+}
+
+async function loadStudentAssignments() {
+  try {
+    const user = checkAuth();
+    if (!user) return;
+
+    const response = await fetch(`/api/student/${user.id}/assignments`);
+    const data = await response.json();
+
+    if (data.success) {
+      displayAssignmentsList(data.assignments);
+      updateAssignmentStats(data.assignments);
+    }
+  } catch (error) {
+    console.error('Error loading assignments:', error);
+    displayAssignmentsList([]); // Show empty assignments on error
+  }
+}
+
+function displayAssignmentsList(assignments) {
+  const assignmentsList = document.getElementById('assignmentsList');
+  assignmentsList.innerHTML = '';
+
+  if (assignments.length === 0) {
+    assignmentsList.innerHTML = '<div class="no-assignments">No assignments available at the moment.</div>';
+    return;
+  }
+
+  assignments.forEach(assignment => {
+    const assignmentDiv = document.createElement('div');
+    assignmentDiv.className = 'assignment-item';
+
+    const statusClass = assignment.submissionStatus === 'submitted' ? 'submitted' :
+                         assignment.submissionStatus === 'graded' ? 'graded' : 'not_submitted';
+    const deadlineClass = new Date(assignment.dueDate) < new Date() ? 'overdue' : 'on-time';
+
+    assignmentDiv.innerHTML = `
+      <div class="assignment-header">
+        <h4>${assignment.title}</h4>
+        <div class="assignment-meta">
+          <span class="assignment-status ${statusClass}">${assignment.submissionStatus}</span>
+          <span class="assignment-deadline ${deadlineClass}">Due: ${new Date(assignment.dueDate).toLocaleDateString()}</span>
+        </div>
+      </div>
+      <div class="assignment-body">
+        <p>${assignment.description}</p>
+        <div class="assignment-info">
+          <p><strong>Course:</strong> ${assignment.course}</p>
+          ${assignment.branch ? `<p><strong>Branch:</strong> ${assignment.branch}</p>` : ''}
+          ${assignment.yearOfStudy ? `<p><strong>Year:</strong> ${assignment.yearOfStudy}</p>` : ''}
+        </div>
+        ${assignment.attachments && assignment.attachments.length > 0 ? `
+          <div class="assignment-attachments">
+            <strong>Attachments:</strong>
+            ${assignment.attachments.map(file =>
+              `<a href="${file.storedPath}" target="_blank">${file.originalName}</a>`
+            ).join(', ')}
+          </div>
+        ` : ''}
+      </div>
+      <div class="assignment-actions">
+        ${assignment.submissionStatus === 'submitted' ? `
+          <button class="btn btn-sm btn-warning" onclick="viewSubmissionDetails('${assignment._id}')">
+            View Details
+          </button>
+        ` : ''}
+        ${assignment.submissionStatus === 'graded' ? `
+          <div class="graded-info">
+            <p><strong>Grade:</strong> ${assignment.grade}</p>
+            <p><strong>Feedback:</strong> ${assignment.feedback || 'No feedback provided'}</p>
+          </div>
+        ` : `
+          <button class="btn btn-primary" onclick="submitAssignment('${assignment._id}')">
+            Submit Assignment
+          </button>
+        `}
+      </div>
+    `;
+    assignmentsList.appendChild(assignmentDiv);
+  });
+}
+
+function updateAssignmentStats(assignments) {
+  const total = assignments.length;
+  const submitted = assignments.filter(a => a.submissionStatus === 'submitted' || a.submissionStatus === 'graded').length;
+  const pending = total - submitted;
+
+  document.getElementById('pendingAssignments').textContent = pending;
+}
+
+function viewSubmissionDetails(assignmentId) {
+  showAssignmentModal(assignmentId);
+}
+
+function submitAssignment(assignmentId) {
+  showAssignmentModal(assignmentId, true);
+}
+
+function showAssignmentModal(assignmentId, isSubmitting = false) {
+  const modal = document.createElement('div');
+  modal.className = 'modal-overlay';
+  modal.innerHTML = `
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>${isSubmitting ? 'Submit Assignment' : 'Assignment Details'}</h3>
+        <button class="close-btn" onclick="closeModal(this.parentElement.parentElement.parentElement)">×</button>
+      </div>
+      <div class="modal-body">
+        <div id="assignmentContent">
+          Loading assignment details...
+        </div>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(modal);
+  modal.style.display = 'block';
+
+  if (!isSubmitting) {
+    // Load assignment details
+    loadAssignmentDetails(assignmentId);
+  } else {
+    // Show submission form
+    showAssignmentForm(assignmentId);
+  }
+}
+
+async function loadAssignmentDetails(assignmentId) {
+  try {
+    const response = await fetch(`/api/assignment/${assignmentId}`);
+    const data = await response.json();
+
+    if (data.success) {
+      const content = document.getElementById('assignmentContent');
+      content.innerHTML = `
+        <div class="assignment-details">
+          <div class="assignment-overview">
+            <h4>${data.title}</h4>
+            <div class="assignment-meta">
+              <p><strong>Course:</strong> ${data.course}</p>
+              <p><strong>Branch:</strong> ${data.branch || 'All'}</p>
+              <p><strong>Due Date:</strong> ${new Date(data.dueDate).toLocaleDateString()}</p>
+              <p><strong>Status:</strong> <span class="assignment-status ${data.submissionStatus}">${data.submissionStatus}</span></p>
+            </div>
+            <div class="assignment-description">
+              <p>${data.description}</p>
+            </div>
+            ${data.attachments && data.attachments.length > 0 ? `
+              <div class="assignment-attachments">
+                <h5>Attachments:</h5>
+                ${data.attachments.map(file =>
+                  `<div class="attachment-item">
+                    <a href="${file.storedPath}" target="_blank">${file.originalName}</a>
+                    <small>(${(file.size / 1024).toFixed(1)} KB)</small>
+                  </div>
+                `).join('')}
+              </div>
+            ` : ''}
+          </div>
+          ${data.submissionStatus === 'graded' ? `
+            <div class="graded-details">
+              <h4>Graded Information</h4>
+              <div class="grade-info">
+                <p><strong>Grade:</strong> ${data.grade}</p>
+                <p><strong>Feedback:</strong> ${data.feedback}</p>
+                <p><strong>Graded by:</strong> ${data.postedBy?.name || 'Admin'}</p>
+                <p><strong>Graded on:</strong> ${new Date(data.postedAt).toLocaleDateString()}</p>
+              </div>
+            </div>
+          ` : ''}
+        </div>
+      `;
+    }
+  } catch (error) {
+    const content = document.getElementById('assignmentContent');
+    content.innerHTML = `
+      <div class="error-message">
+        <p>Failed to load assignment details</p>
+        <button class="btn btn-secondary" onclick="closeModal(this.parentElement.parentElement.parentElement)">Close</button>
+      </div>
+    `;
+  }
+}
+
+function showAssignmentForm(assignmentId) {
+  const content = document.getElementById('assignmentContent');
+  content.innerHTML = `
+    <form id="assignmentSubmitForm">
+      <div class="form-group">
+        <label for="submissionRemarks">Remarks (optional):</label>
+        <textarea id="submissionRemarks" rows="3" placeholder="Add any notes for the evaluator"></textarea>
+      </div>
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary">Submit Assignment</button>
+        <button type="button" class="btn btn-secondary" onclick="closeModal(this.closest('.modal-overlay')">Cancel</button>
+      </div>
+    </form>
+  `;
+
+  // Handle form submission
+  const form = document.getElementById('assignmentSubmitForm');
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const currentUser = checkAuth();
+
+    const submissionData = {
+      assignmentId: assignmentId,
+      remarks: formData.get('submissionRemarks'),
+      studentId: currentUser.id
+    };
+
+    try {
+      const response = await fetch('/api/student/assignment/submit', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(submissionData)
+      });
+
+      const data = await response.json();
+      if (data.success) {
+        showMessage('Assignment submitted successfully!', 'success');
+        closeModal(modal);
+        loadStudentAssignments(); // Refresh assignments list
+      } else {
+        showMessage(data.message || 'Failed to submit assignment', 'error');
+      }
+    } catch (error) {
+      console.error('Error submitting assignment:', error);
+      showMessage('Failed to submit assignment', 'error');
+    }
+  });
+}
+
+async function loadNotices() {
+  try {
+    const response = await fetch('/api/notices');
+    const data = await response.json();
+
+    if (data.success) {
+      displayNotices(data.notices);
+    }
+  } catch (error) {
+    console.error('Error loading notices:', error);
+    displayNotices([]);
+  }
+}
+
+function displayNotices(notices) {
+  const noticesList = document.getElementById('noticesList');
+  noticesList.innerHTML = '';
+
+  if (notices.length === 0) {
+    noticesList.innerHTML = '<div class="no-notices">No active notices at the moment.</div>';
+    return;
+  }
+
+  notices.forEach(notice => {
+    const noticeDiv = document.createElement('div');
+    noticeDiv.className = 'notice-item';
+
+    // Calculate remaining time
+    const now = new Date();
+    const expiresAt = new Date(notice.expiresAt);
+    const remainingTime = Math.max(0, expiresAt - now);
+    const hoursRemaining = Math.ceil(remainingTime / (1000 * 60 * 60));
+
+    noticeDiv.innerHTML = `
+      <div class="notice-header">
+        <h4>${notice.title}</h4>
+        <div class="notice-meta">
+          <small class="notice-time">${new Date(notice.postedAt).toLocaleString()}</small>
+          ${hoursRemaining > 0 ? `<span class="notice-expiry">(${hoursRemaining}h remaining)</span>` : ''}
+        </div>
+      </div>
+      <div class="notice-content">
+        ${notice.message}
+      </div>
+    `;
+
+    noticesList.appendChild(noticeDiv);
+  });
+}
+
+// Contact admin functionality
+function messageAdmin() {
+  showContactModal();
+}
+
+function showContactModal() {
+  const modal = document.createElement('div');
+  modal.className = 'modal-overlay';
+  modal.innerHTML = `
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Message Administrator</h3>
+        <button class="close-btn" onclick="closeModal(this.parentElement.parentElement)">×</button>
+      </div>
+      <div class="modal-body">
+        <form id="contactForm">
+          <div class="form-group">
+            <label for="subject">Subject:</label>
+            <input type="text" id="subject" required maxlength="100">
+          </div>
+          <div class="form-group">
+            <label for="message">Message:</label>
+            <textarea id="message" rows="5" required placeholder="Describe your message here..."></textarea>
+          </div>
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Send Message</button>
+            <button type="button" class="btn btn-secondary" onclick="closeModal(this.parentElement.parentElement)">Cancel</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(modal);
+  modal.style.display = 'block';
+
+  // Handle form submission
+  const form = document.getElementById('contactForm');
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const currentUser = checkAuth();
+
+    const contactData = {
+      fromStudent: currentUser.id,
+      subject: formData.get('subject'),
+      message: formData.get('message')
+    };
+
+    try {
+      const response = await fetch('/api/contact/admin', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(contactData)
+      });
+
+      const data = await response.json();
+      if (data.success) {
+        showMessage('Message sent to administrator successfully!', 'success');
+        closeModal(modal);
+      } else {
+        showMessage('Failed to send message. Please try again.', 'error');
+      }
+    } catch (error) {
+      console.error('Error sending contact message:', error);
+      showMessage('Failed to send message. Please try again.', 'error');
+    }
+  });
+}
+
+// QR Code generation
+function showQRCode() {
+  const user = checkAuth();
+  if (!user) return;
+
+  generateStudentQR(user.id);
+}
+
+async function generateStudentQR(studentId) {
+  try {
+    const response = await fetch(`/api/student/${studentId}/qr`);
+    const data = await response.json();
+
+    if (data.success) {
+      showQRModal(data.qrUrl);
+    } else {
+      showMessage('Failed to generate QR code', 'error');
+    }
+  } catch (error) {
+    console.error('Error generating QR code:', error);
+    showMessage('Failed to generate QR code', 'error');
+  }
+}
+
+function showQRModal(qrUrl) {
+  const modal = document.createElement('div');
+  modal.className = 'modal-overlay';
+  modal.innerHTML = `
+    <div class="modal-content qr-modal">
+      <div class="modal-header">
+        <h3>Your QR Code</h3>
+        <button class="close-btn" onclick="closeModal(this.parentElement.parentElement)">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="qr-display">
+          <img src="${qrUrl}" alt="Student QR Code" style="max-width: 300px; border: 2px solid #ddd; border-radius: 8px;" />
+        </div>
+        <div class="qr-info">
+          <p>This QR code is unique to your student account.</p>
+          <p>Present this QR code for attendance marking.</p>
+        </div>
+        <div class="qr-actions">
+          <button class="btn btn-primary" onclick="downloadQR('${qrUrl}')">
+            📥 Download QR Code
+          </button>
+          <button class="btn btn-secondary" onclick="closeModal(this.parentElement.parentElement)">Close</button>
+        </div>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(modal);
+  modal.style.display = 'block';
+}
+
+function downloadQR(qrUrl) {
+  const link = document.createElement('a');
+  link.href = qrUrl;
+  link.download = 'student-qr-code.png';
+  link.click();
+}
+
+// Chat functionality
+function openChatWithAdmin() {
+  const user = checkAuth();
+  if (!user) return;
+
+  openChatModal('admin', user.id);
+}
+
+function openChatModal(otherUserId, studentId = null) {
+  // This will be used when the chat feature is implemented
+  console.log('Chat feature will open with:', otherUserId);
+  showMessage('Chat feature will be available soon!', 'info');
+}
+
+// Admin messaging
+function showChatModal(chatId, otherUserId) {
+  currentChatId = chatId;
+  const modal = document.createElement('div');
+  modal.className = 'modal-overlay chat-modal';
+  modal.innerHTML = `
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Chat</h3>
+        <button class="close-btn" onclick="closeModal(this.parentElement.parentElement)">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="chat-messages" id="chatMessages"></div>
+        <div class="chat-input">
+          <div class="input-group">
+            <input type="text" id="messageInput" placeholder="Type a message..." />
+            <button id="sendMessageBtn">Send</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(modal);
+  modal.style.display = 'block';
+
+  // Initialize chat
+  initChat(chatId);
+  loadChatMessages(chatId);
+
+  // Add send button functionality
+  const sendBtn = document.getElementById('sendMessageBtn');
+  sendBtn.addEventListener('click', sendMessage);
+
+  // Message input functionality
+  const messageInput = document.getElementById('messageInput');
+  messageInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+      sendMessage();
+    }
+  });
+}
+
+async function initChat(chatId) {
+  // Initialize Socket.IO if available
+  if (typeof io !== 'undefined') {
+    socket = io();
+
+    socket.on('connect', () => {
+      socket.emit('joinChat', { chatId, userId: checkAuth().id });
+    });
+
+    socket.on('joinedChat', (data) => {
+      console.log('Joined chat:', data);
+    });
+
+    socket.on('message:new', (message) => {
+      displayMessage(message);
+    });
+
+    socket.on('message:read', (data) => {
+      markMessagesAsRead(data.messageIds, checkAuth().id);
+    });
+  }
+}
+
+async function loadChatMessages(chatId) {
+  try {
+    const currentUser = checkAuth();
+    const response = await fetch(`/api/chat/${chatId}/messages?currentUserId=${currentUser.id}&page=1&limit=50`);
+    const data = await response.json();
+
+    if (data.success) {
+      displayMessages(data.messages);
+    }
+  } catch (error) {
+    console.error('Error loading chat messages:', error);
+    displayMessages([]);
+  }
+}
+
+function displayMessages(messages) {
+  const messagesContainer = document.getElementById('chatMessages');
+  messagesContainer.innerHTML = '';
+
+  messages.forEach(message => {
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `message-item ${message.from === checkAuth().id ? 'sent' : 'received'}`;
+    messageDiv.innerHTML = `
+      <div class="message-header">
+        <strong>${message.from.name}</strong>
+        <small>${new Date(message.sentAt).toLocaleTimeString()}</small>
+      </div>
+      <div class="message-content">
+        ${message.text}
+      </div>
+    `;
+    messagesContainer.appendChild(messageDiv);
+  });
+
+  // Scroll to bottom
+  messagesContainer.scrollTop = messagesContainer.scrollHeight;
+}
+
+function sendMessage() {
+  const input = document.getElementById('messageInput');
+  const text = input.value.trim();
+
+  if (!text) return;
+
+  const currentUser = checkAuth();
+  const chatId = currentChatId;
+
+  if (socket) {
+    // Send via WebSocket
+    socket.emit('message:new', {
+      chatId,
+      from: currentUser.id,
+      to: 'otherUserId',
+      text: text
+    });
+  } else {
+    // Fallback to HTTP API
+    showMessage('Real-time chat requires Socket.IO', 'info');
+  }
+
+  input.value = '';
+}
+
+function displayMessage(message) {
+  const messagesContainer = document.getElementById('chatMessages');
+  const messageDiv = document.createElement('div');
+  messageDiv.className = `message-item ${message.from === checkAuth().id ? 'sent' : 'received'}`;
+  messageDiv.innerHTML = `
+    <div class="message-header">
+      <strong>${message.from.name}</strong>
+      <small>${new Date(message.sentAt).toLocaleTimeString()}</small>
+    </div>
+    <div class="message-content">
+      ${message.text}
+    </div>
+  `;
+  messagesContainer.appendChild(messageDiv);
+  messagesContainer.scrollTop = messagesContainer.scrollHeight;
+}
+
+function markMessagesAsRead(messageIds, userId) {
+  // Mark messages as read
+  // This is already implemented in the server-side
+  console.log('Marking messages as read:', messageIds);
+}
+
+// Update overview stats
+async function updateDashboardStats() {
+  try {
+    const user = checkAuth();
+    if (!user) return;
+
+    // Get attendance summary
+    const attendanceResponse = await fetch(`/api/student/${user.id}/attendance/summary`);
+    const attendanceData = await attendanceResponse.json();
+
+    // Get results summary
+    const resultsResponse = await fetch(`/api/student/${user.id}/results`);
+    const resultsData = await resultsResponse.json();
+
+    // Get assignments summary
+    const assignmentsResponse = await fetch(`/api/student/${user.id}/assignments`);
+    const assignmentsData = await assignmentsResponse.json();
+
+    // Update UI
+    if (attendanceData.success) {
+      updateAttendanceStats(attendanceData.summary);
+    }
+
+    if (resultsData.success) {
+      updateResultsStats(resultsData.results);
+    }
+
+    if (assignmentsData.success) {
+      updateAssignmentStats(assignmentsData.assignments);
+    }
+
+    // Get active notices
+    const noticesResponse = fetch('/api/notices');
+    const noticesData = await noticesResponse.json();
+
+    if (noticesData.success) {
+      updateNoticesCount(noticesData.notices.length);
+    }
+
+  } catch (error) {
+    console.error('Error updating dashboard stats:', error);
+  }
+}
+
+function updateNoticesCount(noticesCount) {
+  document.getElementById('unreadNotices').textContent = noticesCount;
+}
+
+// Helper function to get the current logged-in user
+function checkAuth() {
+  const user = localStorage.getItem("user");
+  if (!user) {
+    window.location.href = "./stu_login.html";
+    return null;
+  }
+  return JSON.parse(user);
+}
+
+function editProfile() {
+  document.getElementById('profileForm').style.display = 'block';
+  document.getElementById('profileDisplay').style.display = 'none';
+  currentStep = 1;
+  showStep(1);
+  updateButtonVisibility();
+}
+
+function closeModal(element) {
+  const modal = element.closest('.modal-overlay');
+  if (modal && modal.parentNode) {
+    modal.parentNode.removeChild(modal);
+  }
+}
 function logout() { localStorage.removeItem("user"); window.location.href = "./stu_login.html"; }
 
 function showMessage(message, type) {
