@@ -2342,11 +2342,102 @@ app.get("/api/debug/users", async (req, res) => {
   }
 });
 
+// WebSocket Chat functionality
+if (io) {
+  io.on('connection', (socket) => {
+    console.log(`🔗 User connected: ${socket.id}`);
+
+    socket.on('joinChat', async (data) => {
+      try {
+        const { chatId, userId } = data;
+        socket.join(chatId);
+
+        if (dbAvailable) {
+          // Mark user as online in chat
+          await Chat.findByIdAndUpdate(chatId, { lastMessageAt: new Date() });
+        }
+
+        console.log(`👤 User ${userId} joined chat ${chatId}`);
+        socket.emit('joinedChat', { chatId });
+      } catch (error) {
+        console.error('Join chat error:', error);
+        socket.emit('error', { message: 'Failed to join chat' });
+      }
+    });
+
+    socket.on('message:new', async (data) => {
+      try {
+        const { chatId, from, to, text, messageType = 'text' } = data;
+
+        if (!chatId || !from || !to || !text) {
+          return socket.emit('error', { message: 'Missing message data' });
+        }
+
+        if (!dbAvailable) {
+          return socket.emit('error', { message: 'Database not available' });
+        }
+
+        // Save message to database
+        const message = await Message.create({
+          chatId,
+          from,
+          to,
+          text,
+          sentAt: new Date(),
+          messageType
+        });
+
+        // Update chat last message time
+        await Chat.findByIdAndUpdate(chatId, { lastMessageAt: new Date() });
+
+        // Broadcast to chat participants
+        const messageData = {
+          _id: message._id,
+          chatId,
+          from,
+          to,
+          text,
+          sentAt: message.sentAt,
+          messageType
+        };
+
+        io.to(chatId).emit('message:new', messageData);
+        console.log(`💬 New message in chat ${chatId} from ${from} to ${to}`);
+
+      } catch (error) {
+        console.error('Send message error:', error);
+        socket.emit('error', { message: 'Failed to send message' });
+      }
+    });
+
+    socket.on('message:read', async (data) => {
+      try {
+        const { messageIds, userId } = data;
+
+        if (!dbAvailable) return;
+
+        await Message.updateMany(
+          { _id: { $in: messageIds }, to: userId, readAt: { $exists: false } },
+          { readAt: new Date() }
+        );
+
+        socket.emit('messages:read', { messageIds });
+      } catch (error) {
+        console.error('Mark messages read error:', error);
+      }
+    });
+
+    socket.on('disconnect', () => {
+      console.log(`👋 User disconnected: ${socket.id}`);
+    });
+  });
+}
+
 // Serve static files
 app.use(express.static(__dirname + "/.."));
 
 // Start server
-const server = app.listen(PORT, () => {
+const server = httpServer || app.listen(PORT, () => {
   console.log(`\n🚀 Student Management System API Server`);
   console.log(`📍 Running on port ${PORT}`);
   console.log(`🏥 Health check: http://localhost:${PORT}/api/health`);
@@ -2357,6 +2448,8 @@ const server = app.listen(PORT, () => {
   console.log(
     `🗄️ Database: ${dbAvailable ? "MongoDB Connected" : "In-Memory Mode"}`
   );
+  console.log(`💬 WebSocket: ${io ? "Enabled" : "Disabled (install socket.io)"}`);
+  console.log(`📱 QR Code: ${QRCode ? "Enabled" : "Disabled (install qrcode)"}`);
   console.log(`=`.repeat(60));
 });
 
