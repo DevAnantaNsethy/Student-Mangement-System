@@ -543,9 +543,6 @@ async function submitProfile(e) {
   const user = checkAuth();
   if (!user) return;
 
-  const formData = new FormData();
-  formData.append('studentId', user.id);
-
   // Collect form data
   const personalInfo = {
     fullName: document.getElementById('fullName').value,
@@ -566,32 +563,111 @@ async function submitProfile(e) {
     skills: document.getElementById('skills').value
   };
 
-  formData.append('personalInfo', JSON.stringify(personalInfo));
-  formData.append('academicInfo', JSON.stringify(academicInfo));
-  formData.append('professionalInfo', JSON.stringify(professionalInfo));
+  const profileData = {
+    personalInfo,
+    academicInfo,
+    professionalInfo
+  };
 
-  // Files
-  const profilePicture = document.getElementById('profilePicture').files[0];
+  // Get files
+  const profilePictureFile = document.getElementById('profilePicture').files[0];
   const resumeFile = document.getElementById('resumeFile').files[0];
-  if (profilePicture) formData.append('profilePicture', profilePicture);
-  if (resumeFile) formData.append('resumeFile', resumeFile);
 
-  try {
-    showMessage('Saving profile...', 'success');
-    const response = await fetch('/api/student/profile', { method: 'POST', body: formData });
-    const data = await response.json();
+  // Check if online
+  if (isOnline) {
+    // Try to submit directly to server
+    try {
+      showMessage('Saving profile...', 'success');
+      const formData = new FormData();
+      formData.append('studentId', user.id);
+      formData.append('personalInfo', JSON.stringify(personalInfo));
+      formData.append('academicInfo', JSON.stringify(academicInfo));
+      formData.append('professionalInfo', JSON.stringify(professionalInfo));
 
-    if (data.success) {
-      showMessage('Profile completed successfully!', 'success');
-      document.getElementById('profileForm').style.display = 'none';
-      document.getElementById('profileDisplay').style.display = 'block';
-      loadProfileData(user);
-    } else {
-      showMessage(data.message || 'Failed to save profile', 'error');
+      if (profilePictureFile) formData.append('profilePicture', profilePictureFile);
+      if (resumeFile) formData.append('resumeFile', resumeFile);
+
+      const response = await fetch('/api/student/profile', {
+        method: 'POST',
+        body: formData
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        showMessage('Profile completed successfully!', 'success');
+        document.getElementById('profileForm').style.display = 'none';
+        document.getElementById('profileDisplay').style.display = 'block';
+        loadProfileData(user);
+        // Clear localStorage form data
+        localStorage.removeItem('multiStepFormData');
+      } else {
+        // If server fails, save offline
+        showMessage(data.message || 'Server error. Saving offline...', 'error');
+        saveProfileForOffline(profileData, { profilePictureFile, resumeFile }, user);
+      }
+    } catch (error) {
+      console.error('Profile submission error:', error);
+      showMessage('Network error. Saving profile offline...', 'error');
+      saveProfileForOffline(profileData, { profilePictureFile, resumeFile }, user);
     }
-  } catch (error) {
-    console.error('Profile submission error:', error);
-    showMessage('Network error. Please try again.', 'error');
+  } else {
+    // Offline mode - save locally
+    showMessage('Working offline. Profile will be saved locally and synced when online.', 'info');
+    saveProfileForOffline(profileData, { profilePictureFile, resumeFile }, user);
+  }
+}
+
+// Save profile for offline sync
+function saveProfileForOffline(profileData, files, user) {
+  const filesForOffline = {};
+
+  // Save files to IndexedDB if they exist
+  if (files.profilePictureFile) {
+    saveFileOffline('profilePicture');
+    filesForOffline.profilePicture = files.profilePictureFile;
+  }
+  if (files.resumeFile) {
+    saveFileOffline('resumeFile');
+    filesForOffline.resumeFile = files.resumeFile;
+  }
+
+  // Save profile data for offline sync
+  saveProfileOffline(profileData, filesForOffline);
+
+  // Hide form and show completion message
+  document.getElementById('profileForm').style.display = 'none';
+  document.getElementById('profileDisplay').style.display = 'block';
+
+  // Show offline completion message in profile display
+  const profileDetails = document.getElementById('profileDetails');
+  profileDetails.innerHTML = `
+    <div class="profile-section">
+      <h3>Profile Saved Offline</h3>
+      <div class="profile-info">
+        <p><strong>Status:</strong> <span style="color: #ff9800;">⏳ Pending Sync</span></p>
+        <p>Your profile has been saved locally and will be automatically synced when you're back online.</p>
+        <div style="margin-top: 15px;">
+          <p><strong>Name:</strong> ${profileData.personalInfo.fullName}</p>
+          <p><strong>Email:</strong> ${profileData.personalInfo.email}</p>
+          <p><strong>Registration No:</strong> ${profileData.academicInfo.registrationNo}</p>
+          <p><strong>Branch:</strong> ${profileData.academicInfo.branch}</p>
+        </div>
+      </div>
+    </div>
+  `;
+
+  // Show edit button for manual retry
+  const editBtn = document.querySelector('.change-photo-btn');
+  if (editBtn) {
+    editBtn.textContent = 'Edit Profile / Retry Sync';
+    editBtn.onclick = () => {
+      document.getElementById('profileForm').style.display = 'block';
+      document.getElementById('profileDisplay').style.display = 'none';
+      currentStep = 1;
+      showStep(1);
+      updateButtonVisibility();
+    };
   }
 }
 
