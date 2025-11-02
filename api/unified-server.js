@@ -11,6 +11,31 @@ const sharp = require("sharp");
 const path = require("path");
 const fs = require("fs");
 
+// QR Code generation
+let QRCode;
+try {
+  QRCode = require("qrcode");
+} catch (e) {
+  console.log("⚠️ QRCode package not found. Run: npm install qrcode");
+}
+
+// WebSocket for chat functionality
+let httpServer;
+let io;
+try {
+  const { Server } = require("socket.io");
+  httpServer = require("http").createServer(app);
+  io = new Server(httpServer, {
+    cors: {
+      origin: ["http://localhost:8000", "http://localhost:3000", "http://localhost:3001"],
+      methods: ["GET", "POST"],
+      credentials: true
+    }
+  });
+} catch (e) {
+  console.log("⚠️ Socket.IO package not found. Run: npm install socket.io");
+}
+
 // Load environment variables
 try {
   require("dotenv").config();
