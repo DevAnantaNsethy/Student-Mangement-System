@@ -1121,6 +1121,11 @@ document.addEventListener('DOMContentLoaded', () => {
   setupNavigation();
   setupMultiStepForm();
   loadSavedFormData();
+
+  // Initialize offline sync system
+  initOfflineDB();
+  setupNetworkDetection();
+  updateSyncIndicator();
 });
 </script>
 
