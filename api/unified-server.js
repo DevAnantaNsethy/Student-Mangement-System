@@ -166,22 +166,147 @@ const studentDataSchema = new mongoose.Schema({
     profilePicture: { type: String },
     email: { type: String, required: true },
     phone: { type: String, required: true },
-    whatsapp: { type: String, required: true }
+    whatsapp: { type: String, required: true },
+    aliasName: { type: String },
+    linkedin: { type: String },
+    instagram: { type: String },
+    github: { type: String }
   },
   academicInfo: {
     registrationNo: { type: String, required: true, unique: true },
+    course: { type: String, default: "BTech" },
     branch: { type: String, enum: ['CSE', 'ME', 'ECE', 'EE', 'Civil'], required: true },
     yearOfStudy: { type: Number, enum: [1, 2, 3, 4], required: true },
-    section: { type: String, enum: ['A', 'B', 'C', 'D'], required: true }
+    semester: { type: Number, enum: [1, 2, 3, 4, 5, 6, 7, 8], required: true }
   },
   professionalInfo: {
     role: { type: String, enum: ['Developer', 'Frontend Designer', 'Tester'] },
     skills: { type: String },
     resumeFile: { type: String }
   },
-  isComplete: { type: Boolean, default: false },
+  qr: {
+    payload: { type: String },
+    qrImagePath: { type: String },
+    generatedAt: { type: Date }
+  },
+  completedProfile: { type: Boolean, default: false },
+  status: { type: String, enum: ['active', 'inactive'], default: 'active' },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now }
+});
+
+// Attendance Schema
+const attendanceSchema = new mongoose.Schema({
+  studentId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  date: { type: String, required: true }, // YYYY-MM-DD format
+  status: { type: String, enum: ['present', 'absent', 'late'], required: true },
+  markedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  markedAt: { type: Date, default: Date.now },
+  course: { type: String },
+  subject: { type: String },
+  remarks: { type: String }
+});
+
+// Notices Schema
+const noticeSchema = new mongoose.Schema({
+  title: { type: String, required: true },
+  message: { type: String, required: true },
+  postedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  postedAt: { type: Date, default: Date.now },
+  expiresAt: { type: Date, required: true },
+  isActive: { type: Boolean, default: true },
+  targetAudience: { type: String, enum: ['all', 'students', 'admin'], default: 'all' }
+});
+
+// Assignments Schema
+const assignmentSchema = new mongoose.Schema({
+  title: { type: String, required: true },
+  description: { type: String, required: true },
+  postedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  postedAt: { type: Date, default: Date.now },
+  dueDate: { type: Date, required: true },
+  course: { type: String, required: true },
+  branch: { type: String },
+  yearOfStudy: { type: Number },
+  semester: { type: Number },
+  attachments: [{
+    originalName: { type: String },
+    storedPath: { type: String },
+    mimeType: { type: String },
+    size: { type: Number }
+  }],
+  isActive: { type: Boolean, default: true }
+});
+
+// Assignment Submissions Schema
+const assignmentSubmissionSchema = new mongoose.Schema({
+  assignmentId: { type: mongoose.Schema.Types.ObjectId, ref: 'Assignment', required: true },
+  studentId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  submittedAt: { type: Date, default: Date.now },
+  attachments: [{
+    originalName: { type: String },
+    storedPath: { type: String },
+    mimeType: { type: String },
+    size: { type: Number }
+  }],
+  remarks: { type: String },
+  grade: { type: String },
+  feedback: { type: String },
+  status: { type: String, enum: ['submitted', 'graded', 'returned'], default: 'submitted' }
+});
+
+// Results Schema
+const resultSchema = new mongoose.Schema({
+  studentId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  subject: { type: String, required: true },
+  marks: { type: Number, required: true },
+  maxMarks: { type: Number, required: true },
+  grade: { type: String, required: true },
+  remarks: { type: String },
+  semester: { type: Number },
+  course: { type: String },
+  postedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  postedAt: { type: Date, default: Date.now },
+  academicYear: { type: String }
+});
+
+// Chat Schema
+const chatSchema = new mongoose.Schema({
+  participants: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true }],
+  createdAt: { type: Date, default: Date.now },
+  lastMessageAt: { type: Date, default: Date.now },
+  isActive: { type: Boolean, default: true }
+});
+
+// Messages Schema
+const messageSchema = new mongoose.Schema({
+  chatId: { type: mongoose.Schema.Types.ObjectId, ref: 'Chat', required: true },
+  from: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  to: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  text: { type: String, required: true },
+  sentAt: { type: Date, default: Date.now },
+  readAt: { type: Date },
+  attachments: [{
+    originalName: { type: String },
+    storedPath: { type: String },
+    mimeType: { type: String },
+    size: { type: Number }
+  }],
+  messageType: { type: String, enum: ['text', 'file', 'image'], default: 'text' },
+  isEdited: { type: Boolean, default: false },
+  editedAt: { type: Date }
+});
+
+// Contact Messages Schema
+const contactMessageSchema = new mongoose.Schema({
+  fromStudent: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  subject: { type: String, required: true },
+  message: { type: String, required: true },
+  sentAt: { type: Date, default: Date.now },
+  status: { type: String, enum: ['pending', 'sent', 'failed'], default: 'pending' },
+  adminReply: { type: String },
+  repliedAt: { type: Date },
+  repliedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
 });
 
 const User = mongoose.model("User", userSchema);
