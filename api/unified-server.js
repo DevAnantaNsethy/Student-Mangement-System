@@ -63,35 +63,63 @@ app.use("/api/login", authLimiter);
 // File upload configuration
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    if (file.fieldname === 'profilePicture') {
-      cb(null, 'uploads/profile-pictures/');
-    } else if (file.fieldname === 'resumeFile') {
-      cb(null, 'uploads/resumes/');
-    }
+    const uploadDir = () => {
+      switch(file.fieldname) {
+        case 'profilePicture':
+          return 'uploads/profile-pictures/';
+        case 'resumeFile':
+          return 'uploads/resumes/';
+        case 'assignmentAttachment':
+          return 'uploads/assignments/';
+        case 'submissionAttachment':
+          return 'uploads/submissions/';
+        case 'chatAttachment':
+          return 'uploads/chat/';
+        case 'qrCode':
+          return 'uploads/qr-codes/';
+        default:
+          return 'uploads/others/';
+      }
+    };
+
+    const dir = uploadDir();
+    // Ensure directory exists
+    fs.mkdirSync(dir, { recursive: true });
+    cb(null, dir);
   },
   filename: function (req, file, cb) {
-    const registrationNo = req.body.registrationNo || 'unknown';
+    const identifier = req.body.registrationNo || req.body.studentId || req.body.assignmentId || 'unknown';
     const timestamp = Date.now();
     const ext = path.extname(file.originalname);
-    cb(null, `${registrationNo}_${timestamp}${ext}`);
+    cb(null, `${identifier}_${timestamp}${ext}`);
   }
 });
 
 const fileFilter = (req, file, cb) => {
-  if (file.fieldname === 'profilePicture') {
-    if (file.mimetype.startsWith('image/')) {
-      cb(null, true);
-    } else {
-      cb(new Error('Profile picture must be an image file'), false);
-    }
-  } else if (file.fieldname === 'resumeFile') {
-    if (file.mimetype === 'application/pdf') {
-      cb(null, true);
-    } else {
-      cb(new Error('Resume must be a PDF file'), false);
-    }
+  const allowedTypes = {
+    profilePicture: ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'],
+    resumeFile: ['application/pdf'],
+    assignmentAttachment: [
+      'application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      'application/vnd.ms-powerpoint', 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+      'text/plain', 'application/zip', 'image/jpeg', 'image/png'
+    ],
+    submissionAttachment: [
+      'application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      'application/zip', 'image/jpeg', 'image/png'
+    ],
+    chatAttachment: ['image/jpeg', 'image/png', 'image/gif', 'application/pdf', 'text/plain'],
+    qrCode: ['image/png']
+  };
+
+  const fieldAllowedTypes = allowedTypes[file.fieldname];
+
+  if (fieldAllowedTypes && fieldAllowedTypes.includes(file.mimetype)) {
+    cb(null, true);
   } else {
-    cb(new Error('Invalid file type'), false);
+    cb(new Error(`Invalid file type for ${file.fieldname}. Allowed types: ${fieldAllowedTypes?.join(', ') || 'none'}`), false);
   }
 };
 
