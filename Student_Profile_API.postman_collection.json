@@ -1,0 +1,501 @@
+{
+	"info": {
+		"_postman_id": "student-profile-api-collection",
+		"name": "Student Profile API",
+		"description": "Postman collection for testing Student Profile Management API endpoints with offline sync capabilities",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "Send OTP",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"teststudent@example.com\",\n  \"role\": \"student\"\n}"
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/api/send-otp",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"send-otp"
+							]
+						},
+						"description": "Send OTP to email for verification"
+					},
+					"response": []
+				},
+				{
+					"name": "Verify OTP",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"teststudent@example.com\",\n  \"otp\": \"123456\"\n}"
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/api/verify-otp",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"verify-otp"
+							]
+						},
+						"description": "Verify OTP received via email"
+					},
+					"response": []
+				},
+				{
+					"name": "Register User",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Test Student\",\n  \"email\": \"teststudent@example.com\",\n  \"password\": \"password123\",\n  \"confirmPassword\": \"password123\",\n  \"role\": \"student\"\n}"
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/api/register",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"register"
+							]
+						},
+						"description": "Complete user registration after OTP verification"
+					},
+					"response": []
+				},
+				{
+					"name": "Login User",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"teststudent@example.com\",\n  \"password\": \"password123\"\n}"
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/api/login",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"login"
+							]
+						},
+						"description": "Login user and get session token"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Profile Management",
+			"item": [
+				{
+					"name": "Create Student Profile",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "studentId",
+									"value": "{{USER_ID}}",
+									"type": "text"
+								},
+								{
+									"key": "personalInfo",
+									"value": "{\n  \"fullName\": \"Test Student\",\n  \"age\": 20,\n  \"gender\": \"Male\",\n  \"email\": \"teststudent@example.com\",\n  \"phone\": \"+1234567890\",\n  \"whatsapp\": \"+1234567890\"\n}",
+									"type": "text"
+								},
+								{
+									"key": "academicInfo",
+									"value": "{\n  \"registrationNo\": \"REG2024001\",\n  \"branch\": \"CSE\",\n  \"yearOfStudy\": 2,\n  \"section\": \"A\"\n}",
+									"type": "text"
+								},
+								{
+									"key": "professionalInfo",
+									"value": "{\n  \"role\": \"Developer\",\n  \"skills\": \"JavaScript, Node.js, React\"\n}",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/api/student/profile",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"student",
+								"profile"
+							]
+						},
+						"description": "Create a new student profile with personal, academic, and professional information"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Profile with Picture",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "studentId",
+									"value": "{{USER_ID}}",
+									"type": "text"
+								},
+								{
+									"key": "personalInfo",
+									"value": "{\n  \"fullName\": \"Test Student with Image\",\n  \"age\": 21,\n  \"gender\": \"Female\",\n  \"email\": \"teststudent@example.com\",\n  \"phone\": \"+1234567890\",\n  \"whatsapp\": \"+1234567890\"\n}",
+									"type": "text"
+								},
+								{
+									"key": "academicInfo",
+									"value": "{\n  \"registrationNo\": \"REG2024002\",\n  \"branch\": \"ME\",\n  \"yearOfStudy\": 3,\n  \"section\": \"B\"\n}",
+									"type": "text"
+								},
+								{
+									"key": "professionalInfo",
+									"value": "{\n  \"role\": \"Frontend Designer\",\n  \"skills\": \"HTML, CSS, JavaScript\"\n}",
+									"type": "text"
+								},
+								{
+									"key": "profilePicture",
+									"src": [],
+									"type": "file"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/api/student/profile",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"student",
+								"profile"
+							]
+						},
+						"description": "Create profile with profile picture upload"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Student Profile",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "personalInfo",
+									"value": "{\n  \"fullName\": \"Updated Test Student\",\n  \"age\": 22,\n  \"gender\": \"Other\",\n  \"email\": \"teststudent@example.com\",\n  \"phone\": \"+0987654321\",\n  \"whatsapp\": \"+0987654321\"\n}",
+									"type": "text"
+								},
+								{
+									"key": "academicInfo",
+									"value": "{\n  \"registrationNo\": \"REG2024001\",\n  \"branch\": \"ECE\",\n  \"yearOfStudy\": 4,\n  \"section\": \"C\"\n}",
+									"type": "text"
+								},
+								{
+									"key": "professionalInfo",
+									"value": "{\n  \"role\": \"Tester\",\n  \"skills\": \"Testing, Automation, QA\"\n}",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/api/student/profile/{{USER_ID}}",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"student",
+								"profile",
+								"{{USER_ID}}"
+							]
+						},
+						"description": "Update existing student profile information"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Profile Retrieval",
+			"item": [
+				{
+					"name": "Get Student Profile",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/api/student/profile/{{USER_ID}}",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"student",
+								"profile",
+								"{{USER_ID}}"
+							]
+						},
+						"description": "Retrieve student profile by user ID"
+					},
+					"response": []
+				},
+				{
+					"name": "Check Profile Completion Status",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/api/student/profile-status/{{USER_ID}}",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"student",
+								"profile-status",
+								"{{USER_ID}}"
+							]
+						},
+						"description": "Check if student has completed their profile"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Error Cases",
+			"item": [
+				{
+					"name": "Missing Required Fields",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "studentId",
+									"value": "{{USER_ID}}",
+									"type": "text"
+								},
+								{
+									"key": "personalInfo",
+									"value": "{\n  \"fullName\": \"\",\n  \"age\": 20,\n  \"gender\": \"Male\",\n  \"email\": \"teststudent@example.com\",\n  \"phone\": \"+1234567890\",\n  \"whatsapp\": \"+1234567890\"\n}",
+									"type": "text"
+								},
+								{
+									"key": "academicInfo",
+									"value": "{\n  \"registrationNo\": \"REG2024003\",\n  \"branch\": \"CSE\",\n  \"yearOfStudy\": 2,\n  \"section\": \"A\"\n}",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/api/student/profile",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"student",
+								"profile"
+							]
+						},
+						"description": "Test validation with missing required fields"
+					},
+					"response": []
+				},
+				{
+					"name": "Invalid File Type",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "studentId",
+									"value": "{{USER_ID}}",
+									"type": "text"
+								},
+								{
+									"key": "personalInfo",
+									"value": "{\n  \"fullName\": \"Test Student\",\n  \"age\": 20,\n  \"gender\": \"Male\",\n  \"email\": \"teststudent@example.com\",\n  \"phone\": \"+1234567890\",\n  \"whatsapp\": \"+1234567890\"\n}",
+									"type": "text"
+								},
+								{
+									"key": "academicInfo",
+									"value": "{\n  \"registrationNo\": \"REG2024004\",\n  \"branch\": \"CSE\",\n  \"yearOfStudy\": 2,\n  \"section\": \"A\"\n}",
+									"type": "text"
+								},
+								{
+									"key": "profilePicture",
+									"src": [],
+									"type": "file"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/api/student/profile",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"student",
+								"profile"
+							]
+						},
+						"description": "Test file upload validation with invalid file type"
+					},
+					"response": []
+				},
+				{
+					"name": "Non-existent Profile",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/api/student/profile/507f1f77bcf86cd799439011",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"student",
+								"profile",
+								"507f1f77bcf86cd799439011"
+							]
+						},
+						"description": "Test retrieval of non-existent profile"
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Set default base URL if not defined",
+					"if (!pm.environment.get('BASE_URL')) {",
+					"  pm.environment.set('BASE_URL', 'http://localhost:3001');",
+					"}",
+					"",
+					"// Auto-extract user ID from login response",
+					"if (pm.response.code === 200 && pm.request.url.path.includes('/api/login')) {",
+					"  const response = pm.response.json();",
+					"  if (response.success && response.user && response.user.id) {",
+					"    pm.environment.set('USER_ID', response.user.id);",
+					"    pm.environment.set('USER_EMAIL', response.user.email);",
+					"    pm.environment.set('USER_NAME', response.user.name);",
+					"  }",
+					"}",
+					"",
+					"// Auto-extract user ID from register response",
+					"if (pm.response.code === 200 && pm.request.url.path.includes('/api/register')) {",
+					"  const response = pm.response.json();",
+					"  if (response.success && response.user && response.user.id) {",
+					"    pm.environment.set('USER_ID', response.user.id);",
+					"    pm.environment.set('USER_EMAIL', response.user.email);",
+					"    pm.environment.set('USER_NAME', response.user.name);",
+					"  }",
+					"}"
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Common test assertions",
+					"pm.test('Response time is less than 3000ms', function () {",
+					"  pm.expect(pm.response.responseTime).to.be.below(3000);",
+					"});",
+					"",
+					"pm.test('Response has proper Content-Type', function () {",
+					"  pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json');",
+					"});",
+					"",
+					"// Success response test",
+					"if (pm.response.code >= 200 && pm.response.code < 300) {",
+					"  pm.test('Success response has proper structure', function () {",
+					"    const response = pm.response.json();",
+					"    pm.expect(response).to.have.property('success');",
+					"    pm.expect(response.success).to.be.true;",
+					"  });",
+					"}",
+					"",
+					"// Error response test",
+					"if (pm.response.code >= 400) {",
+					"  pm.test('Error response has proper structure', function () {",
+					"    const response = pm.response.json();",
+					"    pm.expect(response).to.have.property('success');",
+					"    pm.expect(response.success).to.be.false;",
+					"    pm.expect(response).to.have.property('message');",
+					"  });",
+					"}"
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "BASE_URL",
+			"value": "http://localhost:3001"
+		}
+	]
+}
