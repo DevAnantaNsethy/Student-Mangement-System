@@ -1355,6 +1355,952 @@ app.get("/api/user/:email", async (req, res) => {
   }
 });
 
+// ===== NEW FEATURE API ROUTES =====
+
+// 1. Admin Student Management
+
+// Get all students with pagination and search
+app.get("/api/admin/students", async (req, res) => {
+  try {
+    const { q = '', page = 1, limit = 10, sort = 'fullName', order = 'asc' } = req.query;
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+
+    if (!dbAvailable) {
+      return res.status(503).json({ success: false, message: "Database not available" });
+    }
+
+    // Build search query
+    const searchQuery = q ? {
+      $or: [
+        { 'personalInfo.fullName': { $regex: q, $options: 'i' } },
+        { 'academicInfo.registrationNo': { $regex: q, $options: 'i' } },
+        { 'academicInfo.branch': { $regex: q, $options: 'i' } }
+      ]
+    } : {};
+
+    // Get total count
+    const total = await StudentData.countDocuments(searchQuery);
+
+    // Get students with pagination
+    const students = await StudentData.find(searchQuery)
+      .populate('studentId', 'email role')
+      .sort({ [sort]: order === 'desc' ? -1 : 1 })
+      .skip(skip)
+      .limit(parseInt(limit))
+      .select('studentId personalInfo.fullName personalInfo.email academicInfo.registrationNo academicInfo.course academicInfo.branch academicInfo.yearOfStudy academicInfo.semester status qr.completedProfile');
+
+    // Calculate attendance percentage for each student
+    const studentsWithAttendance = await Promise.all(
+      students.map(async (student) => {
+        const attendancePercentage = await calculateAttendancePercentage(student.studentId._id);
+        return {
+          ...student.toObject(),
+          attendancePercentage,
+          fullName: student.personalInfo.fullName,
+          registrationNo: student.academicInfo.registrationNo,
+          course: student.academicInfo.course,
+          branch: student.academicInfo.branch,
+          yearOfStudy: student.academicInfo.yearOfStudy,
+          status: student.status,
+          completedProfile: student.completedProfile,
+          email: student.studentId.email,
+          userId: student.studentId._id
+        };
+      })
+    );
+
+    res.json({
+      success: true,
+      students: studentsWithAttendance,
+      pagination: {
+        page: parseInt(page),
+        limit: parseInt(limit),
+        total,
+        pages: Math.ceil(total / parseInt(limit))
+      }
+    });
+
+  } catch (error) {
+    console.error("Get students error:", error);
+    res.status(500).json({ success: false, message: "Server error occurred" });
+  }
+});
+
+// Get single student details
+app.get("/api/admin/student/:studentId", async (req, res) => {
+  try {
+    const { studentId } = req.params;
+
+    if (!dbAvailable) {
+      return res.status(503).json({ success: false, message: "Database not available" });
+    }
+
+    const student = await StudentData.findOne({ studentId })
+      .populate('studentId', 'email role createdAt lastLogin');
+
+    if (!student) {
+      return res.status(404).json({ success: false, message: "Student not found" });
+    }
+
+    const attendancePercentage = await calculateAttendancePercentage(studentId);
+
+    res.json({
+      success: true,
+      student: {
+        ...student.toObject(),
+        attendancePercentage
+      }
+    });
+
+  } catch (error) {
+    console.error("Get student details error:", error);
+    res.status(500).json({ success: false, message: "Server error occurred" });
+  }
+});
+
+// 2. QR Code Generation and Management
+
+// Generate or retrieve student QR code
+app.get("/api/student/:studentId/qr", async (req, res) => {
+  try {
+    const { studentId } = req.params;
+
+    if (!dbAvailable) {
+      return res.status(503).json({ success: false, message: "Database not available" });
+    }
+
+    if (!QRCode) {
+      return res.status(500).json({ success: false, message: "QR code generation not available" });
+    }
+
+    const student = await StudentData.findOne({ studentId });
+    if (!student) {
+      return res.status(404).json({ success: false, message: "Student not found" });
+    }
+
+    // Check if QR already exists
+    if (student.qr && student.qr.qrImagePath && fs.existsSync(student.qr.qrImagePath)) {
+      return res.json({
+        success: true,
+        qrUrl: `/uploads/qr-codes/${path.basename(student.qr.qrImagePath)}`,
+        generatedAt: student.qr.generatedAt
+      });
+    }
+
+    // Generate new QR code
+    const issuedAt = new Date().toISOString();
+    const payload = generateQRPayload(studentId, issuedAt);
+
+    const qrFileName = `qr_${student.academicInfo.registrationNo}_${Date.now()}.png`;
+    const qrPath = `uploads/qr-codes/${qrFileName}`;
+
+    // Generate QR code
+    await QRCode.toFile(qrPath, payload, {
+      width: 200,
+      margin: 1,
+      color: {
+        dark: '#000000',
+        light: '#FFFFFF'
+      }
+    });
+
+    // Update student record with QR info
+    await StudentData.updateOne(
+      { studentId },
+      {
+        qr: {
+          payload,
+          qrImagePath: qrPath,
+          generatedAt: new Date()
+        }
+      }
+    );
+
+    res.json({
+      success: true,
+      qrUrl: `/uploads/qr-codes/${qrFileName}`,
+      generatedAt: new Date()
+    });
+
+  } catch (error) {
+    console.error("Generate QR code error:", error);
+    res.status(500).json({ success: false, message: "Server error occurred" });
+  }
+});
+
+// 3. Attendance Management
+
+// Mark attendance via QR scan
+app.post("/api/admin/attendance/scan", async (req, res) => {
+  try {
+    const { payload } = req.body;
+    const adminId = req.body.adminId; // Should be validated via middleware
+
+    if (!payload || !adminId) {
+      return res.status(400).json({ success: false, message: "Invalid request data" });
+    }
+
+    // Verify QR signature
+    const qrData = verifyQRSignature(payload);
+    if (!qrData) {
+      return res.status(400).json({ success: false, message: "Invalid QR code" });
+    }
+
+    const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+
+    if (!dbAvailable) {
+      return res.status(503).json({ success: false, message: "Database not available" });
+    }
+
+    // Check if attendance already marked for today
+    const existingAttendance = await Attendance.findOne({
+      studentId: qrData.studentId,
+      date: today
+    });
+
+    if (existingAttendance) {
+      return res.json({
+        success: true,
+        message: "Attendance already marked for today",
+        attendance: existingAttendance
+      });
+    }
+
+    // Get student info
+    const student = await StudentData.findOne({ studentId: qrData.studentId })
+      .populate('studentId', 'name email');
+
+    if (!student) {
+      return res.status(404).json({ success: false, message: "Student not found" });
+    }
+
+    // Mark attendance
+    const attendance = await Attendance.create({
+      studentId: qrData.studentId,
+      date: today,
+      status: 'present',
+      markedBy: adminId,
+      markedAt: new Date(),
+      course: student.academicInfo.course,
+      branch: student.academicInfo.branch
+    });
+
+    console.log(`✅ Attendance marked for ${student.studentId.name} (${student.academicInfo.registrationNo})`);
+
+    res.json({
+      success: true,
+      message: "Attendance marked successfully",
+      attendance,
+      studentName: student.studentId.name,
+      registrationNo: student.academicInfo.registrationNo
+    });
+
+  } catch (error) {
+    console.error("Mark attendance error:", error);
+    res.status(500).json({ success: false, message: "Server error occurred" });
+  }
+});
+
+// Manual attendance marking
+app.post("/api/admin/attendance/manual", async (req, res) => {
+  try {
+    const { studentId, status, date, remarks, course, subject, adminId } = req.body;
+
+    if (!studentId || !status || !date || !adminId) {
+      return res.status(400).json({ success: false, message: "Missing required fields" });
+    }
+
+    if (!dbAvailable) {
+      return res.status(503).json({ success: false, message: "Database not available" });
+    }
+
+    // Upsert attendance (update if exists, create if not)
+    const attendance = await Attendance.findOneAndUpdate(
+      { studentId, date },
+      {
+        status,
+        markedBy: adminId,
+        markedAt: new Date(),
+        remarks,
+        course,
+        subject
+      },
+      { upsert: true, new: true }
+    );
+
+    res.json({
+      success: true,
+      message: "Attendance marked successfully",
+      attendance
+    });
+
+  } catch (error) {
+    console.error("Manual attendance marking error:", error);
+    res.status(500).json({ success: false, message: "Server error occurred" });
+  }
+});
+
+// Get attendance records
+app.get("/api/admin/attendance/report", async (req, res) => {
+  try {
+    const { fromDate, toDate, branch, yearOfStudy } = req.query;
+
+    if (!dbAvailable) {
+      return res.status(503).json({ success: false, message: "Database not available" });
+    }
+
+    const matchQuery = {};
+    if (fromDate && toDate) {
+      matchQuery.date = { $gte: fromDate, $lte: toDate };
+    }
+
+    // Get attendance records with student info
+    const attendanceRecords = await Attendance.find(matchQuery)
+      .populate({
+        path: 'studentId',
+        select: 'name email',
+        match: { role: 'student' }
+      })
+      .populate('markedBy', 'name')
+      .sort({ date: -1, markedAt: -1 });
+
+    // Filter by branch/year if specified
+    let filteredRecords = attendanceRecords;
+    if (branch || yearOfStudy) {
+      const studentIds = attendanceRecords.map(r => r.studentId._id);
+      const studentFilter = {};
+      if (branch) studentFilter['academicInfo.branch'] = branch;
+      if (yearOfStudy) studentFilter['academicInfo.yearOfStudy'] = parseInt(yearOfStudy);
+
+      const students = await StudentData.find({
+        studentId: { $in: studentIds },
+        ...studentFilter
+      }).select('studentId');
+
+      const validStudentIds = students.map(s => s.studentId);
+      filteredRecords = attendanceRecords.filter(r => validStudentIds.includes(r.studentId._id));
+    }
+
+    res.json({
+      success: true,
+      attendanceRecords: filteredRecords,
+      total: filteredRecords.length
+    });
+
+  } catch (error) {
+    console.error("Get attendance report error:", error);
+    res.status(500).json({ success: false, message: "Server error occurred" });
+  }
+});
+
+// 4. Student Attendance Views
+
+// Get student attendance with date range
+app.get("/api/student/:studentId/attendance", async (req, res) => {
+  try {
+    const { studentId } = req.params;
+    const { from, to } = req.query;
+
+    if (!dbAvailable) {
+      return res.status(503).json({ success: false, message: "Database not available" });
+    }
+
+    const matchQuery = { studentId };
+    if (from && to) {
+      matchQuery.date = { $gte: from, $lte: to };
+    }
+
+    const attendanceRecords = await Attendance.find(matchQuery)
+      .populate('markedBy', 'name')
+      .sort({ date: -1 });
+
+    res.json({
+      success: true,
+      attendanceRecords
+    });
+
+  } catch (error) {
+    console.error("Get student attendance error:", error);
+    res.status(500).json({ success: false, message: "Server error occurred" });
+  }
+});
+
+// Get student attendance summary
+app.get("/api/student/:studentId/attendance/summary", async (req, res) => {
+  try {
+    const { studentId } = req.params;
+
+    if (!dbAvailable) {
+      return res.status(503).json({ success: false, message: "Database not available" });
+    }
+
+    const currentMonth = new Date().toISOString().slice(0, 7); // YYYY-MM
+    const monthStart = `${currentMonth}-01`;
+    const monthEnd = `${currentMonth}-31`;
+
+    // Get current month attendance
+    const currentMonthAttendance = await Attendance.find({
+      studentId,
+      date: { $gte: monthStart, $lte: monthEnd }
+    });
+
+    const totalDays = currentMonthAttendance.length;
+    const presentDays = currentMonthAttendance.filter(a => a.status === 'present' || a.status === 'late').length;
+    const percentage = totalDays > 0 ? Math.round((presentDays / totalDays) * 100) : 0;
+
+    // Get overall attendance
+    const overallPercentage = await calculateAttendancePercentage(studentId);
+
+    res.json({
+      success: true,
+      summary: {
+        currentMonth: {
+          totalDays,
+          presentDays,
+          percentage,
+          month: currentMonth
+        },
+        overall: {
+          percentage: overallPercentage
+        }
+      }
+    });
+
+  } catch (error) {
+    console.error("Get attendance summary error:", error);
+    res.status(500).json({ success: false, message: "Server error occurred" });
+  }
+});
+
+// 5. Notices Management
+
+// Create notice
+app.post("/api/admin/notice", async (req, res) => {
+  try {
+    const { title, message, durationHours = 24, targetAudience = 'all', postedBy } = req.body;
+
+    if (!title || !message || !postedBy) {
+      return res.status(400).json({ success: false, message: "Missing required fields" });
+    }
+
+    if (!dbAvailable) {
+      return res.status(503).json({ success: false, message: "Database not available" });
+    }
+
+    const expiresAt = new Date(Date.now() + durationHours * 60 * 60 * 1000);
+
+    const notice = await Notice.create({
+      title,
+      message,
+      postedBy,
+      postedAt: new Date(),
+      expiresAt,
+      targetAudience,
+      isActive: true
+    });
+
+    // Send email notification to all students
+    if (targetAudience === 'all' || targetAudience === 'students') {
+      const students = await User.find({ role: 'student' }, 'email');
+      const studentEmails = students.map(s => s.email);
+      if (studentEmails.length > 0) {
+        await sendNotificationEmail(studentEmails, title, message, 'notice');
+      }
+    }
+
+    res.json({
+      success: true,
+      message: "Notice created successfully",
+      notice
+    });
+
+  } catch (error) {
+    console.error("Create notice error:", error);
+    res.status(500).json({ success: false, message: "Server error occurred" });
+  }
+});
+
+// Get active notices
+app.get("/api/notices", async (req, res) => {
+  try {
+    if (!dbAvailable) {
+      return res.json({ success: true, notices: [] });
+    }
+
+    const notices = await Notice.find({
+      isActive: true,
+      expiresAt: { $gt: new Date() }
+    })
+      .populate('postedBy', 'name')
+      .sort({ postedAt: -1 });
+
+    res.json({
+      success: true,
+      notices
+    });
+
+  } catch (error) {
+    console.error("Get notices error:", error);
+    res.status(500).json({ success: false, message: "Server error occurred" });
+  }
+});
+
+// 6. Assignments Management
+
+// Create assignment
+app.post("/api/admin/assignment", upload.array('assignmentAttachment', 5), async (req, res) => {
+  try {
+    const { title, description, dueDate, course, branch, yearOfStudy, semester, postedBy } = req.body;
+
+    if (!title || !description || !dueDate || !course || !postedBy) {
+      return res.status(400).json({ success: false, message: "Missing required fields" });
+    }
+
+    if (!dbAvailable) {
+      return res.status(503).json({ success: false, message: "Database not available" });
+    }
+
+    // Process attachments
+    const attachments = [];
+    if (req.files) {
+      req.files.forEach(file => {
+        attachments.push({
+          originalName: file.originalname,
+          storedPath: file.path,
+          mimeType: file.mimetype,
+          size: file.size
+        });
+      });
+    }
+
+    const assignment = await Assignment.create({
+      title,
+      description,
+      postedBy,
+      postedAt: new Date(),
+      dueDate: new Date(dueDate),
+      course,
+      branch,
+      yearOfStudy: yearOfStudy ? parseInt(yearOfStudy) : undefined,
+      semester: semester ? parseInt(semester) : undefined,
+      attachments
+    });
+
+    // Send notification to relevant students
+    const studentFilter = { role: 'student' };
+    if (branch) studentFilter['academicInfo.branch'] = branch;
+    if (yearOfStudy) studentFilter['academicInfo.yearOfStudy'] = parseInt(yearOfStudy);
+    if (semester) studentFilter['academicInfo.semester'] = parseInt(semester);
+
+    const relevantStudents = await StudentData.find(studentFilter)
+      .populate('studentId', 'email');
+
+    const studentEmails = relevantStudents.map(s => s.studentId.email);
+    if (studentEmails.length > 0) {
+      await sendNotificationEmail(studentEmails, title, description, 'assignment');
+    }
+
+    res.json({
+      success: true,
+      message: "Assignment created successfully",
+      assignment
+    });
+
+  } catch (error) {
+    console.error("Create assignment error:", error);
+    res.status(500).json({ success: false, message: "Server error occurred" });
+  }
+});
+
+// Get assignments for student
+app.get("/api/student/:studentId/assignments", async (req, res) => {
+  try {
+    const { studentId } = req.params;
+
+    if (!dbAvailable) {
+      return res.status(503).json({ success: false, message: "Database not available" });
+    }
+
+    const student = await StudentData.findOne({ studentId })
+      .select('academicInfo.branch academicInfo.yearOfStudy academicInfo.semester');
+
+    if (!student) {
+      return res.status(404).json({ success: false, message: "Student not found" });
+    }
+
+    const assignments = await Assignment.find({
+      $or: [
+        { branch: { $in: [student.academicInfo.branch, undefined] } },
+        { yearOfStudy: { $in: [student.academicInfo.yearOfStudy, undefined] } },
+        { semester: { $in: [student.academicInfo.semester, undefined] } }
+      ],
+      isActive: true
+    })
+      .populate('postedBy', 'name')
+      .sort({ dueDate: 1 });
+
+    // Check submission status for each assignment
+    const assignmentsWithStatus = await Promise.all(
+      assignments.map(async (assignment) => {
+        const submission = await AssignmentSubmission.findOne({
+          assignmentId: assignment._id,
+          studentId
+        });
+
+        return {
+          ...assignment.toObject(),
+          submissionStatus: submission ? submission.status : 'not_submitted',
+          submittedAt: submission ? submission.submittedAt : null,
+          grade: submission ? submission.grade : null
+        };
+      })
+    );
+
+    res.json({
+      success: true,
+      assignments: assignmentsWithStatus
+    });
+
+  } catch (error) {
+    console.error("Get student assignments error:", error);
+    res.status(500).json({ success: false, message: "Server error occurred" });
+  }
+});
+
+// Submit assignment
+app.post("/api/student/assignment/submit", upload.array('submissionAttachment', 3), async (req, res) => {
+  try {
+    const { assignmentId, studentId, remarks } = req.body;
+
+    if (!assignmentId || !studentId) {
+      return res.status(400).json({ success: false, message: "Missing required fields" });
+    }
+
+    if (!dbAvailable) {
+      return res.status(503).json({ success: false, message: "Database not available" });
+    }
+
+    // Check if already submitted
+    const existingSubmission = await AssignmentSubmission.findOne({
+      assignmentId,
+      studentId
+    });
+
+    if (existingSubmission) {
+      return res.status(400).json({ success: false, message: "Assignment already submitted" });
+    }
+
+    // Process attachments
+    const attachments = [];
+    if (req.files) {
+      req.files.forEach(file => {
+        attachments.push({
+          originalName: file.originalname,
+          storedPath: file.path,
+          mimeType: file.mimetype,
+          size: file.size
+        });
+      });
+    }
+
+    const submission = await AssignmentSubmission.create({
+      assignmentId,
+      studentId,
+      submittedAt: new Date(),
+      attachments,
+      remarks,
+      status: 'submitted'
+    });
+
+    res.json({
+      success: true,
+      message: "Assignment submitted successfully",
+      submission
+    });
+
+  } catch (error) {
+    console.error("Submit assignment error:", error);
+    res.status(500).json({ success: false, message: "Server error occurred" });
+  }
+});
+
+// 7. Results Management
+
+// Create result
+app.post("/api/admin/result", async (req, res) => {
+  try {
+    const { studentId, subject, marks, maxMarks, grade, remarks, semester, course, academicYear, postedBy } = req.body;
+
+    if (!studentId || !subject || marks === undefined || !maxMarks || !grade || !postedBy) {
+      return res.status(400).json({ success: false, message: "Missing required fields" });
+    }
+
+    if (!dbAvailable) {
+      return res.status(503).json({ success: false, message: "Database not available" });
+    }
+
+    const result = await Result.create({
+      studentId,
+      subject,
+      marks: parseFloat(marks),
+      maxMarks: parseFloat(maxMarks),
+      grade,
+      remarks,
+      semester: semester ? parseInt(semester) : undefined,
+      course,
+      academicYear,
+      postedBy,
+      postedAt: new Date()
+    });
+
+    res.json({
+      success: true,
+      message: "Result created successfully",
+      result
+    });
+
+  } catch (error) {
+    console.error("Create result error:", error);
+    res.status(500).json({ success: false, message: "Server error occurred" });
+  }
+});
+
+// Get student results
+app.get("/api/student/:studentId/results", async (req, res) => {
+  try {
+    const { studentId } = req.params;
+
+    if (!dbAvailable) {
+      return res.status(503).json({ success: false, message: "Database not available" });
+    }
+
+    const results = await Result.find({ studentId })
+      .populate('postedBy', 'name')
+      .sort({ academicYear: -1, semester: -1, subject: 1 });
+
+    res.json({
+      success: true,
+      results
+    });
+
+  } catch (error) {
+    console.error("Get student results error:", error);
+    res.status(500).json({ success: false, message: "Server error occurred" });
+  }
+});
+
+// 8. Chat System
+
+// Get or create chat
+app.get("/api/chat/:otherUserId", async (req, res) => {
+  try {
+    const { otherUserId } = req.params;
+    const currentUserId = req.query.currentUserId; // Should come from auth middleware
+
+    if (!currentUserId || !otherUserId) {
+      return res.status(400).json({ success: false, message: "Missing user IDs" });
+    }
+
+    if (currentUserId === otherUserId) {
+      return res.status(400).json({ success: false, message: "Cannot chat with yourself" });
+    }
+
+    if (!dbAvailable) {
+      return res.status(503).json({ success: false, message: "Database not available" });
+    }
+
+    const chat = await getOrCreateChat(currentUserId, otherUserId);
+
+    if (!chat) {
+      return res.status(500).json({ success: false, message: "Failed to create chat" });
+    }
+
+    res.json({
+      success: true,
+      chatId: chat._id
+    });
+
+  } catch (error) {
+    console.error("Get/create chat error:", error);
+    res.status(500).json({ success: false, message: "Server error occurred" });
+  }
+});
+
+// Get chat messages
+app.get("/api/chat/:chatId/messages", async (req, res) => {
+  try {
+    const { chatId } = req.params;
+    const { page = 1, limit = 50 } = req.query;
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+
+    if (!dbAvailable) {
+      return res.status(503).json({ success: false, message: "Database not available" });
+    }
+
+    const messages = await Message.find({ chatId })
+      .populate('from', 'name')
+      .populate('to', 'name')
+      .sort({ sentAt: -1 })
+      .skip(skip)
+      .limit(parseInt(limit));
+
+    // Mark messages as read
+    const currentUserId = req.query.currentUserId; // Should come from auth middleware
+    if (currentUserId) {
+      await Message.updateMany(
+        { chatId, to: currentUserId, readAt: { $exists: false } },
+        { readAt: new Date() }
+      );
+    }
+
+    res.json({
+      success: true,
+      messages: messages.reverse(), // Reverse to show oldest first
+      pagination: {
+        page: parseInt(page),
+        limit: parseInt(limit)
+      }
+    });
+
+  } catch (error) {
+    console.error("Get chat messages error:", error);
+    res.status(500).json({ success: false, message: "Server error occurred" });
+  }
+});
+
+// 9. Student to Admin Messaging
+
+// Send message to admin
+app.post("/api/contact/admin", async (req, res) => {
+  try {
+    const { fromStudent, subject, message } = req.body;
+
+    if (!fromStudent || !subject || !message) {
+      return res.status(400).json({ success: false, message: "Missing required fields" });
+    }
+
+    if (!dbAvailable) {
+      return res.status(503).json({ success: false, message: "Database not available" });
+    }
+
+    const contactMessage = await ContactMessage.create({
+      fromStudent,
+      subject,
+      message,
+      sentAt: new Date(),
+      status: 'pending'
+    });
+
+    // Send email to admin
+    const student = await User.findById(fromStudent, 'name email');
+    const adminEmails = await User.find({ role: 'admin' }, 'email');
+
+    if (student && adminEmails.length > 0) {
+      const emailContent = `
+        <p><strong>From:</strong> ${student.name} (${student.email})</p>
+        <p><strong>Subject:</strong> ${subject}</p>
+        <p><strong>Message:</strong></p>
+        <div style="background-color: #f8f9fa; padding: 15px; border-left: 4px solid #007bff; margin: 10px 0;">
+          ${message.replace(/\n/g, '<br>')}
+        </div>
+      `;
+
+      await sendNotificationEmail(
+        adminEmails.map(a => a.email),
+        `Student Message: ${subject}`,
+        emailContent,
+        'contact'
+      );
+
+      // Update status
+      await ContactMessage.updateOne(
+        { _id: contactMessage._id },
+        { status: 'sent' }
+      );
+    }
+
+    res.json({
+      success: true,
+      message: "Message sent to admin successfully",
+      contactMessage
+    });
+
+  } catch (error) {
+    console.error("Send contact message error:", error);
+    res.status(500).json({ success: false, message: "Server error occurred" });
+  }
+});
+
+// Get contact messages for admin
+app.get("/api/admin/contact-messages", async (req, res) => {
+  try {
+    if (!dbAvailable) {
+      return res.status(503).json({ success: false, message: "Database not available" });
+    }
+
+    const messages = await ContactMessage.find()
+      .populate('fromStudent', 'name email')
+      .populate('repliedBy', 'name')
+      .sort({ sentAt: -1 });
+
+    res.json({
+      success: true,
+      messages
+    });
+
+  } catch (error) {
+    console.error("Get contact messages error:", error);
+    res.status(500).json({ success: false, message: "Server error occurred" });
+  }
+});
+
+// Reply to contact message
+app.post("/api/admin/contact-messages/:messageId/reply", async (req, res) => {
+  try {
+    const { messageId } = req.params;
+    const { adminReply, repliedBy } = req.body;
+
+    if (!adminReply || !repliedBy) {
+      return res.status(400).json({ success: false, message: "Missing reply details" });
+    }
+
+    if (!dbAvailable) {
+      return res.status(503).json({ success: false, message: "Database not available" });
+    }
+
+    const contactMessage = await ContactMessage.findByIdAndUpdate(
+      messageId,
+      {
+        adminReply,
+        repliedAt: new Date(),
+        repliedBy,
+        status: 'replied'
+      },
+      { new: true }
+    ).populate('fromStudent', 'name email');
+
+    // Send reply email to student
+    if (contactMessage && contactMessage.fromStudent) {
+      await sendNotificationEmail(
+        contactMessage.fromStudent.email,
+        `Re: ${contactMessage.subject}`,
+        adminReply,
+        'contact'
+      );
+    }
+
+    res.json({
+      success: true,
+      message: "Reply sent successfully",
+      contactMessage
+    });
+
+  } catch (error) {
+    console.error("Reply to contact message error:", error);
+    res.status(500).json({ success: false, message: "Server error occurred" });
+  }
+});
+
 // 8. Health check
 app.get("/api/health", (req, res) => {
   res.json({
