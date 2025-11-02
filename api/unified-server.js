@@ -410,6 +410,114 @@ async function comparePassword(password, hashedPassword) {
   return await bcrypt.compare(password, hashedPassword);
 }
 
+// Utility functions for new features
+
+// QR Code payload signing
+function generateQRPayload(studentId, issuedAt) {
+  const QR_SIGN_KEY = process.env.QR_SIGN_KEY || 'default-qr-secret-key-change-in-production';
+  const payload = {
+    studentId: studentId,
+    issuedAt: issuedAt,
+    sig: crypto.createHmac('sha256', QR_SIGN_KEY).update(`${studentId}-${issuedAt}`).digest('hex')
+  };
+  return JSON.stringify(payload);
+}
+
+function verifyQRSignature(payload) {
+  try {
+    const QR_SIGN_KEY = process.env.QR_SIGN_KEY || 'default-qr-secret-key-change-in-production';
+    const data = JSON.parse(payload);
+    const expectedSig = crypto.createHmac('sha256', QR_SIGN_KEY).update(`${data.studentId}-${data.issuedAt}`).digest('hex');
+
+    if (data.sig !== expectedSig) {
+      return null; // Invalid signature
+    }
+
+    return data;
+  } catch (error) {
+    return null; // Invalid payload
+  }
+}
+
+// Calculate attendance percentage
+async function calculateAttendancePercentage(studentId, fromDate = null, toDate = null) {
+  if (!dbAvailable) return 0;
+
+  const matchQuery = { studentId };
+  if (fromDate && toDate) {
+    matchQuery.date = { $gte: fromDate, $lte: toDate };
+  }
+
+  const totalRecords = await Attendance.countDocuments(matchQuery);
+  if (totalRecords === 0) return 0;
+
+  const presentRecords = await Attendance.countDocuments({
+    ...matchQuery,
+    status: { $in: ['present', 'late'] }
+  });
+
+  return Math.round((presentRecords / totalRecords) * 100);
+}
+
+// Get or create chat between two users
+async function getOrCreateChat(user1Id, user2Id) {
+  if (!dbAvailable) return null;
+
+  // Find existing chat
+  let chat = await Chat.findOne({
+    participants: { $all: [user1Id, user2Id], $size: 2 },
+    isActive: true
+  });
+
+  if (!chat) {
+    // Create new chat
+    chat = await Chat.create({
+      participants: [user1Id, user2Id],
+      createdAt: new Date()
+    });
+  }
+
+  return chat;
+}
+
+// Send notification via email (for new assignments, notices, etc.)
+async function sendNotificationEmail(recipients, subject, message, type = 'general') {
+  try {
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
+      to: Array.isArray(recipients) ? recipients.join(',') : recipients,
+      subject: subject,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #ddd; border-radius: 8px; padding: 20px;">
+          <div style="text-align: center; margin-bottom: 30px;">
+            <h1 style="color: #7b61ff; margin-bottom: 10px;">Roland Institute of Technology</h1>
+            <h2 style="color: #333; margin-top: 0;">${type === 'assignment' ? 'New Assignment' : type === 'notice' ? 'Important Notice' : 'Notification'}</h2>
+          </div>
+
+          <div style="background-color: #f8f9fa; border-left: 4px solid #7b61ff; padding: 20px; margin: 20px 0;">
+            <h3 style="color: #333; margin-top: 0;">${subject}</h3>
+            <div style="color: #555; line-height: 1.6;">${message}</div>
+          </div>
+
+          <hr style="margin: 30px 0; border: none; border-top: 1px solid #eee;">
+
+          <div style="text-align: center;">
+            <p style="color: #999; font-size: 12px; margin: 0;">Roland Institute of Technology</p>
+            <p style="color: #999; font-size: 12px; margin: 5px 0 0 0;">Student Management System</p>
+          </div>
+        </div>
+      `
+    };
+
+    await transporter.sendMail(mailOptions);
+    console.log(`✅ Notification email sent to: ${recipients}`);
+    return true;
+  } catch (error) {
+    console.error(`❌ Failed to send notification email:`, error.message);
+    return false;
+  }
+}
+
 // Email functions
 async function sendOTPEmail(email, otp, type = "signup") {
   const subject =
