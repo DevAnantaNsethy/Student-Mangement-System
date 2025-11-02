@@ -459,15 +459,15 @@
       }
 
       function markAttendance() {
-        showMessage("Mark attendance feature coming soon!", "success");
+        showQRScanner();
       }
 
       function uploadResults() {
-        showMessage("Upload results feature coming soon!", "success");
+        showResultsUploadModal();
       }
 
       function createNotice() {
-        showMessage("Create notice feature coming soon!", "success");
+        showCreateNoticeModal();
       }
 
       function generateReport() {
@@ -479,11 +479,900 @@
       }
 
       function createAssignment() {
-        showMessage("Create assignment feature coming soon!", "success");
+        showCreateAssignmentModal();
       }
 
       function exportResults() {
         showMessage("Export results feature coming soon!", "success");
+      }
+
+      // New functionality
+
+      // Load students with pagination and search
+      let currentPage = 1;
+      let searchTimeout;
+
+      async function loadStudents(page = 1, searchQuery = '') {
+        try {
+          const user = checkAuth();
+          if (!user) return;
+
+          const params = new URLSearchParams({
+            page: page,
+            limit: 10,
+            q: searchQuery
+          });
+
+          const response = await fetch(`/api/admin/students?${params}`);
+          const data = await response.json();
+
+          if (data.success) {
+            renderStudentsTable(data.students);
+            updatePagination(data.pagination);
+            currentPage = page;
+          }
+        } catch (error) {
+          console.error('Error loading students:', error);
+          showMessage('Failed to load students', 'error');
+        }
+      }
+
+      function renderStudentsTable(students) {
+        const tbody = document.getElementById('studentsTableBody');
+        tbody.innerHTML = '';
+
+        students.forEach(student => {
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td>${student.fullName}</td>
+            <td>${student.registrationNo}</td>
+            <td>${student.course}</td>
+            <td>${student.yearOfStudy}</td>
+            <td>
+              <div class="attendance-badge ${getAttendanceClass(student.attendancePercentage)}">
+                ${student.attendancePercentage}%
+              </div>
+            </td>
+            <td>
+              <span class="status-badge ${student.status}">${student.status}</span>
+            </td>
+            <td>
+              <div class="action-buttons">
+                <button class="btn btn-sm btn-info" onclick="viewStudentProfile('${student.userId}')">
+                  👤 Profile
+                </button>
+                <button class="btn btn-sm btn-success" onclick="generateStudentQR('${student.userId}')">
+                  📱 QR
+                </button>
+                <button class="btn btn-sm btn-warning" onclick="markManualAttendance('${student.userId}')">
+                  📅 Mark
+                </button>
+                <button class="btn btn-sm btn-secondary" onclick="messageStudent('${student.userId}')">
+                  💬 Message
+                </button>
+              </div>
+            </td>
+          `;
+          tbody.appendChild(row);
+        });
+      }
+
+      function getAttendanceClass(percentage) {
+        if (percentage >= 90) return 'excellent';
+        if (percentage >= 75) return 'good';
+        if (percentage >= 60) return 'average';
+        return 'poor';
+      }
+
+      function updatePagination(pagination) {
+        // Update pagination UI (implementation needed)
+        console.log('Pagination:', pagination);
+      }
+
+      // Search functionality
+      function setupSearch() {
+        const searchInput = document.getElementById('studentSearch');
+        const searchBtn = document.querySelector('.search-btn');
+
+        searchBtn.addEventListener('click', () => {
+          const query = searchInput.value.trim();
+          currentPage = 1;
+          loadStudents(1, query);
+        });
+
+        searchInput.addEventListener('input', () => {
+          clearTimeout(searchTimeout);
+          searchTimeout = setTimeout(() => {
+            const query = searchInput.value.trim();
+            currentPage = 1;
+            loadStudents(1, query);
+          }, 500);
+        });
+      }
+
+      // View student profile
+      async function viewStudentProfile(studentId) {
+        try {
+          const response = await fetch(`/api/admin/student/${studentId}`);
+          const data = await response.json();
+
+          if (data.success) {
+            showStudentProfileModal(data.student);
+          }
+        } catch (error) {
+          console.error('Error loading student profile:', error);
+          showMessage('Failed to load student profile', 'error');
+        }
+      }
+
+      function showStudentProfileModal(student) {
+        // Create modal for student profile view
+        const modal = document.createElement('div');
+        modal.className = 'modal-overlay';
+        modal.innerHTML = `
+          <div class="modal-content">
+            <div class="modal-header">
+              <h3>Student Profile</h3>
+              <button class="close-btn" onclick="closeModal(this)">&times;</button>
+            </div>
+            <div class="modal-body">
+              <div class="profile-section">
+                <h4>Personal Information</h4>
+                <p><strong>Name:</strong> ${student.personalInfo.fullName}</p>
+                <p><strong>Email:</strong> ${student.personalInfo.email}</p>
+                <p><strong>Phone:</strong> ${student.personalInfo.phone}</p>
+                <p><strong>WhatsApp:</strong> ${student.personalInfo.whatsapp}</p>
+                ${student.personalInfo.profilePicture ?
+                  `<img src="${student.personalInfo.profilePicture}" alt="Profile" style="max-width: 100px; border-radius: 8px;" />` :
+                  '<p>No profile picture</p>'
+                }
+              </div>
+              <div class="profile-section">
+                <h4>Academic Information</h4>
+                <p><strong>Registration No:</strong> ${student.academicInfo.registrationNo}</p>
+                <p><strong>Course:</strong> ${student.academicInfo.course}</p>
+                <p><strong>Branch:</strong> ${student.academicInfo.branch}</p>
+                <p><strong>Year:</strong> ${student.academicInfo.yearOfStudy}</p>
+                <p><strong>Semester:</strong> ${student.academicInfo.semester}</p>
+              </div>
+              <div class="profile-section">
+                <h4>Professional Information</h4>
+                <p><strong>Role:</strong> ${student.professionalInfo.role || 'Not specified'}</p>
+                <p><strong>Skills:</strong> ${student.professionalInfo.skills || 'Not specified'}</p>
+                ${student.professionalInfo.resumeFile ?
+                  `<a href="${student.professionalInfo.resumeFile}" target="_blank" class="btn btn-sm btn-info">View Resume</a>` :
+                  '<p>No resume uploaded</p>'
+                }
+              </div>
+              <div class="profile-section">
+                <h4>Account Information</h4>
+                <p><strong>Status:</strong> <span class="status-badge ${student.status}">${student.status}</span></p>
+                <p><strong>Profile Complete:</strong> ${student.completedProfile ? 'Yes' : 'No'}</p>
+                <p><strong>Created:</strong> ${new Date(student.createdAt).toLocaleDateString()}</p>
+                <p><strong>Last Updated:</strong> ${new Date(student.updatedAt).toLocaleDateString()}</p>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button class="btn btn-secondary" onclick="closeModal(this)">Close</button>
+            </div>
+          </div>
+        `;
+        document.body.appendChild(modal);
+        modal.style.display = 'block';
+      }
+
+      // Generate QR code for student
+      async function generateStudentQR(studentId) {
+        try {
+          const response = await fetch(`/api/student/${studentId}/qr`);
+          const data = await response.json();
+
+          if (data.success) {
+            showQRModal(data.qrUrl);
+          }
+        } catch (error) {
+          console.error('Error generating QR:', error);
+          showMessage('Failed to generate QR code', 'error');
+        }
+      }
+
+      function showQRModal(qrUrl) {
+        const modal = document.createElement('div');
+        modal.className = 'modal-overlay';
+        modal.innerHTML = `
+          <div class="modal-content qr-modal">
+            <div class="modal-header">
+              <h3>Student QR Code</h3>
+              <button class="close-btn" onclick="closeModal(this)">&times;</button>
+            </div>
+            <div class="modal-body">
+              <div class="qr-code-container">
+                <img src="${qrUrl}" alt="Student QR Code" style="max-width: 200px; border: 2px solid #ddd;" />
+              </div>
+              <div class="qr-info">
+                <p>This QR code is unique to the student and can be used for attendance marking.</p>
+                <p><strong>Generated:</strong> ${new Date().toLocaleString()}</p>
+              </div>
+              <div class="qr-actions">
+                <button class="btn btn-primary" onclick="downloadQR('${qrUrl}')">
+                  📥 Download QR
+                </button>
+                <button class="btn btn-secondary" onclick="closeModal(this)">Close</button>
+              </div>
+            </div>
+          </div>
+        `;
+        document.body.appendChild(modal);
+        modal.style.display = 'block';
+      }
+
+      function downloadQR(qrUrl) {
+        const link = document.createElement('a');
+        link.href = qrUrl;
+        link.download = 'student-qr-code.png';
+        link.click();
+      }
+
+      // Manual attendance marking
+      async function markManualAttendance(studentId) {
+        showManualAttendanceModal(studentId);
+      }
+
+      function showManualAttendanceModal(studentId) {
+        const modal = document.createElement('div');
+        modal.className = 'modal-overlay';
+        modal.innerHTML = `
+          <div class="modal-content">
+            <div class="modal-header">
+              <h3>Mark Attendance</h3>
+              <button class="close-btn" onclick="closeModal(this)">&times;</button>
+            </div>
+            <div class="modal-body">
+              <form id="attendanceForm">
+                <div class="form-group">
+                  <label for="attendanceDate">Date:</label>
+                  <input type="date" id="attendanceDate" value="${new Date().toISOString().split('T')[0]}" required>
+                </div>
+                <div class="form-group">
+                  <label for="attendanceStatus">Status:</label>
+                  <select id="attendanceStatus" required>
+                    <option value="present">Present</option>
+                    <option value="absent">Absent</option>
+                    <option value="late">Late</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="attendanceRemarks">Remarks:</label>
+                  <textarea id="attendanceRemarks" rows="3"></textarea>
+                </div>
+                <div class="form-actions">
+                  <button type="submit" class="btn btn-primary">Mark Attendance</button>
+                  <button type="button" class="btn btn-secondary" onclick="closeModal(this)">Cancel</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        `;
+        document.body.appendChild(modal);
+        modal.style.display = 'block';
+
+        // Handle form submission
+        document.getElementById('attendanceForm').addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const formData = new FormData(e.target);
+
+          const attendanceData = {
+            studentId,
+            date: formData.get('attendanceDate'),
+            status: formData.get('attendanceStatus'),
+            remarks: formData.get('attendanceRemarks'),
+            adminId: checkAuth().id
+          };
+
+          try {
+            const response = await fetch('/api/admin/attendance/manual', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify(attendanceData)
+            });
+
+            const data = await response.json();
+            if (data.success) {
+              showMessage('Attendance marked successfully', 'success');
+              closeModal(modal);
+              loadStudents(currentPage); // Refresh student list
+            }
+          } catch (error) {
+            console.error('Error marking attendance:', error);
+            showMessage('Failed to mark attendance', 'error');
+          }
+        });
+      }
+
+      // Message student
+      async function messageStudent(studentId) {
+        // Find or create chat with student
+        try {
+          const currentUser = checkAuth();
+          const response = await fetch(`/api/chat/${studentId}?currentUserId=${currentUser.id}`);
+          const data = await response.json();
+
+          if (data.success) {
+            openChatModal(data.chatId, studentId);
+          }
+        } catch (error) {
+          console.error('Error starting chat:', error);
+          showMessage('Failed to start chat', 'error');
+        }
+      }
+
+      // QR Scanner for attendance
+      function showQRScanner() {
+        const modal = document.createElement('div');
+        modal.className = 'modal-overlay';
+        modal.innerHTML = `
+          <div class="modal-content qr-scanner">
+            <div class="modal-header">
+              <h3>Scan QR Code for Attendance</h3>
+              <button class="close-btn" onclick="closeModal(this)">&times;</button>
+            </div>
+            <div class="modal-body">
+              <div id="qr-video-container">
+                <video id="qr-video" style="width: 100%; max-width: 400px;"></video>
+              </div>
+              <div class="qr-status" id="qr-status">
+                <p>Position QR code in front of camera...</p>
+              </div>
+              <div class="qr-result" id="qr-result"></div>
+            </div>
+          </div>
+        `;
+        document.body.appendChild(modal);
+        modal.style.display = 'block';
+
+        startQRScanner();
+      }
+
+      async function startQRScanner() {
+        const video = document.getElementById('qr-video');
+        const status = document.getElementById('qr-status');
+        const result = document.getElementById('qr-result');
+
+        try {
+          const stream = await navigator.mediaDevices.getUserMedia({
+            video: { facingMode: 'environment' }
+          });
+          video.srcObject = stream;
+          video.play();
+
+          const canvas = document.createElement('canvas');
+          const context = canvas.getContext('2d');
+
+          // Use jsQR library if available, otherwise show instructions
+          const scan = () => {
+            if (video.readyState === video.HAVE_ENOUGH_DATA) {
+              canvas.width = video.videoWidth;
+              canvas.height = video.videoHeight;
+              context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+              // Try to use jsQR if available
+              if (typeof window.jsQR !== 'undefined') {
+                const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+                const code = window.jsQR(imageData.data, imageData.width, imageData.height);
+
+                if (code) {
+                  processQRCode(code.data);
+                  return;
+                }
+              }
+
+              // If jsQR not available, show instructions
+              status.innerHTML = `
+                <p>📱 Camera is active. Position QR code in front of camera.</p>
+                <p><small>For best results, ensure good lighting and center the QR code.</small></p>
+                <p><button class="btn btn-info" onclick="window.open('https://github.com/cozmo/jsQR')">Install jsQR library</button></p>
+              `;
+
+              requestAnimationFrame(scan);
+            }
+          };
+
+          requestAnimationFrame(scan);
+        } catch (error) {
+          console.error('Camera access error:', error);
+          status.innerHTML = `
+            <p>❌ Camera access denied.</p>
+            <p>Please allow camera access and try again.</p>
+            <button class="btn btn-secondary" onclick="closeModal(this.parentElement.parentElement.parentElement)">Close</button>
+          `;
+        }
+      }
+
+      async function processQRCode(payload) {
+        const status = document.getElementById('qr-status');
+        const result = document.getElementById('qr-result');
+
+        try {
+          const currentUser = checkAuth();
+          const response = await fetch('/api/admin/attendance/scan', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              payload: payload,
+              adminId: currentUser.id
+            })
+          });
+
+          const data = await response.json();
+
+          if (data.success) {
+            result.innerHTML = `
+              <div class="success-message">
+                <h4>✅ Attendance Marked!</h4>
+                <p><strong>Student:</strong> ${data.studentName}</p>
+                <p><strong>Registration No:</strong> ${data.registrationNo}</p>
+                <p><strong>Status:</strong> <span class="badge badge-success">Present</span></p>
+              </div>
+            `;
+
+            setTimeout(() => {
+              closeModal(document.querySelector('.modal-overlay'));
+              loadStudents(currentPage); // Refresh student list
+            }, 2000);
+          } else {
+            result.innerHTML = `
+              <div class="error-message">
+                <p>❌ ${data.message}</p>
+                <button class="btn btn-warning" onclick="retryScan()">Try Again</button>
+              </div>
+            `;
+          }
+        } catch (error) {
+          console.error('Error processing QR code:', error);
+          result.innerHTML = `
+            <div class="error-message">
+              <p>❌ Failed to process QR code.</p>
+              <button class="btn btn-warning" onclick="retryScan()">Try Again</button>
+            </div>
+          `;
+        }
+
+        status.innerHTML = '';
+      }
+
+      function retryScan() {
+        document.getElementById('qr-result').innerHTML = '';
+        startQRScanner();
+      }
+
+      // Notices Management
+      async function showCreateNoticeModal() {
+        const modal = document.createElement('div');
+        modal.className = 'modal-overlay';
+        modal.innerHTML = `
+          <div class="modal-content">
+            <div class="modal-header">
+              <h3>Create Notice</h3>
+              <button class="close-btn" onclick="closeModal(this)">&times;</button>
+            </div>
+            <div class="modal-body">
+              <form id="noticeForm">
+                <div class="form-group">
+                  <label for="noticeTitle">Title:</label>
+                  <input type="text" id="noticeTitle" required maxlength="100">
+                </div>
+                <div class="form-group">
+                  <label for="noticeMessage">Message:</label>
+                  <textarea id="noticeMessage" rows="5" required></textarea>
+                </div>
+                <div class="form-group">
+                  <label for="noticeDuration">Duration (hours):</label>
+                  <input type="number" id="noticeDuration" value="24" min="1" max="168">
+                </div>
+                <div class="form-group">
+                  <label for="noticeTarget">Target Audience:</label>
+                  <select id="noticeTarget">
+                    <option value="all">All Users</option>
+                    <option value="students">Students Only</option>
+                    <option value="admin">Admin Only</option>
+                  </select>
+                </div>
+                <div class="form-actions">
+                  <button type="submit" class="btn btn-primary">Create Notice</button>
+                  <button type="button" class="btn btn-secondary" onclick="closeModal(this)">Cancel</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        `;
+        document.body.appendChild(modal);
+        modal.style.display = 'block';
+
+        // Handle form submission
+        document.getElementById('noticeForm').addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const formData = new FormData(e.target);
+
+          const currentUser = checkAuth();
+          const noticeData = {
+            title: formData.get('noticeTitle'),
+            message: formData.get('noticeMessage'),
+            durationHours: parseInt(formData.get('noticeDuration')),
+            targetAudience: formData.get('noticeTarget'),
+            postedBy: currentUser.id
+          };
+
+          try {
+            const response = await fetch('/api/admin/notice', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify(noticeData)
+            });
+
+            const data = await response.json();
+            if (data.success) {
+              showMessage('Notice created successfully', 'success');
+              closeModal(modal);
+              loadActiveNotices(); // Refresh notices
+            }
+          } catch (error) {
+            console.error('Error creating notice:', error);
+            showMessage('Failed to create notice', 'error');
+          }
+        });
+      }
+
+      // Load active notices
+      async function loadActiveNotices() {
+        try {
+          const response = await fetch('/api/notices');
+          const data = await response.json();
+
+          if (data.success) {
+            displayNotices(data.notices);
+          }
+        } catch (error) {
+          console.error('Error loading notices:', error);
+        }
+      }
+
+      function displayNotices(notices) {
+        const noticesList = document.getElementById('noticesList');
+        noticesList.innerHTML = '';
+
+        if (notices.length === 0) {
+          noticesList.innerHTML = '<p>No active notices</p>';
+          return;
+        }
+
+        notices.forEach(notice => {
+          const noticeDiv = document.createElement('div');
+          noticeDiv.className = 'notice-item';
+          noticeDiv.innerHTML = `
+            <div class="notice-header">
+              <h4>${notice.title}</h4>
+              <small class="notice-time">${new Date(notice.postedAt).toLocaleString()}</small>
+            </div>
+            <div class="notice-content">
+              ${notice.message}
+            </div>
+          `;
+          noticesList.appendChild(noticeDiv);
+        });
+      }
+
+      // Results Management
+      function showResultsUploadModal() {
+        const modal = document.createElement('div');
+        modal.className = 'modal-overlay';
+        modal.innerHTML = `
+          <div class="modal-content">
+            <div class="modal-header">
+              <h3>Upload Results</h3>
+              <button class="close-btn" onclick="closeModal(this)">&times;</button>
+            </div>
+            <div class="modal-body">
+              <form id="resultsForm">
+                <div class="form-group">
+                  <label for="resultsFile">Results File (CSV):</label>
+                  <input type="file" id="resultsFile" accept=".csv" required>
+                </div>
+                <div class="form-info">
+                  <p><strong>Format:</strong> CSV with columns: studentId, subject, marks, maxMarks, grade, semester</p>
+                  <p><strong>Example:</strong> 603c001,Data Structures,85,100,A,1</p>
+                </div>
+                <div class="form-actions">
+                  <button type="submit" class="btn btn-primary">Upload Results</button>
+                  <button type="button" class="btn btn-secondary" onclick="closeModal(this)">Cancel</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        `;
+        document.body.appendChild(modal);
+        modal.style.display = 'block';
+
+        // Handle form submission
+        document.getElementById('resultsForm').addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const formData = new FormData(e.target);
+          const file = formData.get('resultsFile');
+
+          if (!file) {
+            showMessage('Please select a CSV file', 'error');
+            return;
+          }
+
+          // Here you would typically send the file to a parsing service
+          showMessage('Results upload feature needs CSV parsing backend implementation', 'info');
+        });
+      }
+
+      // Assignment Management
+      function showCreateAssignmentModal() {
+        const modal = document.createElement('div');
+        modal.className = 'modal-overlay';
+        modal.innerHTML = `
+          <div class="modal-content">
+            <div class="modal-header">
+              <h3>Create Assignment</h3>
+              <button class="close-btn" onclick="closeModal(this)">&times;</button>
+            </div>
+            <div class="modal-body">
+              <form id="assignmentForm" enctype="multipart/form-data">
+                <div class="form-group">
+                  <label for="assignmentTitle">Title:</label>
+                  <input type="text" id="assignmentTitle" required maxlength="100">
+                </div>
+                <div class="form-group">
+                  <label for="assignmentDescription">Description:</label>
+                  <textarea id="assignmentDescription" rows="4" required></textarea>
+                </div>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="assignmentDueDate">Due Date:</label>
+                    <input type="datetime-local" id="assignmentDueDate" required>
+                  </div>
+                  <div class="form-group">
+                    <label for="assignmentCourse">Course:</label>
+                    <input type="text" id="assignmentCourse" required>
+                  </div>
+                </div>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="assignmentBranch">Branch (optional):</label>
+                    <select id="assignmentBranch">
+                      <option value="">All Branches</option>
+                      <option value="CSE">Computer Science</option>
+                      <option value="ME">Mechanical</option>
+                      <option value="ECE">Electronics</option>
+                      <option value="EE">Electrical</option>
+                      <option value="Civil">Civil</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label for="assignmentYear">Year (optional):</label>
+                    <select id="assignmentYear">
+                      <option value="">All Years</option>
+                      <option value="1">1st Year</option>
+                      <option value="2">2nd Year</option>
+                      <option value="3">3rd Year</option>
+                      <option value="4">4th Year</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="assignmentAttachments">Attachments (max 5):</label>
+                  <input type="file" id="assignmentAttachments" multiple accept=".pdf,.doc,.docx,.ppt,.ppt,.txt,.zip">
+                </div>
+                <div class="form-actions">
+                  <button type="submit" class="btn btn-primary">Create Assignment</button>
+                  <button type="button" class="btn btn-secondary" onclick="closeModal(this)">Cancel</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        `;
+        document.body.appendChild(modal);
+        modal.style.display = 'block';
+
+        // Handle form submission
+        document.getElementById('assignmentForm').addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const formData = new FormData(e.target);
+          const currentUser = checkAuth();
+
+          const assignmentData = {
+            title: formData.get('assignmentTitle'),
+            description: formData.get('assignmentDescription'),
+            dueDate: formData.get('assignmentDueDate'),
+            course: formData.get('assignmentCourse'),
+            branch: formData.get('assignmentBranch') || undefined,
+            yearOfStudy: formData.get('assignmentYear') ? parseInt(formData.get('assignmentYear')) : undefined,
+            postedBy: currentUser.id
+          };
+
+          // Handle attachments
+          const attachments = [];
+          const attachmentFiles = document.getElementById('assignmentAttachments').files;
+
+          if (attachmentFiles && attachmentFiles.length > 0) {
+            for (let i = 0; i < attachmentFiles.length; i++) {
+              const file = attachmentFiles[i];
+              // In a real implementation, you would upload files first
+              attachments.push({
+                originalName: file.name,
+                size: file.size,
+                type: file.type
+              });
+            }
+          }
+
+          try {
+            const response = await fetch('/api/admin/assignment', {
+              method: 'POST',
+              body: formData
+            });
+
+            const data = await response.json();
+            if (data.success) {
+              showMessage('Assignment created successfully', 'success');
+              closeModal(modal);
+            }
+          } catch (error) {
+            console.error('Error creating assignment:', error);
+            showMessage('Failed to create assignment', 'error');
+          }
+        });
+      }
+
+      // Chat functionality
+      let currentChatId = null;
+      let socket = null;
+
+      function openChatModal(chatId, otherUserId) {
+        currentChatId = chatId;
+        const modal = document.createElement('div');
+        modal.className = 'modal-overlay chat-modal';
+        modal.innerHTML = `
+          <div class="modal-content">
+            <div class="modal-header">
+              <h3>Chat</h3>
+              <button class="close-btn" onclick="closeModal(this)">&times;</button>
+            </div>
+            <div class="modal-body">
+              <div class="chat-messages" id="chatMessages"></div>
+              <div class="chat-input">
+                <div class="input-group">
+                  <input type="text" id="messageInput" placeholder="Type a message..." />
+                  <button id="sendMessageBtn">Send</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+        document.body.appendChild(modal);
+        modal.style.display = 'block';
+
+        // Initialize chat
+        initChat(chatId);
+
+        // Load message history
+        loadChatMessages(chatId);
+      }
+
+      function initChat(chatId) {
+        // Initialize Socket.IO if available
+        if (typeof io !== 'undefined') {
+          socket = io();
+
+          socket.on('connect', () => {
+            socket.emit('joinChat', { chatId, userId: checkAuth().id });
+          });
+
+          socket.on('joinedChat', (data) => {
+            console.log('Joined chat:', data);
+          });
+
+          socket.on('message:new', (message) => {
+            displayMessage(message);
+          });
+        }
+      }
+
+      async function loadChatMessages(chatId) {
+        try {
+          const currentUser = checkAuth();
+          const response = await fetch(`/api/chat/${chatId}/messages?currentUserId=${currentUser.id}&page=1&limit=50`);
+          const data = await response.json();
+
+          if (data.success) {
+            displayMessages(data.messages);
+          }
+        } catch (error) {
+          console.error('Error loading chat messages:', error);
+        }
+      }
+
+      function displayMessages(messages) {
+        const messagesContainer = document.getElementById('chatMessages');
+        messagesContainer.innerHTML = '';
+
+        messages.forEach(message => {
+          const messageDiv = document.createElement('div');
+          messageDiv.className = `message-item ${message.from === checkAuth().id ? 'sent' : 'received'}`;
+          messageDiv.innerHTML = `
+            <div class="message-header">
+              <strong>${message.from.name}</strong>
+              <small>${new Date(message.sentAt).toLocaleTimeString()}</small>
+            </div>
+            <div class="message-content">
+              ${message.text}
+            </div>
+          `;
+          messagesContainer.appendChild(messageDiv);
+        });
+
+        // Scroll to bottom
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+      }
+
+      function sendMessage() {
+        const input = document.getElementById('messageInput');
+        const text = input.value.trim();
+
+        if (!text) return;
+
+        const currentUser = checkAuth();
+        const chatId = currentChatId;
+
+        if (socket) {
+          // Send via WebSocket
+          socket.emit('message:new', {
+            chatId,
+            from: currentUser.id,
+            to: 'otherUserId', // This should be determined from chat participants
+            text: text
+          });
+        } else {
+          // Fallback to HTTP API
+          // Implementation needed
+          showMessage('Real-time chat requires Socket.IO', 'info');
+        }
+
+        input.value = '';
+      }
+
+      // Message display helper
+      function displayMessage(message) {
+        const messagesContainer = document.getElementById('chatMessages');
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `message-item ${message.from === checkAuth().id ? 'sent' : 'received'}`;
+        messageDiv.innerHTML = `
+          <div class="message-header">
+            <strong>${message.from.name}</strong>
+            <small>${new Date(message.sentAt).toLocaleTimeString()}</small>
+          </div>
+          <div class="message-content">
+            ${message.text}
+          </div>
+        `;
+        messagesContainer.appendChild(messageDiv);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+      }
+
+      // Modal management
+      function closeModal(element) {
+        const modal = element.closest('.modal-overlay');
+        if (modal && modal.parentNode) {
+          modal.parentNode.removeChild(modal);
+        }
       }
 
       // Logout function
