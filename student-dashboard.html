@@ -692,7 +692,307 @@ function loadSavedFormData() {
 }
 
 /* ==========================
-   INDEXEDDB FILE STORAGE
+   OFFLINE SYNC SYSTEM
+   ========================== */
+
+let profileDB;
+let isOnline = navigator.onLine;
+let syncInProgress = false;
+
+// Initialize IndexedDB for offline storage
+function initOfflineDB() {
+  const request = indexedDB.open('StudentOfflineData', 2);
+
+  request.onerror = (event) => {
+    console.error('IndexedDB error:', event.target.error);
+  };
+
+  request.onupgradeneeded = (event) => {
+    profileDB = event.target.result;
+
+    // Create object stores
+    if (!profileDB.objectStoreNames.contains('pendingProfiles')) {
+      profileDB.createObjectStore('pendingProfiles', { keyPath: 'id' });
+    }
+    if (!profileDB.objectStoreNames.contains('files')) {
+      profileDB.createObjectStore('files', { keyPath: 'id' });
+    }
+  };
+
+  request.onsuccess = (event) => {
+    profileDB = event.target.result;
+    console.log('Offline database initialized');
+
+    // Setup file storage for form inputs
+    ['profilePicture', 'resumeFile'].forEach(id => {
+      const input = document.getElementById(id);
+      if (input) {
+        input.addEventListener('change', () => saveFileOffline(id));
+      }
+    });
+
+    // Check for pending profiles and try to sync
+    checkAndSyncPendingProfiles();
+  };
+}
+
+// Save file to IndexedDB
+function saveFileOffline(fileInputId) {
+  const fileInput = document.getElementById(fileInputId);
+  const file = fileInput.files[0];
+  if (!file || !profileDB) return;
+
+  const transaction = profileDB.transaction(['files'], 'readwrite');
+  const store = transaction.objectStore('files');
+
+  const fileData = {
+    id: fileInputId,
+    file: file,
+    name: file.name,
+    type: file.type,
+    size: file.size,
+    lastModified: file.lastModified
+  };
+
+  store.put(fileData);
+
+  transaction.oncomplete = () => {
+    console.log(`${fileInputId} saved in IndexedDB for offline use`);
+  };
+
+  transaction.onerror = (error) => {
+    console.error('Error saving file to IndexedDB:', error);
+  };
+}
+
+// Load file from IndexedDB
+function loadFileOffline(fileInputId, callback) {
+  if (!profileDB) return;
+
+  const transaction = profileDB.transaction(['files'], 'readonly');
+  const store = transaction.objectStore('files');
+  const request = store.get(fileInputId);
+
+  request.onsuccess = () => {
+    if (request.result) {
+      callback(request.result.file);
+    }
+  };
+
+  request.onerror = (error) => {
+    console.error('Error loading file from IndexedDB:', error);
+  };
+}
+
+// Save profile data for offline sync
+function saveProfileOffline(profileData, files = {}) {
+  if (!profileDB) return;
+
+  const user = checkAuth();
+  if (!user) return;
+
+  const transaction = profileDB.transaction(['pendingProfiles'], 'readwrite');
+  const store = transaction.objectStore('pendingProfiles');
+
+  const pendingProfile = {
+    id: `temp-${user.id}-${Date.now()}`,
+    userId: user.id,
+    profileData: profileData,
+    files: files,
+    timestamp: Date.now(),
+    syncAttempts: 0
+  };
+
+  store.put(pendingProfile);
+
+  transaction.oncomplete = () => {
+    console.log('Profile saved for offline sync:', pendingProfile.id);
+    showSyncStatus('Profile saved locally. Will sync when online.');
+  };
+
+  transaction.onerror = (error) => {
+    console.error('Error saving profile for offline sync:', error);
+  };
+}
+
+// Check and sync pending profiles
+async function checkAndSyncPendingProfiles() {
+  if (!profileDB || !isOnline || syncInProgress) return;
+
+  syncInProgress = true;
+
+  try {
+    const transaction = profileDB.transaction(['pendingProfiles'], 'readonly');
+    const store = transaction.objectStore('pendingProfiles');
+    const request = store.getAll();
+
+    request.onsuccess = async () => {
+      const pendingProfiles = request.result;
+
+      if (pendingProfiles.length === 0) {
+        syncInProgress = false;
+        return;
+      }
+
+      console.log(`Found ${pendingProfiles.length} pending profiles to sync`);
+      showSyncStatus(`Syncing ${pendingProfiles.length} profile(s)...`);
+
+      for (const pendingProfile of pendingProfiles) {
+        await syncSingleProfile(pendingProfile);
+      }
+
+      syncInProgress = false;
+    };
+
+    request.onerror = (error) => {
+      console.error('Error checking pending profiles:', error);
+      syncInProgress = false;
+    };
+  } catch (error) {
+    console.error('Error in sync process:', error);
+    syncInProgress = false;
+  }
+}
+
+// Sync a single profile to server
+async function syncSingleProfile(pendingProfile) {
+  try {
+    const user = checkAuth();
+    if (!user) return;
+
+    const formData = new FormData();
+    formData.append('studentId', user.id);
+
+    // Add profile data
+    formData.append('personalInfo', JSON.stringify(pendingProfile.profileData.personalInfo));
+    formData.append('academicInfo', JSON.stringify(pendingProfile.profileData.academicInfo));
+    formData.append('professionalInfo', JSON.stringify(pendingProfile.profileData.professionalInfo));
+
+    // Add files if they exist
+    if (pendingProfile.files.profilePicture) {
+      formData.append('profilePicture', pendingProfile.files.profilePicture);
+    }
+    if (pendingProfile.files.resumeFile) {
+      formData.append('resumeFile', pendingProfile.files.resumeFile);
+    }
+
+    const response = await fetch('/api/student/profile', {
+      method: 'POST',
+      body: formData
+    });
+
+    if (response.ok) {
+      // Remove from pending profiles after successful sync
+      const transaction = profileDB.transaction(['pendingProfiles'], 'readwrite');
+      const store = transaction.objectStore('pendingProfiles');
+      store.delete(pendingProfile.id);
+
+      console.log(`Profile ${pendingProfile.id} synced successfully`);
+      showSyncStatus('Profile synced successfully!', 'success');
+    } else {
+      throw new Error('Server rejected profile sync');
+    }
+  } catch (error) {
+    console.error('Error syncing profile:', pendingProfile.id, error);
+
+    // Increment sync attempts and remove if too many failed attempts
+    pendingProfile.syncAttempts++;
+
+    if (pendingProfile.syncAttempts >= 3) {
+      // Remove after 3 failed attempts
+      const transaction = profileDB.transaction(['pendingProfiles'], 'readwrite');
+      const store = transaction.objectStore('pendingProfiles');
+      store.delete(pendingProfile.id);
+
+      showSyncStatus('Failed to sync profile after multiple attempts. Please try again.', 'error');
+    } else {
+      // Update sync attempts
+      const transaction = profileDB.transaction(['pendingProfiles'], 'readwrite');
+      const store = transaction.objectStore('pendingProfiles');
+      store.put(pendingProfile);
+    }
+  }
+}
+
+// Network detection
+function setupNetworkDetection() {
+  // Listen for online/offline events
+  window.addEventListener('online', () => {
+    isOnline = true;
+    console.log('Network connection restored');
+    showSyncStatus('Connection restored. Checking for pending sync...', 'success');
+    checkAndSyncPendingProfiles();
+    updateSyncIndicator();
+  });
+
+  window.addEventListener('offline', () => {
+    isOnline = false;
+    console.log('Network connection lost');
+    showSyncStatus('Connection lost. Working in offline mode.', 'error');
+    updateSyncIndicator();
+  });
+
+  // Periodic sync check (every 30 seconds)
+  setInterval(() => {
+    if (isOnline && !syncInProgress) {
+      checkAndSyncPendingProfiles();
+    }
+    updateSyncIndicator();
+  }, 30000);
+}
+
+// Show sync status to user
+function showSyncStatus(message, type = 'info') {
+  // Create or update sync status indicator
+  let statusIndicator = document.getElementById('syncStatus');
+
+  if (!statusIndicator) {
+    statusIndicator = document.createElement('div');
+    statusIndicator.id = 'syncStatus';
+    statusIndicator.className = 'sync-status';
+    document.body.appendChild(statusIndicator);
+  }
+
+  statusIndicator.textContent = message;
+  statusIndicator.className = `sync-status ${type}`;
+  statusIndicator.style.display = 'block';
+
+  // Auto-hide after 5 seconds for success/info messages
+  if (type === 'success' || type === 'info') {
+    setTimeout(() => {
+      statusIndicator.style.display = 'none';
+    }, 5000);
+  }
+}
+
+// Update sync indicator in UI
+function updateSyncIndicator() {
+  let indicator = document.getElementById('syncIndicator');
+
+  if (!indicator) {
+    indicator = document.createElement('div');
+    indicator.id = 'syncIndicator';
+    indicator.className = 'sync-indicator';
+    document.querySelector('.header-right').appendChild(indicator);
+  }
+
+  if (!isOnline) {
+    indicator.innerHTML = '🔴 Offline';
+    indicator.title = 'Working offline. Data will sync when connection is restored.';
+    indicator.className = 'sync-indicator offline';
+  } else if (syncInProgress) {
+    indicator.innerHTML = '🔄 Syncing...';
+    indicator.title = 'Syncing data to server...';
+    indicator.className = 'sync-indicator syncing';
+  } else {
+    indicator.innerHTML = '🟢 Online';
+    indicator.title = 'All data synced';
+    indicator.className = 'sync-indicator online';
+  }
+}
+
+/* ==========================
+   INDEXEDDB FILE STORAGE (LEGACY)
    ========================== */
 
 let db;
