@@ -312,6 +312,14 @@ const contactMessageSchema = new mongoose.Schema({
 const User = mongoose.model("User", userSchema);
 const PendingUser = mongoose.model("PendingUser", pendingUserSchema);
 const StudentData = mongoose.model("StudentData", studentDataSchema);
+const Attendance = mongoose.model("Attendance", attendanceSchema);
+const Notice = mongoose.model("Notice", noticeSchema);
+const Assignment = mongoose.model("Assignment", assignmentSchema);
+const AssignmentSubmission = mongoose.model("AssignmentSubmission", assignmentSubmissionSchema);
+const Result = mongoose.model("Result", resultSchema);
+const Chat = mongoose.model("Chat", chatSchema);
+const Message = mongoose.model("Message", messageSchema);
+const ContactMessage = mongoose.model("ContactMessage", contactMessageSchema);
 
 // In-memory fallbacks (used only when dbAvailable === false)
 const memoryUsers = new Map(); // key=email, value={name,email,password,role,verified}
