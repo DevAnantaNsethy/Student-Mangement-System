@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="./student-dashboard.css" />
     <link rel="stylesheet" href="./style.css" />
     <link rel="stylesheet" href="./messages.css" />
+    <link rel="stylesheet" href="./notices.css" />
   </head>
   <body>
     <div class="dashboard-container">
@@ -50,6 +51,10 @@
         <a href="#profile" class="nav-item" data-section="profile">
           <span class="nav-icon">👤</span>
           Profile
+        </a>
+        <a href="chat.html" class="nav-item" data-section="chat">
+          <span class="nav-icon">💬</span>
+          Chat
         </a>
       </nav>
 
@@ -108,6 +113,15 @@
                 <span class="btn-icon">✏️</span>
                 Update Profile
               </button>
+              <a href="chat.html" target="_blank" style="text-decoration: none">
+                <button
+                  class="action-btn"
+                  style="background: #1976d2; color: #fff"
+                >
+                  <span class="btn-icon">💬</span>
+                  Open Chat
+                </button>
+              </a>
             </div>
           </div>
 
@@ -160,6 +174,16 @@
               <p class="summary-value">4</p>
             </div>
           </div>
+          <div style="text-align: right; margin: 10px 0 18px 0">
+            <a href="student-generate-qr.html">
+              <button
+                class="action-btn"
+                style="background: #1976d2; color: #fff"
+              >
+                Generate QR Code
+              </button>
+            </a>
+          </div>
           <div class="attendance-table">
             <table>
               <thead>
@@ -180,189 +204,232 @@
         <!-- Results Section -->
         <section id="results" class="dashboard-section">
           <h2>Academic Results</h2>
-          <div class="results-grid" id="resultsGrid">
-            <!-- Results will be loaded here -->
-          </div>
+          <div class="results-table" id="resultsTableContainer"></div>
         </section>
 
         <!-- Assignments Section -->
         <section id="assignments" class="dashboard-section">
           <h2>Assignments</h2>
-          <div class="assignments-list" id="assignmentsList">
-            <!-- Assignments will be loaded here -->
-          </div>
+          <div class="assignments-table" id="assignmentsTableContainer"></div>
         </section>
 
         <!-- Notices Section -->
         <section id="notices" class="dashboard-section">
           <h2>Notices & Announcements</h2>
-          <div class="notices-list" id="noticesList">
-            <!-- Notices will be loaded here -->
-          </div>
+          <div class="notice-list" id="studentNoticesList"></div>
         </section>
 
-         <!-- Profile Section -->
-         <section id="profile" class="dashboard-section">
-           <h2>Profile Information</h2>
-           
-           <!-- Profile Completion Form -->
-           <div id="profileForm" class="profile-form-container" style="display: none;">
-             <div class="form-progress">
-               <div class="progress-steps">
-                 <div class="step active" data-step="1">
-                   <div class="step-icon">👤</div>
-                   <span>Personal Info</span>
-                 </div>
-                 <div class="step" data-step="2">
-                   <div class="step-icon">🎓</div>
-                   <span>Academic Info</span>
-                 </div>
-                 <div class="step" data-step="3">
-                   <div class="step-icon">💼</div>
-                   <span>Professional Info</span>
-                 </div>
-               </div>
-             </div>
+        <!-- Profile Section -->
+        <section id="profile" class="dashboard-section">
+          <h2>Profile Information</h2>
 
-             <form id="multiStepForm" enctype="multipart/form-data">
-               <!-- Step 1: Personal Information -->
-               <div class="form-step active" data-step="1">
-                 <h3>Personal Information</h3>
-                 <div class="form-grid">
-                   <div class="form-group">
-                     <label for="fullName">Full Name *</label>
-                     <input type="text" id="fullName" name="fullName" required>
-                   </div>
-                   <div class="form-group">
-                     <label for="age">Age *</label>
-                     <input type="number" id="age" name="age" min="16" max="50" required>
-                   </div>
-                   <div class="form-group">
-                     <label for="gender">Gender *</label>
-                     <select id="gender" name="gender" required>
-                       <option value="">Select Gender</option>
-                       <option value="Male">Male</option>
-                       <option value="Female">Female</option>
-                       <option value="Other">Other</option>
-                     </select>
-                   </div>
-                   <div class="form-group">
-                     <label for="email">Email *</label>
-                     <input type="email" id="email" name="email" readonly>
-                   </div>
-                   <div class="form-group">
-                     <label for="phone">Phone Number *</label>
-                     <input type="tel" id="phone" name="phone" required>
-                   </div>
-                   <div class="form-group">
-                     <label for="whatsapp">WhatsApp Number *</label>
-                     <input type="tel" id="whatsapp" name="whatsapp" required>
-                   </div>
-                   <div class="form-group full-width">
-                     <label for="profilePicture">Profile Picture</label>
-                     <input type="file" id="profilePicture" name="profilePicture" accept="image/*">
-                     <small>JPG/PNG, max 500KB</small>
-                   </div>
-                 </div>
-               </div>
+          <!-- Profile Completion Form -->
+          <div
+            id="profileForm"
+            class="profile-form-container"
+            style="display: none"
+          >
+            <div class="form-progress">
+              <div class="progress-steps">
+                <div class="step active" data-step="1">
+                  <div class="step-icon">👤</div>
+                  <span>Personal Info</span>
+                </div>
+                <div class="step" data-step="2">
+                  <div class="step-icon">🎓</div>
+                  <span>Academic Info</span>
+                </div>
+                <div class="step" data-step="3">
+                  <div class="step-icon">💼</div>
+                  <span>Professional Info</span>
+                </div>
+              </div>
+            </div>
 
-               <!-- Step 2: Academic Information -->
-               <div class="form-step" data-step="2">
-                 <h3>Academic Information</h3>
-                 <div class="form-grid">
-                   <div class="form-group">
-                     <label for="registrationNo">Registration Number *</label>
-                     <input type="text" id="registrationNo" name="registrationNo" required>
-                   </div>
-                   <div class="form-group">
-                     <label for="branch">Branch *</label>
-                     <select id="branch" name="branch" required>
-                       <option value="">Select Branch</option>
-                       <option value="CSE">Computer Science Engineering (CSE)</option>
-                       <option value="ME">Mechanical Engineering (ME)</option>
-                       <option value="ECE">Electronics & Communication Engineering (ECE)</option>
-                       <option value="EE">Electrical Engineering (EE)</option>
-                       <option value="Civil">Civil Engineering</option>
-                     </select>
-                   </div>
-                   <div class="form-group">
-                     <label for="yearOfStudy">Year of Study *</label>
-                     <select id="yearOfStudy" name="yearOfStudy" required>
-                       <option value="">Select Year</option>
-                       <option value="1">1st Year</option>
-                       <option value="2">2nd Year</option>
-                       <option value="3">3rd Year</option>
-                       <option value="4">4th Year</option>
-                     </select>
-                   </div>
-                   <div class="form-group">
-                     <label for="section">Section *</label>
-                     <select id="section" name="section" required>
-                       <option value="">Select Section</option>
-                       <option value="A">Section A</option>
-                       <option value="B">Section B</option>
-                       <option value="C">Section C</option>
-                       <option value="D">Section D</option>
-                     </select>
-                   </div>
-                 </div>
-               </div>
+            <form id="multiStepForm" enctype="multipart/form-data">
+              <!-- Step 1: Personal Information -->
+              <div class="form-step active" data-step="1">
+                <h3>Personal Information</h3>
+                <div class="form-grid">
+                  <div class="form-group">
+                    <label for="fullName">Full Name *</label>
+                    <input type="text" id="fullName" name="fullName" required />
+                  </div>
+                  <div class="form-group">
+                    <label for="age">Age *</label>
+                    <input
+                      type="number"
+                      id="age"
+                      name="age"
+                      min="16"
+                      max="50"
+                      required
+                    />
+                  </div>
+                  <div class="form-group">
+                    <label for="gender">Gender *</label>
+                    <select id="gender" name="gender" required>
+                      <option value="">Select Gender</option>
+                      <option value="Male">Male</option>
+                      <option value="Female">Female</option>
+                      <option value="Other">Other</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label for="email">Email *</label>
+                    <input type="email" id="email" name="email" readonly />
+                  </div>
+                  <div class="form-group">
+                    <label for="phone">Phone Number *</label>
+                    <input type="tel" id="phone" name="phone" required />
+                  </div>
+                  <div class="form-group">
+                    <label for="whatsapp">WhatsApp Number *</label>
+                    <input type="tel" id="whatsapp" name="whatsapp" required />
+                  </div>
+                  <div class="form-group full-width">
+                    <label for="profilePicture">Profile Picture</label>
+                    <input
+                      type="file"
+                      id="profilePicture"
+                      name="profilePicture"
+                      accept="image/*"
+                    />
+                    <small>JPG/PNG, max 500KB</small>
+                  </div>
+                </div>
+              </div>
 
-               <!-- Step 3: Professional Information -->
-               <div class="form-step" data-step="3">
-                 <h3>Professional Information (Optional)</h3>
-                 <div class="form-grid">
-                   <div class="form-group">
-                     <label for="role">Choose Your Role</label>
-                     <select id="role" name="role">
-                       <option value="">Select Role (Optional)</option>
-                       <option value="Developer">Developer</option>
-                       <option value="Frontend Designer">Frontend Designer</option>
-                       <option value="Tester">Tester</option>
-                     </select>
-                   </div>
-                   <div class="form-group full-width">
-                     <label for="skills">Skills</label>
-                     <textarea id="skills" name="skills" rows="3" placeholder="Enter your skills separated by commas"></textarea>
-                   </div>
-                   <div class="form-group full-width">
-                     <label for="resumeFile">Resume Upload</label>
-                     <input type="file" id="resumeFile" name="resumeFile" accept=".pdf">
-                     <small>PDF only, max 5MB</small>
-                   </div>
-                 </div>
-               </div>
+              <!-- Step 2: Academic Information -->
+              <div class="form-step" data-step="2">
+                <h3>Academic Information</h3>
+                <div class="form-grid">
+                  <div class="form-group">
+                    <label for="registrationNo">Registration Number *</label>
+                    <input
+                      type="text"
+                      id="registrationNo"
+                      name="registrationNo"
+                      required
+                    />
+                  </div>
+                  <div class="form-group">
+                    <label for="branch">Branch *</label>
+                    <select id="branch" name="branch" required>
+                      <option value="">Select Branch</option>
+                      <option value="CSE">
+                        Computer Science Engineering (CSE)
+                      </option>
+                      <option value="ME">Mechanical Engineering (ME)</option>
+                      <option value="ECE">
+                        Electronics & Communication Engineering (ECE)
+                      </option>
+                      <option value="EE">Electrical Engineering (EE)</option>
+                      <option value="Civil">Civil Engineering</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label for="yearOfStudy">Year of Study *</label>
+                    <select id="yearOfStudy" name="yearOfStudy" required>
+                      <option value="">Select Year</option>
+                      <option value="1">1st Year</option>
+                      <option value="2">2nd Year</option>
+                      <option value="3">3rd Year</option>
+                      <option value="4">4th Year</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label for="section">Section *</label>
+                    <select id="section" name="section" required>
+                      <option value="">Select Section</option>
+                      <option value="A">Section A</option>
+                      <option value="B">Section B</option>
+                      <option value="C">Section C</option>
+                      <option value="D">Section D</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
 
-               <!-- Navigation Buttons -->
-               <div class="form-navigation">
-                 <button type="button" id="prevBtn" class="nav-btn prev-btn" style="display: none;">
-                   <span>←</span> Previous
-                 </button>
-                 <button type="button" id="nextBtn" class="nav-btn next-btn">
-                   Next <span>→</span>
-                 </button>
-                 <button type="submit" id="submitBtn" class="nav-btn submit-btn" style="display: none;">
-                   Complete Profile
-                 </button>
-               </div>
-             </form>
-           </div>
+              <!-- Step 3: Professional Information -->
+              <div class="form-step" data-step="3">
+                <h3>Professional Information (Optional)</h3>
+                <div class="form-grid">
+                  <div class="form-group">
+                    <label for="role">Choose Your Role</label>
+                    <select id="role" name="role">
+                      <option value="">Select Role (Optional)</option>
+                      <option value="Developer">Developer</option>
+                      <option value="Frontend Designer">
+                        Frontend Designer
+                      </option>
+                      <option value="Tester">Tester</option>
+                    </select>
+                  </div>
+                  <div class="form-group full-width">
+                    <label for="skills">Skills</label>
+                    <textarea
+                      id="skills"
+                      name="skills"
+                      rows="3"
+                      placeholder="Enter your skills separated by commas"
+                    ></textarea>
+                  </div>
+                  <div class="form-group full-width">
+                    <label for="resumeFile">Resume Upload</label>
+                    <input
+                      type="file"
+                      id="resumeFile"
+                      name="resumeFile"
+                      accept=".pdf"
+                    />
+                    <small>PDF only, max 5MB</small>
+                  </div>
+                </div>
+              </div>
 
-           <!-- Profile Display -->
-           <div id="profileDisplay" class="profile-content">
-             <div class="profile-picture">
-               <img
-                 src="./img/nav profile.png"
-                 alt="Profile Picture"
-                 id="profileImage"
-               />
-               <button class="change-photo-btn" onclick="editProfile()">Edit Profile</button>
-             </div>
-             <div class="profile-details" id="profileDetails">
-               <!-- Profile details will be loaded here -->
-             </div>
-           </div>
-         </section>
+              <!-- Navigation Buttons -->
+              <div class="form-navigation">
+                <button
+                  type="button"
+                  id="prevBtn"
+                  class="nav-btn prev-btn"
+                  style="display: none"
+                >
+                  <span>←</span> Previous
+                </button>
+                <button type="button" id="nextBtn" class="nav-btn next-btn">
+                  Next <span>→</span>
+                </button>
+                <button
+                  type="submit"
+                  id="submitBtn"
+                  class="nav-btn submit-btn"
+                  style="display: none"
+                >
+                  Complete Profile
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Profile Display -->
+          <div id="profileDisplay" class="profile-content">
+            <div class="profile-picture">
+              <img
+                src="./img/nav profile.png"
+                alt="Profile Picture"
+                id="profileImage"
+              />
+              <button class="change-photo-btn" onclick="editProfile()">
+                Edit Profile
+              </button>
+            </div>
+            <div class="profile-details" id="profileDetails">
+              <!-- Profile details will be loaded here -->
+            </div>
+          </div>
+        </section>
       </main>
     </div>
 
@@ -371,244 +438,275 @@
       <div class="success-message" id="successMessage"></div>
       <div class="error-message" id="errorMessage"></div>
     </div>
-<script>
-/* ==========================
+    <script>
+      /* ==========================
    DASHBOARD & AUTH
    ========================== */
 
-function checkAuth() {
-  const user = localStorage.getItem("user");
-  if (!user) {
-    window.location.href = "./stu_login.html";
-    return null;
-  }
-  return JSON.parse(user);
-}
-
-function initDashboard() {
-  const user = checkAuth();
-  if (!user) return;
-
-  document.getElementById("userName").textContent = user.name;
-  document.getElementById("userEmail").textContent = user.email;
-
-  checkProfileCompletion(user);
-}
-
-async function checkProfileCompletion(user) {
-  try {
-    const response = await fetch(`/api/student/profile-status/${user.id}`);
-    const data = await response.json();
-
-    if (data.success) {
-      if (!data.isComplete) {
-        showProfileCompletionPopup();
-        document.getElementById('profileForm').style.display = 'block';
-        document.getElementById('profileDisplay').style.display = 'none';
-        document.getElementById('email').value = user.email;
-      } else {
-        loadProfileData(user);
+      function checkAuth() {
+        const user = localStorage.getItem('user');
+        if (!user) {
+          window.location.href = './stu_login.html';
+          return null;
+        }
+        return JSON.parse(user);
       }
-    }
-  } catch (error) {
-    console.error('Error checking profile status:', error);
-    showProfileCompletionPopup();
-    document.getElementById('profileForm').style.display = 'block';
-    document.getElementById('profileDisplay').style.display = 'none';
-    document.getElementById('email').value = user.email;
-  }
-}
 
-function showProfileCompletionPopup() {
-  const popup = document.createElement('div');
-  popup.className = 'profile-completion-popup';
-  popup.innerHTML = `
+      function initDashboard() {
+        const user = checkAuth();
+        if (!user) return;
+
+        document.getElementById('userName').textContent = user.name;
+        document.getElementById('userEmail').textContent = user.email;
+
+        checkProfileCompletion(user);
+      }
+
+      async function checkProfileCompletion(user) {
+        try {
+          const response = await fetch(
+            `/api/student/profile-status/${user.id}`
+          );
+          const data = await response.json();
+
+          if (data.success) {
+            if (!data.isComplete) {
+              showProfileCompletionPopup();
+              document.getElementById('profileForm').style.display = 'block';
+              document.getElementById('profileDisplay').style.display = 'none';
+              document.getElementById('email').value = user.email;
+            } else {
+              loadProfileData(user);
+            }
+          }
+        } catch (error) {
+          console.error('Error checking profile status:', error);
+          showProfileCompletionPopup();
+          document.getElementById('profileForm').style.display = 'block';
+          document.getElementById('profileDisplay').style.display = 'none';
+          document.getElementById('email').value = user.email;
+        }
+      }
+
+      function showProfileCompletionPopup() {
+        const popup = document.createElement('div');
+        popup.className = 'profile-completion-popup';
+        popup.innerHTML = `
     <div class="popup-content">
       <h3>📋 Complete Your Profile</h3>
       <p>To access all dashboard features, please complete your profile information.</p>
       <button onclick="this.parentElement.parentElement.remove()" class="popup-btn">Complete Now</button>
     </div>
   `;
-  document.body.appendChild(popup);
+        document.body.appendChild(popup);
 
-  setTimeout(() => {
-    if (popup.parentElement) popup.remove();
-  }, 5000);
-}
+        setTimeout(() => {
+          if (popup.parentElement) popup.remove();
+        }, 5000);
+      }
 
-function setupNavigation() {
-  const navItems = document.querySelectorAll(".nav-item");
-  const sections = document.querySelectorAll(".dashboard-section");
+      function setupNavigation() {
+        const navItems = document.querySelectorAll('.nav-item');
+        const sections = document.querySelectorAll('.dashboard-section');
 
-  navItems.forEach((item) => {
-    item.addEventListener("click", (e) => {
-      e.preventDefault();
-      navItems.forEach((nav) => nav.classList.remove("active"));
-      sections.forEach((section) => section.classList.remove("active"));
+        navItems.forEach((item) => {
+          item.addEventListener('click', (e) => {
+            e.preventDefault();
+            navItems.forEach((nav) => nav.classList.remove('active'));
+            sections.forEach((section) => section.classList.remove('active'));
 
-      item.classList.add("active");
-      const targetSection = item.getAttribute("data-section");
-      document.getElementById(targetSection).classList.add("active");
-    });
-  });
-}
+            item.classList.add('active');
+            const targetSection = item.getAttribute('data-section');
+            document.getElementById(targetSection).classList.add('active');
+          });
+        });
+      }
 
-function markAttendance() { showMessage("Attendance marking feature coming soon!", "success"); }
-function viewResults() { document.querySelector('[data-section="results"]').click(); }
-function submitAssignment() { showMessage("Assignment submission feature coming soon!", "success"); }
-function updateProfile() { document.querySelector('[data-section="profile"]').click(); }
-function logout() { localStorage.removeItem("user"); window.location.href = "./stu_login.html"; }
+      function markAttendance() {
+        showMessage('Attendance marking feature coming soon!', 'success');
+      }
+      function viewResults() {
+        document.querySelector('[data-section="results"]').click();
+      }
+      function submitAssignment() {
+        showMessage('Assignment submission feature coming soon!', 'success');
+      }
+      function updateProfile() {
+        document.querySelector('[data-section="profile"]').click();
+      }
+      function logout() {
+        localStorage.removeItem('user');
+        window.location.href = './stu_login.html';
+      }
 
-function showMessage(message, type) {
-  const messageDiv = document.getElementById(type === "success" ? "successMessage" : "errorMessage");
-  messageDiv.textContent = message;
-  messageDiv.style.display = "block";
-  setTimeout(() => { messageDiv.style.display = "none"; }, 3000);
-}
+      function showMessage(message, type) {
+        const messageDiv = document.getElementById(
+          type === 'success' ? 'successMessage' : 'errorMessage'
+        );
+        messageDiv.textContent = message;
+        messageDiv.style.display = 'block';
+        setTimeout(() => {
+          messageDiv.style.display = 'none';
+        }, 3000);
+      }
 
-/* ==========================
+      /* ==========================
    MULTI-STEP FORM
    ========================== */
 
-let currentStep = 1;
-const totalSteps = 3;
+      let currentStep = 1;
+      const totalSteps = 3;
 
-function setupMultiStepForm() {
-  const nextBtn = document.getElementById('nextBtn');
-  const prevBtn = document.getElementById('prevBtn');
-  const submitBtn = document.getElementById('submitBtn');
+      function setupMultiStepForm() {
+        const nextBtn = document.getElementById('nextBtn');
+        const prevBtn = document.getElementById('prevBtn');
+        const submitBtn = document.getElementById('submitBtn');
 
-  nextBtn.addEventListener('click', nextStep);
-  prevBtn.addEventListener('click', prevStep);
-  submitBtn.addEventListener('click', submitProfile);
+        nextBtn.addEventListener('click', nextStep);
+        prevBtn.addEventListener('click', prevStep);
+        submitBtn.addEventListener('click', submitProfile);
 
-  updateButtonVisibility();
-}
+        updateButtonVisibility();
+      }
 
-function nextStep() {
-  if (validateCurrentStep()) {
-    if (currentStep < totalSteps) {
-      currentStep++;
-      showStep(currentStep);
-      updateButtonVisibility();
-    }
-  }
-}
+      function nextStep() {
+        if (validateCurrentStep()) {
+          if (currentStep < totalSteps) {
+            currentStep++;
+            showStep(currentStep);
+            updateButtonVisibility();
+          }
+        }
+      }
 
-function prevStep() {
-  if (currentStep > 1) {
-    currentStep--;
-    showStep(currentStep);
-    updateButtonVisibility();
-  }
-}
+      function prevStep() {
+        if (currentStep > 1) {
+          currentStep--;
+          showStep(currentStep);
+          updateButtonVisibility();
+        }
+      }
 
-function showStep(step) {
-  document.querySelectorAll('.form-step').forEach(stepEl => stepEl.classList.remove('active'));
-  document.querySelector(`[data-step="${step}"]`).classList.add('active');
+      function showStep(step) {
+        document
+          .querySelectorAll('.form-step')
+          .forEach((stepEl) => stepEl.classList.remove('active'));
+        document.querySelector(`[data-step="${step}"]`).classList.add('active');
 
-  document.querySelectorAll('.step').forEach((stepEl, index) => {
-    stepEl.classList.remove('active');
-    if (index + 1 <= step) stepEl.classList.add('active');
-  });
-}
+        document.querySelectorAll('.step').forEach((stepEl, index) => {
+          stepEl.classList.remove('active');
+          if (index + 1 <= step) stepEl.classList.add('active');
+        });
+      }
 
-function updateButtonVisibility() {
-  const prevBtn = document.getElementById('prevBtn');
-  const nextBtn = document.getElementById('nextBtn');
-  const submitBtn = document.getElementById('submitBtn');
+      function updateButtonVisibility() {
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const submitBtn = document.getElementById('submitBtn');
 
-  prevBtn.style.display = currentStep > 1 ? 'block' : 'none';
-  nextBtn.style.display = currentStep < totalSteps ? 'block' : 'none';
-  submitBtn.style.display = currentStep === totalSteps ? 'block' : 'none';
-}
+        prevBtn.style.display = currentStep > 1 ? 'block' : 'none';
+        nextBtn.style.display = currentStep < totalSteps ? 'block' : 'none';
+        submitBtn.style.display = currentStep === totalSteps ? 'block' : 'none';
+      }
 
-function validateCurrentStep() {
-  const currentStepEl = document.querySelector(`[data-step="${currentStep}"]`);
-  const requiredFields = currentStepEl.querySelectorAll('[required]');
+      function validateCurrentStep() {
+        const currentStepEl = document.querySelector(
+          `[data-step="${currentStep}"]`
+        );
+        const requiredFields = currentStepEl.querySelectorAll('[required]');
 
-  for (let field of requiredFields) {
-    if (!field.value.trim()) {
-      showMessage(`Please fill in ${field.previousElementSibling.textContent}`, 'error');
-      field.focus();
-      return false;
-    }
-  }
-  return true;
-}
+        for (let field of requiredFields) {
+          if (!field.value.trim()) {
+            showMessage(
+              `Please fill in ${field.previousElementSibling.textContent}`,
+              'error'
+            );
+            field.focus();
+            return false;
+          }
+        }
+        return true;
+      }
 
-async function submitProfile(e) {
-  e.preventDefault();
-  if (!validateCurrentStep()) return;
-  const user = checkAuth();
-  if (!user) return;
+      async function submitProfile(e) {
+        e.preventDefault();
+        if (!validateCurrentStep()) return;
+        const user = checkAuth();
+        if (!user) return;
 
-  const formData = new FormData();
-  formData.append('studentId', user.id);
+        const formData = new FormData();
+        formData.append('studentId', user.id);
 
-  // Collect form data
-  const personalInfo = {
-    fullName: document.getElementById('fullName').value,
-    age: parseInt(document.getElementById('age').value),
-    gender: document.getElementById('gender').value,
-    email: document.getElementById('email').value,
-    phone: document.getElementById('phone').value,
-    whatsapp: document.getElementById('whatsapp').value
-  };
-  const academicInfo = {
-    registrationNo: document.getElementById('registrationNo').value,
-    branch: document.getElementById('branch').value,
-    yearOfStudy: parseInt(document.getElementById('yearOfStudy').value),
-    section: document.getElementById('section').value
-  };
-  const professionalInfo = {
-    role: document.getElementById('role').value,
-    skills: document.getElementById('skills').value
-  };
+        // Collect form data
+        const personalInfo = {
+          fullName: document.getElementById('fullName').value,
+          age: parseInt(document.getElementById('age').value),
+          gender: document.getElementById('gender').value,
+          email: document.getElementById('email').value,
+          phone: document.getElementById('phone').value,
+          whatsapp: document.getElementById('whatsapp').value,
+        };
+        const academicInfo = {
+          registrationNo: document.getElementById('registrationNo').value,
+          branch: document.getElementById('branch').value,
+          yearOfStudy: parseInt(document.getElementById('yearOfStudy').value),
+          section: document.getElementById('section').value,
+        };
+        const professionalInfo = {
+          role: document.getElementById('role').value,
+          skills: document.getElementById('skills').value,
+        };
 
-  formData.append('personalInfo', JSON.stringify(personalInfo));
-  formData.append('academicInfo', JSON.stringify(academicInfo));
-  formData.append('professionalInfo', JSON.stringify(professionalInfo));
+        formData.append('personalInfo', JSON.stringify(personalInfo));
+        formData.append('academicInfo', JSON.stringify(academicInfo));
+        formData.append('professionalInfo', JSON.stringify(professionalInfo));
 
-  // Files
-  const profilePicture = document.getElementById('profilePicture').files[0];
-  const resumeFile = document.getElementById('resumeFile').files[0];
-  if (profilePicture) formData.append('profilePicture', profilePicture);
-  if (resumeFile) formData.append('resumeFile', resumeFile);
+        // Files
+        const profilePicture =
+          document.getElementById('profilePicture').files[0];
+        const resumeFile = document.getElementById('resumeFile').files[0];
+        if (profilePicture) formData.append('profilePicture', profilePicture);
+        if (resumeFile) formData.append('resumeFile', resumeFile);
 
-  try {
-    showMessage('Saving profile...', 'success');
-    const response = await fetch('/api/student/profile', { method: 'POST', body: formData });
-    const data = await response.json();
+        try {
+          showMessage('Saving profile...', 'success');
+          const response = await fetch('/api/student/profile', {
+            method: 'POST',
+            body: formData,
+          });
+          const data = await response.json();
 
-    if (data.success) {
-      showMessage('Profile completed successfully!', 'success');
-      document.getElementById('profileForm').style.display = 'none';
-      document.getElementById('profileDisplay').style.display = 'block';
-      loadProfileData(user);
-    } else {
-      showMessage(data.message || 'Failed to save profile', 'error');
-    }
-  } catch (error) {
-    console.error('Profile submission error:', error);
-    showMessage('Network error. Please try again.', 'error');
-  }
-}
+          if (data.success) {
+            showMessage('Profile completed successfully!', 'success');
+            document.getElementById('profileForm').style.display = 'none';
+            document.getElementById('profileDisplay').style.display = 'block';
+            loadProfileData(user);
+          } else {
+            showMessage(data.message || 'Failed to save profile', 'error');
+          }
+        } catch (error) {
+          console.error('Profile submission error:', error);
+          showMessage('Network error. Please try again.', 'error');
+        }
+      }
 
-async function loadProfileData(user) {
-  try {
-    const response = await fetch(`/api/student/profile/${user.id}`);
-    const data = await response.json();
-    if (data.success && data.profile) displayProfileData(data.profile);
-  } catch (error) { console.error('Error loading profile:', error); }
-}
+      async function loadProfileData(user) {
+        try {
+          const response = await fetch(`/api/student/profile/${user.id}`);
+          const data = await response.json();
+          if (data.success && data.profile) displayProfileData(data.profile);
+        } catch (error) {
+          console.error('Error loading profile:', error);
+        }
+      }
 
-function displayProfileData(profile) {
-  const profileDetails = document.getElementById('profileDetails');
-  const profileImage = document.getElementById('profileImage');
-  if (profile.personalInfo.profilePicture) profileImage.src = profile.personalInfo.profilePicture;
+      function displayProfileData(profile) {
+        const profileDetails = document.getElementById('profileDetails');
+        const profileImage = document.getElementById('profileImage');
+        if (profile.personalInfo.profilePicture)
+          profileImage.src = profile.personalInfo.profilePicture;
 
-  profileDetails.innerHTML = `
+        profileDetails.innerHTML = `
     <div class="profile-section">
       <h3>Personal Information</h3>
       <div class="profile-info">
@@ -623,131 +721,169 @@ function displayProfileData(profile) {
     <div class="profile-section">
       <h3>Academic Information</h3>
       <div class="profile-info">
-        <p><strong>Registration No:</strong> ${profile.academicInfo.registrationNo}</p>
+        <p><strong>Registration No:</strong> ${
+          profile.academicInfo.registrationNo
+        }</p>
         <p><strong>Branch:</strong> ${profile.academicInfo.branch}</p>
         <p><strong>Year:</strong> ${profile.academicInfo.yearOfStudy}</p>
         <p><strong>Section:</strong> ${profile.academicInfo.section}</p>
       </div>
     </div>
-    ${profile.professionalInfo.role || profile.professionalInfo.skills ? `
+    ${
+      profile.professionalInfo.role || profile.professionalInfo.skills
+        ? `
     <div class="profile-section">
       <h3>Professional Information</h3>
       <div class="profile-info">
-        ${profile.professionalInfo.role ? `<p><strong>Role:</strong> ${profile.professionalInfo.role}</p>` : ''}
-        ${profile.professionalInfo.skills ? `<p><strong>Skills:</strong> ${profile.professionalInfo.skills}</p>` : ''}
-        ${profile.professionalInfo.resumeFile ? `<p><strong>Resume:</strong> <a href="${profile.professionalInfo.resumeFile}" target="_blank">View Resume</a></p>` : ''}
+        ${
+          profile.professionalInfo.role
+            ? `<p><strong>Role:</strong> ${profile.professionalInfo.role}</p>`
+            : ''
+        }
+        ${
+          profile.professionalInfo.skills
+            ? `<p><strong>Skills:</strong> ${profile.professionalInfo.skills}</p>`
+            : ''
+        }
+        ${
+          profile.professionalInfo.resumeFile
+            ? `<p><strong>Resume:</strong> <a href="${profile.professionalInfo.resumeFile}" target="_blank">View Resume</a></p>`
+            : ''
+        }
       </div>
     </div>
-    ` : ''}
+    `
+        : ''
+    }
   `;
-}
+      }
 
-function editProfile() {
-  document.getElementById('profileForm').style.display = 'block';
-  document.getElementById('profileDisplay').style.display = 'none';
-  currentStep = 1;
-  showStep(1);
-  updateButtonVisibility();
-}
+      function editProfile() {
+        document.getElementById('profileForm').style.display = 'block';
+        document.getElementById('profileDisplay').style.display = 'none';
+        currentStep = 1;
+        showStep(1);
+        updateButtonVisibility();
+      }
 
-/* ==========================
+      /* ==========================
    LOCALSTORAGE AUTO-SAVE
    ========================== */
 
-const form = document.getElementById('multiStepForm');
-form.addEventListener('input', () => {
-  const formData = {
-    personalInfo: {
-      fullName: document.getElementById('fullName')?.value || '',
-      age: document.getElementById('age')?.value || '',
-      gender: document.getElementById('gender')?.value || '',
-      email: document.getElementById('email')?.value || '',
-      phone: document.getElementById('phone')?.value || '',
-      whatsapp: document.getElementById('whatsapp')?.value || ''
-    },
-    academicInfo: {
-      registrationNo: document.getElementById('registrationNo')?.value || '',
-      branch: document.getElementById('branch')?.value || '',
-      yearOfStudy: document.getElementById('yearOfStudy')?.value || '',
-      section: document.getElementById('section')?.value || ''
-    },
-    professionalInfo: {
-      role: document.getElementById('role')?.value || '',
-      skills: document.getElementById('skills')?.value || ''
-    }
-  };
-  localStorage.setItem('multiStepFormData', JSON.stringify(formData));
-});
+      const form = document.getElementById('multiStepForm');
+      form.addEventListener('input', () => {
+        const formData = {
+          personalInfo: {
+            fullName: document.getElementById('fullName')?.value || '',
+            age: document.getElementById('age')?.value || '',
+            gender: document.getElementById('gender')?.value || '',
+            email: document.getElementById('email')?.value || '',
+            phone: document.getElementById('phone')?.value || '',
+            whatsapp: document.getElementById('whatsapp')?.value || '',
+          },
+          academicInfo: {
+            registrationNo:
+              document.getElementById('registrationNo')?.value || '',
+            branch: document.getElementById('branch')?.value || '',
+            yearOfStudy: document.getElementById('yearOfStudy')?.value || '',
+            section: document.getElementById('section')?.value || '',
+          },
+          professionalInfo: {
+            role: document.getElementById('role')?.value || '',
+            skills: document.getElementById('skills')?.value || '',
+          },
+        };
+        localStorage.setItem('multiStepFormData', JSON.stringify(formData));
+      });
 
-function loadSavedFormData() {
-  const savedData = JSON.parse(localStorage.getItem('multiStepFormData'));
-  if (!savedData) return;
+      function loadSavedFormData() {
+        const savedData = JSON.parse(localStorage.getItem('multiStepFormData'));
+        if (!savedData) return;
 
-  for (const section in savedData) {
-    for (const key in savedData[section]) {
-      const input = document.getElementById(key);
-      if (input) input.value = savedData[section][key];
-    }
-  }
-}
+        for (const section in savedData) {
+          for (const key in savedData[section]) {
+            const input = document.getElementById(key);
+            if (input) input.value = savedData[section][key];
+          }
+        }
+      }
 
-/* ==========================
+      /* ==========================
    INDEXEDDB FILE STORAGE
    ========================== */
 
-let db;
-const request = indexedDB.open('StudentData', 1);
+      let db;
+      const request = indexedDB.open('StudentData', 1);
 
-request.onupgradeneeded = function(e) {
-  db = e.target.result;
-  if (!db.objectStoreNames.contains('files')) db.createObjectStore('files', { keyPath: 'name' });
-};
+      request.onupgradeneeded = function (e) {
+        db = e.target.result;
+        if (!db.objectStoreNames.contains('files'))
+          db.createObjectStore('files', { keyPath: 'name' });
+      };
 
-request.onsuccess = function(e) {
-  db = e.target.result;
-  ['profilePicture','resumeFile'].forEach(id => {
-    const input = document.getElementById(id);
-    if (input) input.addEventListener('change', () => saveFile(id));
-  });
-};
+      request.onsuccess = function (e) {
+        db = e.target.result;
+        ['profilePicture', 'resumeFile'].forEach((id) => {
+          const input = document.getElementById(id);
+          if (input) input.addEventListener('change', () => saveFile(id));
+        });
+      };
 
-request.onerror = function(e) { console.error('IndexedDB error:', e); };
+      request.onerror = function (e) {
+        console.error('IndexedDB error:', e);
+      };
 
-function saveFile(fileInputId) {
-  const fileInput = document.getElementById(fileInputId);
-  const file = fileInput.files[0];
-  if (!file || !db) return;
+      function saveFile(fileInputId) {
+        const fileInput = document.getElementById(fileInputId);
+        const file = fileInput.files[0];
+        if (!file || !db) return;
 
-  const transaction = db.transaction(['files'], 'readwrite');
-  const store = transaction.objectStore('files');
-  store.put({ name: fileInputId, file });
+        const transaction = db.transaction(['files'], 'readwrite');
+        const store = transaction.objectStore('files');
+        store.put({ name: fileInputId, file });
 
-  transaction.oncomplete = () => console.log(`${fileInputId} saved in IndexedDB`);
-}
+        transaction.oncomplete = () =>
+          console.log(`${fileInputId} saved in IndexedDB`);
+      }
 
-function loadFile(fileInputId, callback) {
-  if (!db) return;
-  const transaction = db.transaction(['files'], 'readonly');
-  const store = transaction.objectStore('files');
-  const request = store.get(fileInputId);
+      function loadFile(fileInputId, callback) {
+        if (!db) return;
+        const transaction = db.transaction(['files'], 'readonly');
+        const store = transaction.objectStore('files');
+        const request = store.get(fileInputId);
 
-  request.onsuccess = () => {
-    if (request.result) callback(request.result.file);
-  };
-}
+        request.onsuccess = () => {
+          if (request.result) callback(request.result.file);
+        };
+      }
 
-/* ==========================
+      /* ==========================
    DOMContentLoaded INIT
    ========================== */
 
-document.addEventListener('DOMContentLoaded', () => {
-  initDashboard();
-  setupNavigation();
-  setupMultiStepForm();
-  loadSavedFormData();
-});
-</script>
-
+      document.addEventListener('DOMContentLoaded', () => {
+        initDashboard();
+        setupNavigation();
+        setupMultiStepForm();
+        loadSavedFormData();
+      });
+    </script>
+    <script src="notices.js"></script>
+    <script src="assignments.js"></script>
+    <script src="results.js"></script>
+    <script>
+      // Render assignments for students (read-only)
+      function updateAssignmentsTable() {
+        renderAssignmentsTable('assignmentsTableContainer', false);
+      }
+      // Render results for students (read-only)
+      function updateResultsTable() {
+        renderResultsTable('resultsTableContainer', false);
+      }
+      document.addEventListener('DOMContentLoaded', function () {
+        updateAssignmentsTable();
+        updateResultsTable();
+      });
+    </script>
   </body>
 </html>
-

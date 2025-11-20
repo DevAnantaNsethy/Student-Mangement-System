@@ -1,14 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
+  <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Admin Dashboard - Roland Institute of Technology</title>
     <link rel="stylesheet" href="./admin-dashboard.css" />
     <link rel="stylesheet" href="./style.css" />
     <link rel="stylesheet" href="./messages.css" />
-</head>
-<body>
+    <link rel="stylesheet" href="./notices.css" />
+  </head>
+  <body>
     <div class="dashboard-container">
       <!-- Header -->
       <header class="dashboard-header">
@@ -20,7 +21,7 @@
           <div class="user-info">
             <span id="userName">Loading...</span>
             <span id="userEmail">Loading...</span>
-      </div>
+          </div>
           <button class="logout-btn" onclick="logout()">Logout</button>
         </div>
       </header>
@@ -55,6 +56,10 @@
           <span class="nav-icon">⚙️</span>
           Settings
         </a>
+        <a href="chat.html" class="nav-item" data-section="chat">
+          <span class="nav-icon">💬</span>
+          Chat
+        </a>
       </nav>
 
       <!-- Main Content -->
@@ -62,52 +67,52 @@
         <!-- Overview Section -->
         <section id="overview" class="dashboard-section active">
           <h2>Admin Overview</h2>
-        <div class="stats-grid">
+          <div class="stats-grid">
             <div class="stat-card">
               <div class="stat-icon">👥</div>
-            <div class="stat-content">
+              <div class="stat-content">
                 <h3>Total Students</h3>
                 <p class="stat-value" id="totalStudents">1,250</p>
+              </div>
             </div>
-          </div>
             <div class="stat-card">
               <div class="stat-icon">📊</div>
-            <div class="stat-content">
+              <div class="stat-content">
                 <h3>Average Attendance</h3>
                 <p class="stat-value" id="avgAttendance">87%</p>
+              </div>
             </div>
-          </div>
             <div class="stat-card">
               <div class="stat-icon">📈</div>
-            <div class="stat-content">
+              <div class="stat-content">
                 <h3>Pass Rate</h3>
                 <p class="stat-value" id="passRate">94%</p>
+              </div>
             </div>
-          </div>
             <div class="stat-card">
               <div class="stat-icon">📢</div>
-            <div class="stat-content">
+              <div class="stat-content">
                 <h3>Active Notices</h3>
                 <p class="stat-value" id="activeNotices">12</p>
+              </div>
             </div>
           </div>
-        </div>
-        
+
           <div class="admin-actions">
             <h3>Quick Actions</h3>
             <div class="action-buttons">
               <button class="action-btn" onclick="addStudent()">
                 <span class="btn-icon">➕</span>
                 Add Student
-                </button>
+              </button>
               <button class="action-btn" onclick="markAttendance()">
                 <span class="btn-icon">📅</span>
                 Mark Attendance
-                </button>
+              </button>
               <button class="action-btn" onclick="uploadResults()">
                 <span class="btn-icon">📊</span>
                 Upload Results
-                </button>
+              </button>
               <button class="action-btn" onclick="createNotice()">
                 <span class="btn-icon">📢</span>
                 Create Notice
@@ -116,40 +121,49 @@
                 <span class="btn-icon">📋</span>
                 Generate Report
               </button>
+              <a href="chat.html" target="_blank" style="text-decoration: none">
+                <button
+                  class="action-btn"
+                  style="background: #1976d2; color: #fff"
+                >
+                  <span class="btn-icon">💬</span>
+                  Open Chat
+                </button>
+              </a>
               <button class="action-btn" onclick="manageUsers()">
                 <span class="btn-icon">👤</span>
                 Manage Users
-                </button>
-              </div>
-                    </div>
+              </button>
+            </div>
+          </div>
 
           <div class="recent-activity">
             <h3>Recent Activity</h3>
             <div class="activity-list" id="recentActivity">
-                  <div class="activity-item">
+              <div class="activity-item">
                 <span class="activity-icon">👥</span>
-                    <div class="activity-content">
+                <div class="activity-content">
                   <p>New student registered: John Doe</p>
                   <span class="activity-time">1 hour ago</span>
-                    </div>
-                  </div>
-                  <div class="activity-item">
+                </div>
+              </div>
+              <div class="activity-item">
                 <span class="activity-icon">📅</span>
-                    <div class="activity-content">
+                <div class="activity-content">
                   <p>Attendance marked for Computer Science</p>
                   <span class="activity-time">2 hours ago</span>
-                    </div>
-                  </div>
-                  <div class="activity-item">
+                </div>
+              </div>
+              <div class="activity-item">
                 <span class="activity-icon">📢</span>
-                    <div class="activity-content">
+                <div class="activity-content">
                   <p>Notice published: Exam schedule</p>
                   <span class="activity-time">3 hours ago</span>
-                    </div>
-                  </div>
                 </div>
-        </div>
-      </section>
+              </div>
+            </div>
+          </div>
+        </section>
 
         <!-- Students Section -->
         <section id="students" class="dashboard-section">
@@ -162,12 +176,72 @@
                 id="studentSearch"
               />
               <button class="search-btn">🔍</button>
-        </div>
+            </div>
             <button class="add-btn" onclick="addStudent()">Add Student</button>
           </div>
           <div class="students-table">
-                <table>
-                  <thead>
+            <form
+              id="addStudentForm"
+              class="add-student-form"
+              autocomplete="off"
+              style="
+                margin-bottom: 18px;
+                display: flex;
+                gap: 10px;
+                flex-wrap: wrap;
+                align-items: center;
+              "
+            >
+              <input
+                type="text"
+                id="addName"
+                placeholder="Name"
+                required
+                style="width: 120px"
+              />
+              <input
+                type="text"
+                id="addRegNo"
+                placeholder="Reg. No."
+                required
+                style="width: 110px"
+              />
+              <input
+                type="text"
+                id="addCourse"
+                placeholder="Course"
+                required
+                style="width: 90px"
+              />
+              <input
+                type="text"
+                id="addYear"
+                placeholder="Year"
+                required
+                style="width: 60px"
+              />
+              <input
+                type="text"
+                id="addAttendance"
+                placeholder="Attendance"
+                style="width: 70px"
+              />
+              <input
+                type="text"
+                id="addStatus"
+                placeholder="Status"
+                style="width: 80px"
+              />
+              <button
+                type="submit"
+                class="login-btn"
+                style="background: #1976d2"
+              >
+                Add Student
+              </button>
+            </form>
+            <table>
+              <thead>
                 <tr>
                   <th>Name</th>
                   <th>Registration No.</th>
@@ -177,13 +251,13 @@
                   <th>Status</th>
                   <th>Actions</th>
                 </tr>
-                  </thead>
+              </thead>
               <tbody id="studentsTableBody">
                 <!-- Students will be loaded here -->
-                  </tbody>
-                </table>
-        </div>
-      </section>
+              </tbody>
+            </table>
+          </div>
+        </section>
 
         <!-- Attendance Section -->
         <section id="attendance" class="dashboard-section">
@@ -196,7 +270,7 @@
                 <option value="ECE">Electronics</option>
                 <option value="ME">Mechanical</option>
                 <option value="CE">Civil</option>
-                </select>
+              </select>
               <select id="yearFilter">
                 <option value="">All Years</option>
                 <option value="1st Year">1st Year</option>
@@ -205,11 +279,16 @@
                 <option value="4th Year">4th Year</option>
               </select>
               <input type="date" id="dateFilter" />
-              </div>
-            <button class="mark-attendance-btn" onclick="markAttendance()">
-              Mark Attendance
-            </button>
-              </div>
+            </div>
+            <a href="admin-qr-attendance.html">
+              <button
+                class="mark-attendance-btn"
+                style="background: #1976d2; color: #fff"
+              >
+                Take Attendance (QR)
+              </button>
+            </a>
+          </div>
           <div class="attendance-table">
             <table>
               <thead>
@@ -227,80 +306,131 @@
                 <!-- Attendance records will be loaded here -->
               </tbody>
             </table>
-        </div>
-      </section>
+          </div>
+        </section>
 
         <!-- Results Section -->
         <section id="results" class="dashboard-section">
           <h2>Results Management</h2>
-          <div class="results-controls">
-            <button class="upload-btn" onclick="uploadResults()">
-              Upload Results
+          <form
+            id="addResultForm"
+            class="add-result-form"
+            style="
+              display: flex;
+              gap: 10px;
+              flex-wrap: wrap;
+              align-items: center;
+              margin-bottom: 18px;
+            "
+          >
+            <input
+              type="text"
+              id="resultExam"
+              placeholder="Exam"
+              required
+              style="width: 100px"
+            />
+            <input
+              type="text"
+              id="resultSubject"
+              placeholder="Subject"
+              required
+              style="width: 100px"
+            />
+            <input
+              type="text"
+              id="resultCourse"
+              placeholder="Course"
+              required
+              style="width: 100px"
+            />
+            <input type="date" id="resultDate" required style="width: 130px" />
+            <input
+              type="number"
+              id="resultTotalStudents"
+              placeholder="Total Students"
+              min="1"
+              required
+              style="width: 110px"
+            />
+            <input
+              type="text"
+              id="resultPassRate"
+              placeholder="Pass Rate (e.g. 85%)"
+              required
+              style="width: 110px"
+            />
+            <button type="submit" class="login-btn" style="background: #1976d2">
+              Add Result
             </button>
-            <button class="export-btn" onclick="exportResults()">
-              Export Results
-            </button>
-        </div>
-          <div class="results-table">
-            <table>
-              <thead>
-                <tr>
-                  <th>Exam</th>
-                  <th>Subject</th>
-                  <th>Course</th>
-                  <th>Date</th>
-                  <th>Total Students</th>
-                  <th>Pass Rate</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody id="resultsTableBody">
-                <!-- Results will be loaded here -->
-              </tbody>
-            </table>
-        </div>
-      </section>
+          </form>
+          <div class="results-table" id="resultsTableContainer"></div>
+        </section>
 
         <!-- Assignments Section -->
         <section id="assignments" class="dashboard-section">
           <h2>Assignment Management</h2>
-          <div class="assignments-controls">
-            <button class="create-btn" onclick="createAssignment()">
-              Create Assignment
+          <form
+            id="addAssignmentForm"
+            class="add-assignment-form"
+            enctype="multipart/form-data"
+            style="
+              display: flex;
+              gap: 10px;
+              flex-wrap: wrap;
+              align-items: center;
+              margin-bottom: 18px;
+            "
+          >
+            <input
+              type="text"
+              id="assignmentTitle"
+              placeholder="Title"
+              required
+              style="width: 120px"
+            />
+            <input
+              type="text"
+              id="assignmentDescription"
+              placeholder="Description"
+              required
+              style="width: 180px"
+            />
+            <input
+              type="file"
+              id="assignmentFile"
+              accept="*"
+              style="width: 180px"
+            />
+            <button type="submit" class="login-btn" style="background: #1976d2">
+              Add Assignment
             </button>
-        </div>
-          <div class="assignments-table">
-            <table>
-              <thead>
-                <tr>
-                  <th>Title</th>
-                  <th>Subject</th>
-                  <th>Course</th>
-                  <th>Due Date</th>
-                  <th>Submissions</th>
-                  <th>Status</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody id="assignmentsTableBody">
-                <!-- Assignments will be loaded here -->
-              </tbody>
-            </table>
-          </div>
+          </form>
+          <div class="assignments-table" id="assignmentsTableContainer"></div>
         </section>
 
         <!-- Notices Section -->
         <section id="notices" class="dashboard-section">
           <h2>Notice Management</h2>
-          <div class="notices-controls">
-            <button class="create-notice-btn" onclick="createNotice()">
-              Create Notice
-            </button>
-          </div>
-          <div class="notices-list" id="noticesList">
-            <!-- Notices will be loaded here -->
-        </div>
-      </section>
+          <form class="notice-form" id="noticeForm">
+            <h3>Publish a New Notice</h3>
+            <input
+              type="text"
+              id="noticeTitle"
+              placeholder="Notice Title"
+              maxlength="80"
+              required
+            />
+            <textarea
+              id="noticeContent"
+              placeholder="Write your notice here..."
+              maxlength="500"
+              required
+            ></textarea>
+            <button type="submit">Publish</button>
+          </form>
+          <div class="notice-list" id="adminNoticesList"></div>
+        </section>
 
         <!-- Settings Section -->
         <section id="settings" class="dashboard-section">
@@ -311,12 +441,12 @@
               <div class="setting-item">
                 <label>Institute Name</label>
                 <input type="text" value="Roland Institute of Technology" />
-        </div>
+              </div>
               <div class="setting-item">
                 <label>Academic Year</label>
                 <input type="text" value="2024-2025" />
               </div>
-              </div>
+            </div>
             <div class="settings-card">
               <h3>Email Settings</h3>
               <div class="setting-item">
@@ -330,7 +460,7 @@
                   <option>Custom Template</option>
                 </select>
               </div>
-              </div>
+            </div>
             <div class="settings-card">
               <h3>Security Settings</h3>
               <div class="setting-item">
@@ -340,16 +470,16 @@
                   <option>Strong</option>
                   <option>Very Strong</option>
                 </select>
-          </div>
+              </div>
               <div class="setting-item">
                 <label>Session Timeout</label>
                 <input type="number" value="30" min="5" max="120" />
-        </div>
+              </div>
+            </div>
           </div>
-        </div>
-      </section>
-    </main>
-  </div>
+        </section>
+      </main>
+    </div>
 
     <!-- Success/Error Messages -->
     <div class="message-container">
@@ -360,18 +490,18 @@
     <script>
       // Check if user is logged in and is admin
       function checkAuth() {
-        const user = localStorage.getItem("user");
+        const user = localStorage.getItem('user');
         if (!user) {
-          window.location.href = "./admin-login.html";
+          window.location.href = './admin-login.html';
           return null;
         }
 
         const userData = JSON.parse(user);
-        if (userData.role !== "admin") {
-          showMessage("Access denied. Admin privileges required.", "error");
+        if (userData.role !== 'admin') {
+          showMessage('Access denied. Admin privileges required.', 'error');
           setTimeout(() => {
-            window.location.href = "./admin-login.html";
-      }, 2000);
+            window.location.href = './admin-login.html';
+          }, 2000);
           return null;
         }
 
@@ -384,8 +514,8 @@
         if (!user) return;
 
         // Update user info in header
-        document.getElementById("userName").textContent = user.name;
-        document.getElementById("userEmail").textContent = user.email;
+        document.getElementById('userName').textContent = user.name;
+        document.getElementById('userEmail').textContent = user.email;
 
         // Load dashboard data
         loadDashboardData(user);
@@ -403,7 +533,7 @@
             }
           }
         } catch (error) {
-          console.error("Error loading dashboard data:", error);
+          console.error('Error loading dashboard data:', error);
           // Show mock data for demo
           showMockData();
         }
@@ -413,103 +543,124 @@
       function updateDashboardUI(data) {
         // Update stats
         if (data.stats) {
-          document.getElementById("totalStudents").textContent =
-            data.stats.totalStudents || "1,250";
-          document.getElementById("avgAttendance").textContent =
-            data.stats.avgAttendance || "87%";
-          document.getElementById("passRate").textContent =
-            data.stats.passRate || "94%";
-          document.getElementById("activeNotices").textContent =
-            data.stats.activeNotices || "12";
+          document.getElementById('totalStudents').textContent =
+            data.stats.totalStudents || '1,250';
+          document.getElementById('avgAttendance').textContent =
+            data.stats.avgAttendance || '87%';
+          document.getElementById('passRate').textContent =
+            data.stats.passRate || '94%';
+          document.getElementById('activeNotices').textContent =
+            data.stats.activeNotices || '12';
         }
       }
 
       // Show mock data for demo
       function showMockData() {
-        console.log("Using mock data for demo");
+        console.log('Using mock data for demo');
         // Mock data is already in HTML
       }
 
       // Navigation handling
       function setupNavigation() {
-        const navItems = document.querySelectorAll(".nav-item");
-        const sections = document.querySelectorAll(".dashboard-section");
+        const navItems = document.querySelectorAll('.nav-item');
+        const sections = document.querySelectorAll('.dashboard-section');
 
         navItems.forEach((item) => {
-          item.addEventListener("click", (e) => {
-        e.preventDefault();
+          item.addEventListener('click', (e) => {
+            e.preventDefault();
 
             // Remove active class from all items
-            navItems.forEach((nav) => nav.classList.remove("active"));
-            sections.forEach((section) => section.classList.remove("active"));
+            navItems.forEach((nav) => nav.classList.remove('active'));
+            sections.forEach((section) => section.classList.remove('active'));
 
             // Add active class to clicked item
-            item.classList.add("active");
+            item.classList.add('active');
 
             // Show corresponding section
-            const targetSection = item.getAttribute("data-section");
-            document.getElementById(targetSection).classList.add("active");
+            const targetSection = item.getAttribute('data-section');
+            document.getElementById(targetSection).classList.add('active');
           });
         });
       }
 
       // Admin action functions
-      function addStudent() {
-        showMessage("Add student feature coming soon!", "success");
-      }
-
-      function markAttendance() {
-        showMessage("Mark attendance feature coming soon!", "success");
-      }
-
-      function uploadResults() {
-        showMessage("Upload results feature coming soon!", "success");
-      }
-
-      function createNotice() {
-        showMessage("Create notice feature coming soon!", "success");
-      }
-
-      function generateReport() {
-        showMessage("Generate report feature coming soon!", "success");
-      }
-
-      function manageUsers() {
-        showMessage("Manage users feature coming soon!", "success");
-      }
-
-      function createAssignment() {
-        showMessage("Create assignment feature coming soon!", "success");
-      }
-
-      function exportResults() {
-        showMessage("Export results feature coming soon!", "success");
-      }
 
       // Logout function
       function logout() {
-        localStorage.removeItem("user");
-        window.location.href = "./admin-login.html";
+        localStorage.removeItem('user');
+        window.location.href = './admin-login.html';
       }
 
       // Show messages
       function showMessage(message, type) {
         const messageDiv = document.getElementById(
-          type === "success" ? "successMessage" : "errorMessage"
+          type === 'success' ? 'successMessage' : 'errorMessage'
         );
         messageDiv.textContent = message;
-        messageDiv.style.display = "block";
+        messageDiv.style.display = 'block';
 
         setTimeout(() => {
-          messageDiv.style.display = "none";
+          messageDiv.style.display = 'none';
         }, 3000);
       }
 
       // Initialize when page loads
-      document.addEventListener("DOMContentLoaded", () => {
+      document.addEventListener('DOMContentLoaded', () => {
         initDashboard();
         setupNavigation();
       });
-  </script>
-</body>
+    </script>
+    <script src="notices.js"></script>
+    <script src="students.js"></script>
+    <script src="assignments.js"></script>
+    <script src="results.js"></script>
+    <script>
+      // --- Assignment Feature ---
+      function updateAssignmentsTable() {
+        renderAssignmentsTable('assignmentsTableContainer', true);
+      }
+      document
+        .getElementById('addAssignmentForm')
+        .addEventListener('submit', function (e) {
+          e.preventDefault();
+          const title = document.getElementById('assignmentTitle').value.trim();
+          const description = document
+            .getElementById('assignmentDescription')
+            .value.trim();
+          const fileInput = document.getElementById('assignmentFile');
+          handleAssignmentFileInput(fileInput, (fileData, fileName) => {
+            addAssignment(title, description, fileData, fileName);
+            document.getElementById('addAssignmentForm').reset();
+            updateAssignmentsTable();
+          });
+        });
+      // Initial render
+      updateAssignmentsTable();
+
+      // --- Results Feature ---
+      function updateResultsTable() {
+        renderResultsTable('resultsTableContainer', true);
+      }
+      document
+        .getElementById('addResultForm')
+        .addEventListener('submit', function (e) {
+          e.preventDefault();
+          const exam = document.getElementById('resultExam').value.trim();
+          const subject = document.getElementById('resultSubject').value.trim();
+          const course = document.getElementById('resultCourse').value.trim();
+          const date = document.getElementById('resultDate').value;
+          const totalStudents = document
+            .getElementById('resultTotalStudents')
+            .value.trim();
+          const passRate = document
+            .getElementById('resultPassRate')
+            .value.trim();
+          addResult(exam, subject, course, date, totalStudents, passRate);
+          document.getElementById('addResultForm').reset();
+          updateResultsTable();
+        });
+      // Initial render
+      updateResultsTable();
+    </script>
+  </body>
 </html>

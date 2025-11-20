@@ -1,0 +1,64 @@
+body {
+  background: #f4f8fb;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+.container {
+  max-width: 600px;
+  margin: 40px auto;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+  padding: 32px 28px 24px 28px;
+  text-align: center;
+}
+h2 {
+  color: #2d3a4b;
+  margin-bottom: 18px;
+}
+h3 {
+  color: #1976d2;
+  margin-top: 32px;
+  margin-bottom: 12px;
+}
+#scanner {
+  margin: 0 auto 18px auto;
+  width: 320px;
+  min-height: 240px;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #e3eaf2;
+  box-shadow: 0 2px 8px rgba(25, 118, 210, 0.08);
+}
+#scan-status {
+  margin: 10px 0 18px 0;
+  color: #388e3c;
+  font-weight: 500;
+  min-height: 24px;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+  background: #f9fbfc;
+  border-radius: 8px;
+  overflow: hidden;
+}
+th,
+td {
+  padding: 10px 8px;
+  border-bottom: 1px solid #e0e0e0;
+  text-align: left;
+}
+th {
+  background: #1976d2;
+  color: #fff;
+  font-weight: 600;
+}
+tr:last-child td {
+  border-bottom: none;
+}
+tr.attended {
+  background: #e8f5e9;
+}

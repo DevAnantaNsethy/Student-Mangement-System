@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard Chat Room</title>
+    <link rel="stylesheet" href="chat.css" />
+  </head>
+  <body>
+    <div class="chat-container">
+      <div class="chat-header">
+        <h2>Dashboard Chat Room</h2>
+      </div>
+      <div class="chat-body" id="chatBody">
+        <!-- Messages will appear here -->
+      </div>
+      <div class="chat-footer">
+        <div id="nameEntry" class="name-entry">
+          <input
+            type="text"
+            id="userNameInput"
+            placeholder="Enter your name..."
+            maxlength="20"
+          />
+          <button id="setNameBtn">Join Chat</button>
+        </div>
+        <div id="chatControls" class="chat-controls hidden">
+          <button id="emojiBtn" title="Add emoji">😊</button>
+          <input
+            type="text"
+            id="messageInput"
+            placeholder="Type a message..."
+            maxlength="300"
+          />
+          <button id="sendBtn">Send</button>
+        </div>
+      </div>
+    </div>
+    <template id="messageTemplate">
+      <div class="message">
+        <div class="msg-header">
+          <span class="msg-user"></span>
+          <span class="msg-time"></span>
+        </div>
+        <div class="msg-content"></div>
+        <button class="reply-btn">Reply</button>
+        <div class="reply-to"></div>
+      </div>
+    </template>
+    <script src="https://cdn.jsdelivr.net/npm/emoji-button@4.6.2/dist/emoji-button.min.js"></script>
+    <script src="chat.js"></script>
+  </body>
+</html>

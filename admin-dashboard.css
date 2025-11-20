@@ -1,8 +1,36 @@
+.results-table td,
+.results-table th {
+  color: #222;
+}
+.add-result-form input[type='text'],
+.add-result-form input[type='number'],
+.add-result-form input[type='date'] {
+  color: #222;
+  background: #fff;
+  border: 1px solid #cfd8dc;
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 1rem;
+  margin-bottom: 0;
+}
+.students-table td,
+.students-table th {
+  color: #222;
+}
+.add-student-form input[type='text'] {
+  color: #222;
+  background: #fff;
+  border: 1px solid #cfd8dc;
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 1rem;
+  margin-bottom: 0;
+}
 /* Admin Dashboard Styles */
 .dashboard-container {
   min-height: 100vh;
   background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
-  font-family: "Poppins", sans-serif;
+  font-family: 'Poppins', sans-serif;
 }
 
 .dashboard-header {
@@ -552,4 +580,3 @@
     grid-template-columns: 1fr;
   }
 }
-

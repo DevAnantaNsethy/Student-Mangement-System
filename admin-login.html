@@ -1,94 +1,105 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin Login</title>
-  <link rel="stylesheet" href="./adminlogin.css">
-  <link rel="stylesheet" href="./messages.css">
-</head>
-<body>
-  <div class="container">
-    
-    <!-- LEFT SECTION (Admin Login Form) -->
-    <div class="login-left">
-      <h1>Admin Login</h1>
-      <p>Please enter your admin credentials to continue</p>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Login</title>
+    <link rel="stylesheet" href="./adminlogin.css" />
+    <link rel="stylesheet" href="./messages.css" />
+  </head>
+  <body>
+    <div class="container">
+      <!-- LEFT SECTION (Admin Login Form) -->
+      <div class="login-left">
+        <h1>Admin Login</h1>
+        <p>Please enter your admin credentials to continue</p>
 
-      <form id="adminLoginForm">
-        <input type="email" id="email" placeholder="Admin Email" required>
-        <input type="password" id="password" placeholder="Password" required>
+        <form id="adminLoginForm">
+          <input type="email" id="email" placeholder="Admin Email" required />
+          <input
+            type="password"
+            id="password"
+            placeholder="Password"
+            required
+          />
 
-        <a href="./forgotpass.html" class="forgot">Forgot Password?</a>
+          <a href="./forgotpass.html" class="forgot">Forgot Password?</a>
 
-        <div class="error-message" id="errorMessage"></div>
-        <div class="success-message" id="successMessage"></div>
+          <div class="error-message" id="errorMessage"></div>
+          <div class="success-message" id="successMessage"></div>
 
-        <button type="submit" class="login-btn">Login</button>
-        
-        <p class="alt-link">
-          Don't have an account? <a href="./admin_signup.html">Create Admin Account</a>
-        </p>
-      </form>
+          <button type="submit" class="login-btn">Login</button>
+
+          <p class="alt-link">
+            Don't have an account?
+            <a href="./admin_signup.html">Create Admin Account</a>
+          </p>
+          <a href="index.html" style="display: inline-block; margin-top: 10px">
+            <button type="button" class="login-btn" style="background: #1976d2">
+              Go to Home
+            </button>
+          </a>
+        </form>
+      </div>
+
+      <!-- RIGHT SECTION (Welcome Message / Image) -->
+      <div class="login-right">
+        <img src="./img/admin portal.png" alt="Admin Illustration" />
+      </div>
     </div>
 
-    <!-- RIGHT SECTION (Welcome Message / Image) -->
-    <div class="login-right">
-      
-      <img src="./img/admin portal.png" alt="Admin Illustration">
-    </div>
+    <script>
+      document
+        .getElementById('adminLoginForm')
+        .addEventListener('submit', async function (e) {
+          e.preventDefault();
 
-  </div>
+          const email = document.getElementById('email').value;
+          const password = document.getElementById('password').value;
+          const errorMessage = document.getElementById('errorMessage');
+          const successMessage = document.getElementById('successMessage');
 
-  <script>
-    document.getElementById('adminLoginForm').addEventListener('submit', async function(e) {
-      e.preventDefault();
-      
-      const email = document.getElementById('email').value;
-      const password = document.getElementById('password').value;
-      const errorMessage = document.getElementById('errorMessage');
-      const successMessage = document.getElementById('successMessage');
-      
-      // Clear previous messages
-      errorMessage.textContent = '';
-      successMessage.textContent = '';
-      
-      if (!email || !password) {
-        errorMessage.textContent = 'Please fill in all fields';
-        return;
-      }
-      
-      try {
-        successMessage.textContent = 'Logging in...';
-        
-        const response = await fetch('/api/login', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ email, password, role: 'admin' })
-        });
-        
-        const data = await response.json();
-        
-        if (data.success) {
-          successMessage.textContent = 'Admin login successful! Redirecting...';
-          // Store user info in localStorage
-          localStorage.setItem('user', JSON.stringify(data.user));
-          // Redirect to admin dashboard
-          setTimeout(() => {
-            window.location.href = './admin-dashboard.html';
-          }, 1500);
-        } else {
-          errorMessage.textContent = data.message || 'Login failed';
+          // Clear previous messages
+          errorMessage.textContent = '';
           successMessage.textContent = '';
-        }
-      } catch (error) {
-        console.error('Admin login error:', error);
-        errorMessage.textContent = 'Network error. Please try again.';
-        successMessage.textContent = '';
-      }
-    });
-  </script>
-</body>
+
+          if (!email || !password) {
+            errorMessage.textContent = 'Please fill in all fields';
+            return;
+          }
+
+          try {
+            successMessage.textContent = 'Logging in...';
+
+            const response = await fetch('/api/login', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({ email, password, role: 'admin' }),
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+              successMessage.textContent =
+                'Admin login successful! Redirecting...';
+              // Store user info in localStorage
+              localStorage.setItem('user', JSON.stringify(data.user));
+              // Redirect to admin dashboard
+              setTimeout(() => {
+                window.location.href = './admin-dashboard.html';
+              }, 1500);
+            } else {
+              errorMessage.textContent = data.message || 'Login failed';
+              successMessage.textContent = '';
+            }
+          } catch (error) {
+            console.error('Admin login error:', error);
+            errorMessage.textContent = 'Network error. Please try again.';
+            successMessage.textContent = '';
+          }
+        });
+    </script>
+  </body>
 </html>

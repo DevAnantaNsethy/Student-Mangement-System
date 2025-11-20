@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>QR Attendance Scanner</title>
+    <link rel="stylesheet" href="admin-qr-attendance.css" />
+    <!-- html5-qrcode CDN -->
+    <script
+      src="https://unpkg.com/html5-qrcode"
+      type="text/javascript"
+    ></script>
+  </head>
+  <body>
+    <div class="container">
+      <h2>QR Attendance Scanner</h2>
+      <div id="scanner"></div>
+      <div id="scan-status"></div>
+      <h3>Attendance List</h3>
+      <table id="attendanceTable">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Registration No</th>
+            <th>Time</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Attendance rows will be inserted here -->
+        </tbody>
+      </table>
+    </div>
+    <script src="admin-qr-attendance.js"></script>
+  </body>
+</html>

@@ -9,103 +9,101 @@
     <link rel="stylesheet" href="./messages.css" />
   </head>
   <body>
-    <div class="stu-login-page">
-      <div class="stu-login-container">
-        <!-- Left Side (Login Form) -->
-        <div class="stu-login-left">
-          <h1 class="stu-login-title">Student Login</h1>
-          <p class="subtitle">Welcome back! Please log in to continue.</p>
-
-          <form id="loginForm">
-            <div class="form-group">
-              <label for="email">Email</label>
-              <input
-                type="email"
-                id="email"
-                placeholder="Enter your email"
-                required
-              />
-            </div>
-
-            <div class="form-group">
-              <label for="password">Password</label>
-              <input
-                type="password"
-                id="password"
-                placeholder="Enter your password"
-                required
-              />
-            </div>
-
-            <div class="error-message" id="errorMessage"></div>
-            <div class="success-message" id="successMessage"></div>
-
-            <button type="submit" class="login-btn">Login</button>
-            <p class="alt-link">
-              Don't have an account? <a href="./stu_signup.html">Sign up</a>
-            </p>
-          </form>
-        </div>
-
-        <!-- Right Side (Illustration) -->
-        <div class="stu-login-right">
-          <img
-            src="./img/student portal.png"
-            alt="Student Login Illustration"
+    <div class="container">
+      <!-- Left Section: Login Form -->
+      <div class="login-left">
+        <h1>Student Login</h1>
+        <p>Welcome back! Please log in to continue.</p>
+        <form id="loginForm">
+          <input
+            type="email"
+            id="email"
+            placeholder="Enter your email"
+            required
           />
-        </div>
+          <input
+            type="password"
+            id="password"
+            placeholder="Enter your password"
+            required
+          />
+          <div class="error-message" id="errorMessage"></div>
+          <div class="success-message" id="successMessage"></div>
+          <button type="submit" class="login-btn">Login</button>
+          <p class="alt-link">
+            Don't have an account? <a href="./stu_signup.html">Sign up</a>
+          </p>
+          <a href="index.html" style="display: inline-block; margin-top: 10px">
+            <button type="button" class="login-btn" style="background: #1976d2">
+              Go to Home
+            </button>
+          </a>
+        </form>
+      </div>
+      <!-- Right Section: Illustration -->
+      <div class="login-right">
+        <img
+          src="./img/student portal.png"
+          alt="Student Login Illustration"
+          style="
+            max-width: 340px;
+            width: 100%;
+            border-radius: 18px;
+            box-shadow: 0 2px 12px #0001;
+          "
+        />
       </div>
     </div>
 
     <script>
       document
-        .getElementById("loginForm")
-        .addEventListener("submit", async function (e) {
+        .getElementById('loginForm')
+        .addEventListener('submit', async function (e) {
           e.preventDefault();
 
-          const email = document.getElementById("email").value;
-          const password = document.getElementById("password").value;
-          const errorMessage = document.getElementById("errorMessage");
-          const successMessage = document.getElementById("successMessage");
+          const email = document.getElementById('email').value;
+          const password = document.getElementById('password').value;
+          const errorMessage = document.getElementById('errorMessage');
+          const successMessage = document.getElementById('successMessage');
 
           // Clear previous messages
-          errorMessage.textContent = "";
-          successMessage.textContent = "";
+          errorMessage.textContent = '';
+          successMessage.textContent = '';
 
           if (!email || !password) {
-            errorMessage.textContent = "Please fill in all fields";
+            errorMessage.textContent = 'Please fill in all fields';
             return;
           }
 
           try {
-            successMessage.textContent = "Logging in...";
+            successMessage.textContent = 'Logging in...';
 
-            const response = await fetch("/api/login", {
-              method: "POST",
+            const response = await fetch('/api/login', {
+              method: 'POST',
               headers: {
-                "Content-Type": "application/json",
+                'Content-Type': 'application/json',
               },
-              body: JSON.stringify({ email, password, role: "student" }),
+              body: JSON.stringify({ email, password, role: 'student' }),
             });
 
             const data = await response.json();
 
             if (data.success) {
-              successMessage.textContent = "Login successful! Redirecting...";
+              successMessage.textContent = 'Login successful! Redirecting...';
               // Store user info in localStorage
-              localStorage.setItem("user", JSON.stringify(data.user));
+              localStorage.setItem('user', JSON.stringify(data.user));
               // Redirect to student dashboard
               setTimeout(() => {
-                window.location.href = "./student-dashboard.html";
+                window.location.href = './student-dashboard.html';
               }, 1500);
             } else {
-              errorMessage.textContent = data.message || "Login failed";
-              successMessage.textContent = "";
+              errorMessage.textContent = data.message || 'Login failed';
+              successMessage.textContent = '';
             }
           } catch (error) {
-            console.error("Login error:", error);
-            errorMessage.textContent = "Network error. Please try again.";
-            successMessage.textContent = "";
+            console.error('Login error:', error);
+            errorMessage.textContent = 'Network error. Please try again.';
+            successMessage.textContent = '';
           }
         });
     </script>
